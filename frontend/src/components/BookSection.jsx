@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, Gamepad2, Gem } from 'lucide-react';
 import { books } from '../data/mock';
+
+// AI Images for decoration
+const MASCOT_IMAGE = 'https://images.unsplash.com/photo-1636899333723-2194ed81d1ce?w=150&h=150&fit=crop';
+const ARCADE_IMAGE = 'https://images.unsplash.com/photo-1572289758057-3e0f4327833b?w=150&h=150&fit=crop';
 
 const BookSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,9 +36,35 @@ const BookSection = () => {
         ))}
       </div>
 
+      {/* Decorative AI Images */}
+      <div className="absolute left-4 top-20 hidden lg:block">
+        <img 
+          src={MASCOT_IMAGE} 
+          alt="Mascot" 
+          className="w-24 h-24 rounded-full object-cover bounce-rotate opacity-60 hover:opacity-100 transition-opacity"
+          style={{ filter: 'drop-shadow(0 0 15px rgba(255, 102, 0, 0.5))' }}
+        />
+      </div>
+      <div className="absolute right-4 bottom-20 hidden lg:block">
+        <img 
+          src={ARCADE_IMAGE} 
+          alt="Arcade" 
+          className="w-20 h-20 rounded-lg object-cover wobble opacity-50 hover:opacity-100 transition-opacity"
+          style={{ filter: 'drop-shadow(0 0 15px rgba(0, 255, 255, 0.5))' }}
+        />
+      </div>
+
+      {/* Floating Icons */}
+      <div className="absolute left-10 bottom-1/3 hidden md:block">
+        <Gamepad2 className="w-12 h-12 text-pink-400/40 spin-slow" />
+      </div>
+      <div className="absolute right-10 top-1/3 hidden md:block">
+        <Gem className="w-10 h-10 text-cyan-400/40 bounce-rotate" />
+      </div>
+
       {/* Section Title */}
       <div className="text-center mb-12 relative z-10">
-        <h2 className="section-title text-4xl sm:text-6xl md:text-7xl font-black mb-4">
+        <h2 className="section-title glitch-hover text-4xl sm:text-6xl md:text-7xl font-black mb-4">
           BOOK POWER-UP!
         </h2>
         <p className="text-2xl sm:text-3xl font-bold text-yellow-400 flex items-center justify-center gap-3">
