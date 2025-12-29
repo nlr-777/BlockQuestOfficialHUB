@@ -1,15 +1,6 @@
 import React from 'react';
 import { Gamepad2, Gem, Coins, Box, Link2, Hexagon, Star, Sparkles } from 'lucide-react';
 
-// AI Image URLs
-const AI_IMAGES = {
-  pixelArt1: 'https://images.unsplash.com/photo-1746047226443-2ba1d7bfaef6?w=200&h=200&fit=crop',
-  pixelArt2: 'https://images.unsplash.com/photo-1725181213820-b68b89db5767?w=200&h=200&fit=crop',
-  arcade1: 'https://images.unsplash.com/photo-1572289758057-3e0f4327833b?w=200&h=200&fit=crop',
-  arcade2: 'https://images.unsplash.com/photo-1700085664050-43cea0e1c3fd?w=200&h=200&fit=crop',
-  mascot1: 'https://images.unsplash.com/photo-1636899333723-2194ed81d1ce?w=150&h=150&fit=crop',
-};
-
 const FloatingElements = () => {
   // Floating icons configuration
   const floatingIcons = [
@@ -23,13 +14,6 @@ const FloatingElements = () => {
     { Icon: Sparkles, color: 'text-cyan-300', size: 'w-7 h-7', delay: '1.5s', duration: '15s', left: '75%' },
     { Icon: Gamepad2, color: 'text-pink-300', size: 'w-5 h-5', delay: '4.5s', duration: '21s', left: '85%' },
     { Icon: Gem, color: 'text-lime-400', size: 'w-6 h-6', delay: '0.5s', duration: '16s', left: '95%' },
-  ];
-
-  // Floating images configuration
-  const floatingImages = [
-    { src: AI_IMAGES.mascot1, delay: '0s', duration: '25s', left: '8%', size: 'w-16 h-16' },
-    { src: AI_IMAGES.pixelArt1, delay: '3s', duration: '30s', left: '88%', size: 'w-20 h-20' },
-    { src: AI_IMAGES.arcade1, delay: '6s', duration: '28s', left: '70%', size: 'w-14 h-14' },
   ];
 
   return (
@@ -46,26 +30,6 @@ const FloatingElements = () => {
           }}
         >
           <item.Icon className={`${item.size} drop-shadow-glow`} />
-        </div>
-      ))}
-
-      {/* Floating AI Images */}
-      {floatingImages.map((item, index) => (
-        <div
-          key={`img-${index}`}
-          className="floating-image absolute"
-          style={{
-            left: item.left,
-            animationDelay: item.delay,
-            animationDuration: item.duration,
-          }}
-        >
-          <img
-            src={item.src}
-            alt="Floating element"
-            className={`${item.size} rounded-lg object-cover opacity-70 hover:opacity-100 transition-opacity`}
-            loading="lazy"
-          />
         </div>
       ))}
 
