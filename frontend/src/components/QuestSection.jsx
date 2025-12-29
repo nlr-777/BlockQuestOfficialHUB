@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from './ui/button';
-import { Zap, Trophy, Rocket, Star } from 'lucide-react';
+import { Zap, Trophy, Rocket, Star, Gamepad2, Coins, Hexagon } from 'lucide-react';
 import { games } from '../data/mock';
 
 // Game screenshot URLs - actual game preview images
@@ -9,55 +9,95 @@ const gameScreenshots = {
   2: 'https://crtblitz.preview.emergentagent.com/' // CRT Blitz
 };
 
+// AI Images for decoration
+const PIXEL_ART_IMAGE = 'https://images.unsplash.com/photo-1725181213820-b68b89db5767?w=120&h=120&fit=crop';
+const ARCADE_IMAGE_2 = 'https://images.unsplash.com/photo-1700085664050-43cea0e1c3fd?w=120&h=120&fit=crop';
+
 const QuestSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  const createConfetti = (e) => {
-    const button = e.currentTarget;
-    const rect = button.getBoundingClientRect();
-    const confettiContainer = document.createElement('div');
-    confettiContainer.className = 'confetti-container';
-    confettiContainer.style.position = 'fixed';
-    confettiContainer.style.left = `${rect.left + rect.width / 2}px`;
-    confettiContainer.style.top = `${rect.top}px`;
-    confettiContainer.style.pointerEvents = 'none';
-    confettiContainer.style.zIndex = '9999';
+  // Enhanced particle explosion on button click
+  const createExplosion = useCallback((e) => {
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position: fixed;
+      left: ${e.clientX}px;
+      top: ${e.clientY}px;
+      pointer-events: none;
+      z-index: 9999;
+    `;
     
-    const colors = ['#00ffff', '#ff00ff', '#ffff00', '#00ff00', '#ff69b4'];
-    const emojis = ['🎉', '✨', '⭐', '💥', '🚀'];
+    const colors = ['#00ffff', '#ff00ff', '#ffff00', '#00ff00', '#ff69b4', '#ff6600'];
+    const shapes = ['●', '★', '◆', '▲', '■', '✦', '⬡', '💎', '🌟', '⚡', '🚀', '🎉', '🏆', '🎮'];
     
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 40; i++) {
       const particle = document.createElement('span');
-      particle.textContent = Math.random() > 0.5 ? emojis[Math.floor(Math.random() * emojis.length)] : '●';
+      const angle = (Math.PI * 2 * i) / 40;
+      const velocity = 80 + Math.random() * 150;
+      const tx = Math.cos(angle) * velocity;
+      const ty = Math.sin(angle) * velocity;
+      
+      particle.textContent = shapes[Math.floor(Math.random() * shapes.length)];
       particle.style.cssText = `
         position: absolute;
-        font-size: ${Math.random() * 20 + 10}px;
+        font-size: ${14 + Math.random() * 20}px;
         color: ${colors[Math.floor(Math.random() * colors.length)]};
-        animation: confetti-burst 1s ease-out forwards;
-        --tx: ${(Math.random() - 0.5) * 200}px;
-        --ty: ${-Math.random() * 150 - 50}px;
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        animation: particle-explode 1s ease-out forwards;
+        --tx: ${tx}px;
+        --ty: ${ty}px;
+        --rotation: ${Math.random() * 720 - 360}deg;
       `;
-      confettiContainer.appendChild(particle);
+      container.appendChild(particle);
     }
     
-    document.body.appendChild(confettiContainer);
-    setTimeout(() => confettiContainer.remove(), 1000);
-  };
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 1200);
+  }, []);
 
   return (
     <section id="quest-section" className="quest-section py-20 px-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-radial from-purple-900/20 via-transparent to-transparent" />
       
+      {/* Decorative AI Images */}
+      <div className="absolute left-8 top-32 hidden xl:block">
+        <img 
+          src={PIXEL_ART_IMAGE} 
+          alt="Pixel Art" 
+          className="w-20 h-20 rounded-lg object-cover wobble opacity-50 hover:opacity-90 transition-opacity"
+          style={{ filter: 'drop-shadow(0 0 15px rgba(255, 0, 255, 0.5))' }}
+        />
+      </div>
+      <div className="absolute right-8 bottom-32 hidden xl:block">
+        <img 
+          src={ARCADE_IMAGE_2} 
+          alt="Arcade" 
+          className="w-24 h-24 rounded-lg object-cover bounce-rotate opacity-40 hover:opacity-90 transition-opacity"
+          style={{ filter: 'drop-shadow(0 0 15px rgba(0, 255, 255, 0.5))' }}
+        />
+      </div>
+
+      {/* Floating decorative icons */}
+      <div className="absolute left-4 bottom-1/4 hidden lg:block">
+        <Gamepad2 className="w-10 h-10 text-cyan-400/30 spin-slow" />
+      </div>
+      <div className="absolute right-4 top-1/4 hidden lg:block">
+        <Coins className="w-8 h-8 text-yellow-400/30 bounce-rotate" />
+      </div>
+      <div className="absolute left-1/4 top-20 hidden lg:block">
+        <Hexagon className="w-6 h-6 text-pink-400/20 wobble" />
+      </div>
+      
       {/* Section Title */}
       <div className="text-center mb-16 relative z-10">
-        <h2 className="section-title text-4xl sm:text-6xl md:text-7xl font-black mb-4">
+        <h2 className="section-title rgb-split text-4xl sm:text-6xl md:text-7xl font-black mb-4 cursor-pointer">
           QUEST EXPLOSION!
         </h2>
         <div className="flex justify-center gap-4">
-          <Rocket className="w-8 h-8 text-cyan-400 animate-bounce" />
-          <Star className="w-8 h-8 text-yellow-400 animate-pulse" />
-          <Zap className="w-8 h-8 text-pink-400 animate-bounce" />
+          <Rocket className="w-8 h-8 text-cyan-400 bounce-rotate neon-glow-cyan" />
+          <Star className="w-8 h-8 text-yellow-400 wobble neon-glow-yellow" />
+          <Zap className="w-8 h-8 text-pink-400 bounce-rotate neon-glow-magenta" />
         </div>
       </div>
 
