@@ -160,12 +160,12 @@ const QuestSection = () => {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block"
+                onClick={createExplosion}
               >
                 <Button 
-                  className={`play-button w-full h-16 sm:h-20 text-xl sm:text-2xl font-black ${game.theme === 'rainbow' ? 'play-button-rainbow' : 'play-button-neon'}`}
-                  onMouseEnter={createConfetti}
+                  className={`play-button crt-distort ripple-effect w-full h-16 sm:h-20 text-xl sm:text-2xl font-black ${game.theme === 'rainbow' ? 'play-button-rainbow' : 'play-button-neon'}`}
                 >
-                  <Trophy className="w-6 h-6 mr-2" />
+                  <Trophy className="w-6 h-6 mr-2 bounce-rotate" />
                   PLAY NOW!
                 </Button>
               </a>
