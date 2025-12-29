@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Instagram, Twitter, Youtube, Send, Rocket, Zap, Mail } from 'lucide-react';
+import { Instagram, Twitter, Youtube, Send, Rocket, Zap, Mail, Shield, FileText } from 'lucide-react';
 import { socialLinks } from '../data/mock';
 
 const Footer = () => {
