@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Gamepad2, Zap, Trophy, Rocket, Star } from 'lucide-react';
+import { Zap, Trophy, Rocket, Star } from 'lucide-react';
 import { games } from '../data/mock';
+
+// Game screenshot URLs - actual game preview images
+const gameScreenshots = {
+  1: 'https://blocky-arcade.preview.emergentagent.com/', // Blocky Multiverse
+  2: 'https://crtblitz.preview.emergentagent.com/' // CRT Blitz
+};
 
 const QuestSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -57,24 +63,34 @@ const QuestSection = () => {
 
       {/* Game Cards */}
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-12 relative z-10">
-        {games.map((game, index) => (
+        {games.map((game) => (
           <div
             key={game.id}
             className={`game-card ${game.theme === 'rainbow' ? 'game-card-rainbow' : 'game-card-neon'}`}
             onMouseEnter={() => setHoveredCard(game.id)}
             onMouseLeave={() => setHoveredCard(null)}
           >
-            {/* Screenshot Placeholder */}
+            {/* Game Screenshot - Live Preview */}
             <div className="game-screenshot relative h-48 sm:h-64 rounded-t-2xl overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
-                <div className="text-center">
-                  <Gamepad2 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                  <p className="text-gray-500 text-sm">/* Game Screenshot Placeholder */</p>
-                </div>
-              </div>
+              <iframe
+                src={gameScreenshots[game.id]}
+                title={game.title}
+                className="absolute inset-0 w-full h-full border-0 pointer-events-none"
+                style={{ 
+                  transform: 'scale(0.5)', 
+                  transformOrigin: 'top left',
+                  width: '200%',
+                  height: '200%'
+                }}
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin"
+              />
+              {/* Overlay gradient for better blending */}
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent pointer-events-none" />
+              
               {/* Floating emojis on hover */}
               {hoveredCard === game.id && (
-                <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 pointer-events-none z-10">
                   {game.emojis.map((emoji, i) => (
                     <span
                       key={i}
