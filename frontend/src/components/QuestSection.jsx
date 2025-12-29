@@ -9,10 +9,6 @@ const gameScreenshots = {
   2: 'https://crtblitz.preview.emergentagent.com/' // CRT Blitz
 };
 
-// AI Images for decoration
-const PIXEL_ART_IMAGE = 'https://images.unsplash.com/photo-1725181213820-b68b89db5767?w=120&h=120&fit=crop';
-const ARCADE_IMAGE_2 = 'https://images.unsplash.com/photo-1700085664050-43cea0e1c3fd?w=120&h=120&fit=crop';
-
 const QuestSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
 
@@ -59,24 +55,6 @@ const QuestSection = () => {
     <section id="quest-section" className="quest-section py-20 px-4 relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-radial from-purple-900/20 via-transparent to-transparent" />
-      
-      {/* Decorative AI Images */}
-      <div className="absolute left-8 top-32 hidden xl:block">
-        <img 
-          src={PIXEL_ART_IMAGE} 
-          alt="Pixel Art" 
-          className="w-20 h-20 rounded-lg object-cover wobble opacity-50 hover:opacity-90 transition-opacity"
-          style={{ filter: 'drop-shadow(0 0 15px rgba(255, 0, 255, 0.5))' }}
-        />
-      </div>
-      <div className="absolute right-8 bottom-32 hidden xl:block">
-        <img 
-          src={ARCADE_IMAGE_2} 
-          alt="Arcade" 
-          className="w-24 h-24 rounded-lg object-cover bounce-rotate opacity-40 hover:opacity-90 transition-opacity"
-          style={{ filter: 'drop-shadow(0 0 15px rgba(0, 255, 255, 0.5))' }}
-        />
-      </div>
 
       {/* Floating decorative icons */}
       <div className="absolute left-4 bottom-1/4 hidden lg:block">
