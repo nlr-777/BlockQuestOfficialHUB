@@ -3,10 +3,6 @@ import { Button } from './ui/button';
 import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, Gamepad2, Gem } from 'lucide-react';
 import { books } from '../data/mock';
 
-// AI Images for decoration
-const MASCOT_IMAGE = 'https://images.unsplash.com/photo-1636899333723-2194ed81d1ce?w=150&h=150&fit=crop';
-const ARCADE_IMAGE = 'https://images.unsplash.com/photo-1572289758057-3e0f4327833b?w=150&h=150&fit=crop';
-
 const BookSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -34,24 +30,6 @@ const BookSection = () => {
             }}
           />
         ))}
-      </div>
-
-      {/* Decorative AI Images */}
-      <div className="absolute left-4 top-20 hidden lg:block">
-        <img 
-          src={MASCOT_IMAGE} 
-          alt="Mascot" 
-          className="w-24 h-24 rounded-full object-cover bounce-rotate opacity-60 hover:opacity-100 transition-opacity"
-          style={{ filter: 'drop-shadow(0 0 15px rgba(255, 102, 0, 0.5))' }}
-        />
-      </div>
-      <div className="absolute right-4 bottom-20 hidden lg:block">
-        <img 
-          src={ARCADE_IMAGE} 
-          alt="Arcade" 
-          className="w-20 h-20 rounded-lg object-cover wobble opacity-50 hover:opacity-100 transition-opacity"
-          style={{ filter: 'drop-shadow(0 0 15px rgba(0, 255, 255, 0.5))' }}
-        />
       </div>
 
       {/* Floating Icons */}
