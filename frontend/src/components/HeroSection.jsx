@@ -96,11 +96,13 @@ const HeroSection = () => {
 
       {/* Main Content */}
       <div className="relative z-20 text-center px-4 max-w-6xl mx-auto">
-        {/* Explosive Title */}
+        {/* BlockQuest Logo */}
         <div className="mb-6">
-          <h1 className="hero-title text-6xl sm:text-8xl md:text-9xl font-black tracking-wider">
-            BLOCKQUEST
-          </h1>
+          <img 
+            src={LOGO_URL} 
+            alt="BlockQuest" 
+            className="hero-logo w-64 sm:w-80 md:w-96 lg:w-[500px] mx-auto"
+          />
           <div className="flex justify-center gap-2 mt-4">
             <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
             <Zap className="w-8 h-8 text-cyan-400 animate-bounce" />
