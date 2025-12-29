@@ -21,9 +21,7 @@ const Footer = () => {
   const getIcon = (iconName) => {
     switch (iconName) {
       case 'instagram': return Instagram;
-      case 'twitter': return Twitter;
-      case 'youtube': return Youtube;
-      default: return Mail;
+      default: return Instagram;
     }
   };
 
