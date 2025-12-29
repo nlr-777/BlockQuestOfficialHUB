@@ -550,6 +550,34 @@
   opacity: 0.3;
 }
 
+/* Legal Links */
+.legal-link {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.legal-link:hover {
+  text-decoration: underline;
+}
+
+/* Privacy & Terms Pages */
+.privacy-page,
+.terms-page {
+  font-family: 'Rajdhani', 'Orbitron', sans-serif;
+}
+
+.policy-section,
+.terms-section {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(100, 100, 120, 0.2);
+}
+
+.policy-section:last-child,
+.terms-section:last-child {
+  border-bottom: none;
+}
+
 /* ========================================
    RESPONSIVE STYLES
    ======================================== */
