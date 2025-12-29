@@ -161,8 +161,9 @@ const HeroSection = () => {
             target="_blank" 
             rel="noopener noreferrer"
             className="w-full lg:w-auto"
+            onClick={createExplosion}
           >
-            <Button className="mega-button mega-button-cyan w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
+            <Button className="mega-button mega-button-cyan crt-distort ripple-effect w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
               <span className="flex flex-col items-center gap-2">
                 <span className="leading-tight">ENTER BLOCKY</span>
                 <span className="leading-tight">MULTIVERSE</span>
@@ -176,8 +177,9 @@ const HeroSection = () => {
             target="_blank" 
             rel="noopener noreferrer"
             className="w-full lg:w-auto"
+            onClick={createExplosion}
           >
-            <Button className="mega-button mega-button-magenta w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
+            <Button className="mega-button mega-button-magenta crt-distort ripple-effect w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
               <span className="flex flex-col items-center gap-2">
                 <span className="leading-tight">CRT BLITZ</span>
                 <span className="leading-tight">ARCADE</span>
