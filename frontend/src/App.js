@@ -7,6 +7,7 @@ import QuestSection from "./components/QuestSection";
 import BookSection from "./components/BookSection";
 import ParentSection from "./components/ParentSection";
 import Footer from "./components/Footer";
+import FloatingElements from "./components/FloatingElements";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 
@@ -29,6 +30,7 @@ const LandingPage = () => {
 
   return (
     <div className="blockquest-app">
+      <FloatingElements />
       <Header />
       <main>
         <HeroSection />
