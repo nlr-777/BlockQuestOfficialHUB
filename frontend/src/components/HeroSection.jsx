@@ -45,7 +45,7 @@ const HeroSection = () => {
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
-        const glowSize = p.size + Math.sin(p.pulse) * 2;
+        const glowSize = Math.max(0.5, p.size + Math.sin(p.pulse) * 1.5);
         ctx.beginPath();
         ctx.arc(p.x, p.y, glowSize, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
