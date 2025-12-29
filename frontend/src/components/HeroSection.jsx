@@ -119,9 +119,10 @@ const HeroSection = () => {
             rel="noopener noreferrer"
             className="w-full lg:w-auto"
           >
-            <Button className="mega-button mega-button-cyan w-full lg:w-80 h-24 sm:h-32 text-lg sm:text-2xl font-black">
+            <Button className="mega-button mega-button-cyan w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
               <span className="flex flex-col items-center gap-2">
-                <span>ENTER BLOCKY MULTIVERSE</span>
+                <span className="leading-tight">ENTER BLOCKY</span>
+                <span className="leading-tight">MULTIVERSE</span>
                 <span className="text-2xl sm:text-3xl">🌟🎉</span>
               </span>
             </Button>
@@ -133,9 +134,10 @@ const HeroSection = () => {
             rel="noopener noreferrer"
             className="w-full lg:w-auto"
           >
-            <Button className="mega-button mega-button-magenta w-full lg:w-80 h-24 sm:h-32 text-lg sm:text-2xl font-black">
+            <Button className="mega-button mega-button-magenta w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
               <span className="flex flex-col items-center gap-2">
-                <span>CRT BLITZ ARCADE</span>
+                <span className="leading-tight">CRT BLITZ</span>
+                <span className="leading-tight">ARCADE</span>
                 <span className="text-2xl sm:text-3xl">⬡🔥</span>
               </span>
             </Button>
