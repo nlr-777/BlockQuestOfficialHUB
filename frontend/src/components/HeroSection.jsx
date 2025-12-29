@@ -140,12 +140,12 @@ const HeroSection = () => {
           <img 
             src={LOGO_URL} 
             alt="BlockQuest" 
-            className="hero-logo w-64 sm:w-80 md:w-96 lg:w-[500px] mx-auto"
+            className="hero-logo glitch-hover w-64 sm:w-80 md:w-96 lg:w-[500px] mx-auto cursor-pointer"
           />
-          <div className="flex justify-center gap-2 mt-4">
-            <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
-            <Zap className="w-8 h-8 text-cyan-400 animate-bounce" />
-            <Sparkles className="w-8 h-8 text-pink-400 animate-pulse" />
+          <div className="flex justify-center gap-3 mt-4">
+            <Sparkles className="w-8 h-8 text-yellow-400 bounce-rotate neon-glow-yellow" />
+            <Zap className="w-8 h-8 text-cyan-400 wobble neon-glow-cyan" />
+            <Sparkles className="w-8 h-8 text-pink-400 bounce-rotate neon-glow-magenta" />
           </div>
         </div>
 
