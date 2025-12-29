@@ -56,7 +56,5 @@ export const floatingEmojis = [
 ];
 
 export const socialLinks = [
-  { name: "Instagram", url: "https://instagram.com/blockquestofficial", icon: "instagram" },
-  { name: "Twitter", url: "https://twitter.com/blockquestgames", icon: "twitter" },
-  { name: "YouTube", url: "https://youtube.com/@blockquest", icon: "youtube" }
+  { name: "Instagram", url: "https://instagram.com/blockquestofficial", icon: "instagram" }
 ];
