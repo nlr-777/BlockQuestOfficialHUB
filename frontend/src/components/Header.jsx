@@ -1,5 +1,7 @@
 import React from 'react';
-import { Gamepad2, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/3oc0w6yi_blockquest_logo_primary.png";
 
 const Header = () => {
   const scrollToSection = (sectionId) => {
@@ -10,10 +12,13 @@ const Header = () => {
     <header className="header-nav fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Gamepad2 className="w-8 h-8 text-cyan-400" />
-          <span className="header-logo text-xl sm:text-2xl font-black">BLOCKQUEST</span>
-        </div>
+        <a href="/" className="flex items-center gap-2">
+          <img 
+            src={LOGO_URL} 
+            alt="BlockQuest" 
+            className="h-10 sm:h-12 w-auto"
+          />
+        </a>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-6">
