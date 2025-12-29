@@ -677,6 +677,334 @@
   animation: crt-flicker 0.15s infinite;
 }
 
+/* ========================================
+   FLOATING ELEMENTS ANIMATIONS
+   ======================================== */
+.floating-icon {
+  animation: float-drift 15s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+@keyframes float-drift {
+  0% {
+    transform: translateY(100vh) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(50vh) rotate(180deg) scale(1.2);
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-50px) rotate(360deg) scale(1);
+    opacity: 0;
+  }
+}
+
+.floating-image {
+  animation: float-drift-image 25s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.5));
+}
+
+@keyframes float-drift-image {
+  0% {
+    transform: translateY(100vh) rotate(-10deg) scale(0.8);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(40vh) rotate(10deg) scale(1);
+    opacity: 0.8;
+  }
+  85% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-100px) rotate(-10deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   PARTICLE EXPLOSION ANIMATION
+   ======================================== */
+@keyframes particle-explode {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) rotate(var(--rotation)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   GLITCH / CRT HOVER EFFECTS
+   ======================================== */
+.glitch-hover {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.glitch-hover:hover {
+  animation: glitch-effect 0.3s ease;
+}
+
+@keyframes glitch-effect {
+  0% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  20% {
+    transform: translate(-3px, 3px);
+    filter: hue-rotate(90deg);
+  }
+  40% {
+    transform: translate(-3px, -3px);
+    filter: hue-rotate(180deg);
+  }
+  60% {
+    transform: translate(3px, 3px);
+    filter: hue-rotate(270deg);
+  }
+  80% {
+    transform: translate(3px, -3px);
+    filter: hue-rotate(360deg);
+  }
+  100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+}
+
+/* CRT Distortion on hover */
+.crt-distort:hover {
+  animation: crt-distortion 0.5s ease;
+}
+
+@keyframes crt-distortion {
+  0%, 100% {
+    transform: skewX(0deg) scaleX(1);
+    filter: brightness(1);
+  }
+  25% {
+    transform: skewX(2deg) scaleX(1.02);
+    filter: brightness(1.2) saturate(1.5);
+  }
+  50% {
+    transform: skewX(-1deg) scaleX(0.98);
+    filter: brightness(0.9) saturate(2);
+  }
+  75% {
+    transform: skewX(1deg) scaleX(1.01);
+    filter: brightness(1.1) saturate(1.2);
+  }
+}
+
+/* RGB Split Effect */
+.rgb-split:hover {
+  animation: rgb-split 0.2s ease;
+}
+
+@keyframes rgb-split {
+  0%, 100% {
+    text-shadow: none;
+  }
+  25% {
+    text-shadow: -2px 0 #ff0000, 2px 0 #00ffff;
+  }
+  50% {
+    text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
+  }
+  75% {
+    text-shadow: -1px 0 #ff0000, 1px 0 #00ffff;
+  }
+}
+
+/* ========================================
+   BLOCKCHAIN CHAIN ANIMATION
+   ======================================== */
+.chain-link-animation {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+.chain-block {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--neon-cyan);
+  border-radius: 4px;
+  animation: chain-move 10s linear infinite;
+  transform: translateY(-50%);
+}
+
+.chain-block::before {
+  content: '';
+  position: absolute;
+  right: -15px;
+  top: 50%;
+  width: 12px;
+  height: 2px;
+  background: var(--neon-cyan);
+  transform: translateY(-50%);
+}
+
+@keyframes chain-move {
+  0% {
+    transform: translateX(-50px) translateY(-50%) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(calc(100vw + 50px)) translateY(-50%) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   BOUNCING/ROTATING DECORATIVE ELEMENTS
+   ======================================== */
+.bounce-rotate {
+  animation: bounce-rotate 3s ease-in-out infinite;
+}
+
+@keyframes bounce-rotate {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+}
+
+.spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Wobble animation */
+.wobble {
+  animation: wobble 2s ease-in-out infinite;
+}
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+/* ========================================
+   ENHANCED BUTTON EFFECTS
+   ======================================== */
+.mega-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.mega-button::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 60%,
+    transparent
+  );
+  animation: button-shine 3s ease-in-out infinite;
+}
+
+@keyframes button-shine {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Button click ripple effect */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:active::before {
+  width: 300%;
+  height: 300%;
+}
+
+/* ========================================
+   NEON GLOW UTILITIES
+   ======================================== */
+.neon-glow-cyan {
+  filter: drop-shadow(0 0 10px var(--neon-cyan)) drop-shadow(0 0 20px var(--neon-cyan));
+}
+
+.neon-glow-magenta {
+  filter: drop-shadow(0 0 10px var(--neon-magenta)) drop-shadow(0 0 20px var(--neon-magenta));
+}
+
+.neon-glow-yellow {
+  filter: drop-shadow(0 0 10px var(--neon-yellow)) drop-shadow(0 0 20px var(--neon-yellow));
+}
+
+/* Pulsing glow */
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 40px currentColor);
+  }
+}
+
 /* Gradient Radial Background */
 .bg-gradient-radial {
   background: radial-gradient(ellipse at center, var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to));
