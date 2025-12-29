@@ -1,13 +1,16 @@
 import React, { useEffect } from "react";
 import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import QuestSection from "./components/QuestSection";
 import BookSection from "./components/BookSection";
 import ParentSection from "./components/ParentSection";
 import Footer from "./components/Footer";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
 
-function App() {
+const LandingPage = () => {
   useEffect(() => {
     // Set page title and meta for SEO
     document.title = "BlockQuest – Max Fun Web3 Games & Books for Kids Ages 5+";
@@ -25,7 +28,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App blockquest-app">
+    <div className="blockquest-app">
       <Header />
       <main>
         <HeroSection />
@@ -40,6 +43,20 @@ function App() {
         </section>
       </main>
       <Footer />
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsConditions />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
