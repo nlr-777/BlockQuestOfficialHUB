@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { Button } from './ui/button';
 import { ChevronDown, Sparkles, Zap } from 'lucide-react';
 
@@ -6,6 +6,45 @@ const LOGO_URL = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49
 
 const HeroSection = () => {
   const canvasRef = useRef(null);
+
+  // Particle explosion on button click
+  const createExplosion = useCallback((e) => {
+    const container = document.createElement('div');
+    container.style.cssText = `
+      position: fixed;
+      left: ${e.clientX}px;
+      top: ${e.clientY}px;
+      pointer-events: none;
+      z-index: 9999;
+    `;
+    
+    const colors = ['#00ffff', '#ff00ff', '#ffff00', '#00ff00', '#ff69b4', '#ff6600'];
+    const shapes = ['●', '★', '◆', '▲', '■', '✦', '⬡', '💎', '🌟', '⚡', '🚀', '🎉'];
+    
+    for (let i = 0; i < 35; i++) {
+      const particle = document.createElement('span');
+      const angle = (Math.PI * 2 * i) / 35;
+      const velocity = 60 + Math.random() * 120;
+      const tx = Math.cos(angle) * velocity;
+      const ty = Math.sin(angle) * velocity;
+      
+      particle.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+      particle.style.cssText = `
+        position: absolute;
+        font-size: ${12 + Math.random() * 18}px;
+        color: ${colors[Math.floor(Math.random() * colors.length)]};
+        text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        animation: particle-explode 0.8s ease-out forwards;
+        --tx: ${tx}px;
+        --ty: ${ty}px;
+        --rotation: ${Math.random() * 720 - 360}deg;
+      `;
+      container.appendChild(particle);
+    }
+    
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 1000);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
