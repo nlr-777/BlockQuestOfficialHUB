@@ -92,6 +92,25 @@ const Footer = () => {
         {/* Divider */}
         <div className="footer-divider w-full h-px mb-8" />
 
+        {/* Legal Links */}
+        <div className="flex justify-center gap-6 mb-6">
+          <Link 
+            to="/privacy" 
+            className="legal-link flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors"
+          >
+            <Shield className="w-4 h-4" />
+            <span>Privacy Policy</span>
+          </Link>
+          <span className="text-gray-600">|</span>
+          <Link 
+            to="/terms" 
+            className="legal-link flex items-center gap-2 text-gray-400 hover:text-pink-400 transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Terms & Conditions</span>
+          </Link>
+        </div>
+
         {/* Copyright */}
         <div className="text-center">
           <p className="text-gray-400 mb-2">
