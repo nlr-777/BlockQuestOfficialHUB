@@ -151,7 +151,7 @@ const HeroSection = () => {
 
         {/* Subtitle */}
         <p className="hero-subtitle text-xl sm:text-2xl md:text-3xl mb-8 font-bold">
-          MAX FUN GAMES + BOOKS TO MASTER WEB3! 🚀💥 Ages 5+
+          Epic Adventures & Learning Through Arcade Games + Books 🚀💥 Fun for the entire family!
         </p>
       </div>
 
