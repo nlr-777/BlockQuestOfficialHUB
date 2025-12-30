@@ -115,9 +115,9 @@ const PrivacyPolicy = () => {
 
           {/* Children's Privacy */}
           <section className="policy-section bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-purple-400 mb-4">👶 Children's Privacy</h2>
+            <h2 className="text-2xl font-bold text-purple-400 mb-4">👨‍👩‍👧‍👦 Family & Young Players Privacy</h2>
             <p className="mb-4">
-              BlockQuest is designed to be safe for children aged 5 and above. We take extra precautions:
+              BlockQuest is designed to be safe and fun for players of all ages, starting at age 5 and up. We take extra precautions:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
               <li>No collection of personal information from children without parental consent</li>
@@ -125,6 +125,7 @@ const PrivacyPolicy = () => {
               <li>No social features that allow direct communication between users</li>
               <li>No real cryptocurrency transactions</li>
               <li>Parents can request deletion of their child's data at any time</li>
+              <li>Fun for the whole family to enjoy together</li>
             </ul>
           </section>
 
