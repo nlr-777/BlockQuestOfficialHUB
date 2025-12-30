@@ -35,7 +35,7 @@ const ParentSection = () => {
 
           {/* Creator Note */}
           <p className="text-center text-gray-300 text-lg sm:text-xl font-medium flex items-center justify-center flex-wrap gap-2">
-            Created by a Aussie homeschool mum with
+            Created by a Aussie homeschool mum with love
             <Heart className="w-6 h-6 text-pink-400 animate-pulse inline" />
           </p>
         </div>
