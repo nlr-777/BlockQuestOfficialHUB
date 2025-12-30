@@ -14,16 +14,16 @@ import TermsConditions from "./pages/TermsConditions";
 const LandingPage = () => {
   useEffect(() => {
     // Set page title and meta for SEO
-    document.title = "BlockQuest – Max Fun Web3 Games & Books for Kids Ages 5+";
+    document.title = "BlockQuest – Epic Games and Books for All Ages";
     
     // Add meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'BlockQuest Official - The ultimate dopamine-fueled Web3 learning adventure! Play arcade games, read exciting books, and master blockchain concepts. Safe, ad-free fun for ages 5+!');
+      metaDescription.setAttribute('content', 'BlockQuest Official - Epic arcade games and books for all ages! Fun for the whole family with safe, ad-free learning adventures. Suitable for ages 5 and up.');
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'BlockQuest Official - The ultimate dopamine-fueled Web3 learning adventure! Play arcade games, read exciting books, and master blockchain concepts. Safe, ad-free fun for ages 5+!';
+      meta.content = 'BlockQuest Official - Epic arcade games and books for all ages! Fun for the whole family with safe, ad-free learning adventures. Suitable for ages 5 and up.';
       document.head.appendChild(meta);
     }
   }, []);
