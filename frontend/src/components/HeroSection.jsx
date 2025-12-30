@@ -150,44 +150,9 @@ const HeroSection = () => {
         </div>
 
         {/* Subtitle */}
-        <p className="hero-subtitle text-xl sm:text-2xl md:text-3xl mb-12 font-bold">
+        <p className="hero-subtitle text-xl sm:text-2xl md:text-3xl mb-8 font-bold">
           MAX FUN GAMES + BOOKS TO MASTER WEB3! 🚀💥 Ages 5+
         </p>
-
-        {/* TWO ENORMOUS BUTTONS */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 justify-center items-center w-full">
-          <a 
-            href="https://blocky-arcade.preview.emergentagent.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-full lg:w-auto"
-            onClick={createExplosion}
-          >
-            <Button className="mega-button mega-button-cyan crt-distort ripple-effect w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
-              <span className="flex flex-col items-center gap-2">
-                <span className="leading-tight">ENTER BLOCKY</span>
-                <span className="leading-tight">MULTIVERSE</span>
-                <span className="text-2xl sm:text-3xl">🌟🎉</span>
-              </span>
-            </Button>
-          </a>
-          
-          <a 
-            href="https://crtblitz.preview.emergentagent.com/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-full lg:w-auto"
-            onClick={createExplosion}
-          >
-            <Button className="mega-button mega-button-magenta crt-distort ripple-effect w-full lg:w-96 h-28 sm:h-36 text-base sm:text-xl font-black px-4">
-              <span className="flex flex-col items-center gap-2">
-                <span className="leading-tight">CRT BLITZ</span>
-                <span className="leading-tight">ARCADE</span>
-                <span className="text-2xl sm:text-3xl">⬡🔥</span>
-              </span>
-            </Button>
-          </a>
-        </div>
       </div>
 
       {/* Scroll Hint */}
