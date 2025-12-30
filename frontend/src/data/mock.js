@@ -3,7 +3,7 @@
 export const games = [
   {
     id: 1,
-    title: "BLOCKY ARCADE MULTIVERSE 🚀🌟",
+    title: "Blocky's Multiverse 🚀🌟",
     description: "AI Buddy Blocky! Guided quests OR wild pixel adventures! Badges! Eco saves!",
     url: "https://blocky-arcade.preview.emergentagent.com/",
     theme: "rainbow",
@@ -11,7 +11,7 @@ export const games = [
   },
   {
     id: 2,
-    title: "CRT BLITZ RETRO ARCADE ⬡💥",
+    title: "Blocky's Retro Arcade Blitz ⬡💥",
     description: "Hash! Chain! DAO! IPFS! Lightning! Smash high scores across Web3!",
     url: "https://crtblitz.preview.emergentagent.com/",
     theme: "neon",
