@@ -116,7 +116,7 @@ const Footer = () => {
             <span className="text-cyan-400 font-bold"> "Get ready to level up!"</span>
           </p>
           <p className="text-gray-500 text-sm">
-            Made with love 🚀 in Australia
+            Made with love ❤️ 🚀 in Australia
           </p>
         </div>
       </div>
