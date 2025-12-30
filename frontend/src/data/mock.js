@@ -22,30 +22,30 @@ export const games = [
 export const books = [
   {
     id: 1,
-    title: "The Blockchain Builders",
-    description: "Join young heroes building chains of trust!",
-    coverPlaceholder: "Lego-style blockchain kids adventure",
+    title: "Coming Soon",
+    description: "Stay tuned for exciting adventures!",
+    coverPlaceholder: "Coming Soon",
     comingSoon: true
   },
   {
     id: 2,
-    title: "Magic Crypto Gems",
-    description: "Discover the power of digital treasures!",
-    coverPlaceholder: "Sparkling gems and kid heroes",
+    title: "Coming Soon",
+    description: "Stay tuned for exciting adventures!",
+    coverPlaceholder: "Coming Soon",
     comingSoon: true
   },
   {
     id: 3,
-    title: "DAO Defenders",
-    description: "Teamwork makes the dream work!",
-    coverPlaceholder: "Kids saving the digital world together",
+    title: "Coming Soon",
+    description: "Stay tuned for exciting adventures!",
+    coverPlaceholder: "Coming Soon",
     comingSoon: true
   },
   {
     id: 4,
-    title: "The IPFS Explorers",
-    description: "Adventures across the distributed web!",
-    coverPlaceholder: "Space explorers with data stars",
+    title: "Coming Soon",
+    description: "Stay tuned for exciting adventures!",
+    coverPlaceholder: "Coming Soon",
     comingSoon: true
   }
 ];
