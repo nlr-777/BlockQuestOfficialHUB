@@ -35,11 +35,11 @@ const PrivacyPolicy = () => {
             </h2>
             <p className="mb-4">
               BlockQuest Official ("we", "us", or "our") operates the BlockQuestOfficial.com website and associated games. 
-              This Privacy Policy explains how we collect, use, and protect information when you or your child uses our services.
+              This Privacy Policy explains how we collect, use, and protect information when you or your family uses our services.
             </p>
             <p>
-              We are committed to protecting the privacy of all users, especially children. Our games are designed for 
-              ages 5+ and we comply with Australian privacy laws including the Privacy Act 1988 (Cth) and the Australian 
+              We are committed to protecting the privacy of all users. Our games are designed for players of all ages, 
+              starting at age 5 and up, making them fun for the whole family. We comply with Australian privacy laws including the Privacy Act 1988 (Cth) and the Australian 
               Privacy Principles (APPs).
             </p>
           </section>
