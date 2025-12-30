@@ -65,9 +65,10 @@ const TermsConditions = () => {
 
           {/* Age Requirements */}
           <section className="terms-section bg-purple-900/20 border border-purple-500/30 rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-purple-400 mb-4">👶 Age Requirements</h2>
+            <h2 className="text-2xl font-bold text-purple-400 mb-4">👨‍👩‍👧‍👦 Age & Family Guidelines</h2>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Our games are designed for users aged <strong>5 years and above</strong></li>
+              <li>Our games are designed for <strong>players of all ages, starting at age 5 and up</strong></li>
+              <li>Fun for the whole family to enjoy together!</li>
               <li>Children under 16 should have parental supervision and consent</li>
               <li>Parents/guardians are responsible for monitoring their child's use of the Service</li>
               <li>We do not knowingly collect personal information from children without parental consent</li>
