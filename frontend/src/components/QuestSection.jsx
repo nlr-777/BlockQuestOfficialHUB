@@ -77,6 +77,17 @@ const QuestSection = () => {
           <Star className="w-8 h-8 text-yellow-400 wobble neon-glow-yellow" />
           <Zap className="w-8 h-8 text-pink-400 bounce-rotate neon-glow-magenta" />
         </div>
+        
+        {/* XP & Badges Teaser Banner */}
+        <div className="mt-8 inline-block">
+          <div className="xp-badge-banner px-6 py-3 rounded-full bg-gradient-to-r from-purple-900/60 via-pink-900/40 to-purple-900/60 border border-pink-500/30">
+            <p className="text-sm sm:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-yellow-400 to-pink-400 flex items-center justify-center gap-2 flex-wrap">
+              <span className="text-lg">⭐</span>
+              Earn XP, Levels & Fun Badges in games!
+              <span className="text-lg">🏆</span>
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Game Cards */}
