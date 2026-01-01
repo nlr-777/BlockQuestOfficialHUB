@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Heart, Ban, Sparkles, Users } from 'lucide-react';
+import { Shield, Heart, Ban, Sparkles, Users, Flag } from 'lucide-react';
 
 const ParentSection = () => {
   const features = [
@@ -7,6 +7,13 @@ const ParentSection = () => {
     { icon: Ban, text: 'Ad-free', color: 'text-cyan-400' },
     { icon: Sparkles, text: 'No real crypto', color: 'text-yellow-400' },
     { icon: Users, text: 'Fun for all ages', color: 'text-pink-400' },
+  ];
+
+  const factions = [
+    { name: 'Pixel Miners', emoji: '⛏️', color: 'text-orange-400' },
+    { name: 'Neon Builders', emoji: '🏗️', color: 'text-cyan-400' },
+    { name: 'Glow Validators', emoji: '✨', color: 'text-yellow-400' },
+    { name: 'Quest Explorers', emoji: '🧭', color: 'text-pink-400' },
   ];
 
   return (
@@ -37,6 +44,29 @@ const ParentSection = () => {
                 <span className="font-bold text-gray-200">{feature.text}</span>
               </div>
             ))}
+          </div>
+
+          {/* Factions Teaser */}
+          <div className="mb-8 p-4 sm:p-6 rounded-xl bg-gradient-to-r from-gray-800/50 via-gray-700/30 to-gray-800/50 border border-gray-600/30">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Flag className="w-5 h-5 text-pink-400" />
+              <h4 className="text-lg sm:text-xl font-bold text-gray-200">Join Fun Teams!</h4>
+              <span className="text-xl">🎮</span>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3 mb-3">
+              {factions.map((faction, index) => (
+                <span 
+                  key={index}
+                  className={`px-3 py-1.5 rounded-full bg-gray-800/60 border border-gray-600/40 text-sm font-semibold ${faction.color} flex items-center gap-1.5`}
+                >
+                  <span>{faction.emoji}</span>
+                  {faction.name}
+                </span>
+              ))}
+            </div>
+            <p className="text-center text-gray-400 text-sm">
+              Team up for bragging rights! 🏆
+            </p>
           </div>
 
           {/* Creator Note */}
