@@ -141,8 +141,12 @@ const QuestSection = () => {
               <h3 className={`game-title text-2xl sm:text-3xl font-black mb-4 ${game.theme === 'rainbow' ? 'text-rainbow' : 'text-neon-cyan'}`}>
                 {game.title}
               </h3>
-              <p className="text-gray-300 text-lg mb-6 font-medium">
+              <p className="text-gray-300 text-lg mb-3 font-medium">
                 {game.description}
+              </p>
+              {/* XP & Badges Teaser - Per Card */}
+              <p className={`text-xs sm:text-sm mb-5 font-semibold ${game.theme === 'rainbow' ? 'text-yellow-400/80' : 'text-cyan-400/80'}`}>
+                ⭐ Earn XP, Levels & Fun Badges! 🏆
               </p>
               <a 
                 href={game.url} 
