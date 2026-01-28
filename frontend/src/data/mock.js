@@ -30,15 +30,6 @@ export const games = [
     theme: "rainbow",
     emojis: ["🎮", "⬡", "🏆", "⚡", "💎"],
     comingSoon: false
-  },
-  {
-    id: 2,
-    title: "More Chaos Coming Soon! 🚀✨",
-    description: "New adventures in the BlockQuest universe – stay tuned for more chaotic fun!",
-    url: "#",
-    theme: "neon", 
-    emojis: ["🚀", "✨", "🌟", "💥", "🔥"],
-    comingSoon: true
   }
 ];
 
