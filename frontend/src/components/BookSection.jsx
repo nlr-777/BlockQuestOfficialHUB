@@ -56,36 +56,62 @@ const BookSection = () => {
       </div>
 
       {/* Meet the Characters Section */}
-      <div className="max-w-4xl mx-auto mb-12 relative z-10">
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-900/30 via-indigo-900/20 to-purple-900/30 border border-purple-500/20">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            {/* Characters Image */}
-            <div className="flex-shrink-0">
+      <div className="max-w-5xl mx-auto mb-16 relative z-10">
+        <div className="p-8 rounded-3xl bg-gradient-to-br from-purple-900/40 via-indigo-900/30 to-orange-900/20 border-2 border-purple-500/30 shadow-2xl shadow-purple-500/10">
+          
+          {/* Section Header */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <Users className="w-7 h-7 text-purple-400" />
+              <h3 className="text-2xl sm:text-3xl font-black text-white" data-testid="meet-friends-title">
+                Meet the 5 Friends!
+              </h3>
+              <span className="text-2xl">👥</span>
+            </div>
+            <p className="text-gray-300 text-base max-w-2xl mx-auto">
+              Five curious friends discover the wild world of Web3 together. From Gary's legendary goat trade to the future of digital money—join their chaotic adventure!
+            </p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center gap-8">
+            {/* Characters Group Image */}
+            <div className="flex-shrink-0 relative group">
+              <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-orange-500 to-cyan-500 rounded-2xl opacity-30 group-hover:opacity-50 blur-lg transition-opacity duration-500"></div>
               <img 
                 src={CHARACTERS_IMAGE} 
-                alt="The 5 Friends" 
-                className="w-48 h-48 md:w-56 md:h-56 rounded-xl object-cover border-4 border-purple-500/30 shadow-lg shadow-purple-500/20"
+                alt="The 5 Friends - Zara, Sam, Miko, Ollie, and Lila" 
+                data-testid="characters-group-image"
+                className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-2xl object-cover border-4 border-purple-500/50 shadow-2xl shadow-purple-500/30 transition-transform duration-300 group-hover:scale-105"
               />
             </div>
             
-            {/* Characters Info */}
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-                <Users className="w-5 h-5 text-purple-400" />
-                <h3 className="text-xl font-bold text-white">Meet the 5 Friends!</h3>
-              </div>
-              <p className="text-gray-300 text-sm mb-4">
-                Follow their adventure from Gary's goat trade to the future of Web3!
-              </p>
-              <div className="flex flex-wrap justify-center md:justify-start gap-2">
+            {/* Character Cards Grid */}
+            <div className="flex-1 w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" data-testid="character-cards-grid">
                 {characters.map((char, i) => (
-                  <span 
+                  <div 
                     key={i}
-                    className={`px-3 py-1 rounded-full bg-gray-800/60 border border-gray-600/40 text-xs font-semibold ${char.color}`}
+                    data-testid={`character-card-${char.name.split(' ')[0].toLowerCase()}`}
+                    className="group relative p-3 rounded-xl bg-gray-800/60 border border-gray-600/40 hover:border-purple-500/60 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
                   >
-                    {char.name} ({char.age})
-                  </span>
+                    <div className="text-center">
+                      <p className={`font-bold text-sm ${char.color} mb-1`}>
+                        {char.name.split(' ')[0]}
+                      </p>
+                      <p className="text-gray-500 text-xs mb-2">Age {char.age}</p>
+                      <span className={`inline-block px-2 py-0.5 rounded-full bg-gray-900/60 text-xs font-medium ${char.color} border border-current/20`}>
+                        {char.trait}
+                      </span>
+                    </div>
+                  </div>
                 ))}
+              </div>
+              
+              {/* Story Teaser */}
+              <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-orange-900/30 to-purple-900/30 border border-orange-500/20">
+                <p className="text-sm text-gray-300 text-center">
+                  <span className="text-orange-400 font-bold">Their Quest:</span> Decode blockchain, outsmart scammers, explore NFTs, and discover why humans invented money in the first place!
+                </p>
               </div>
             </div>
           </div>
