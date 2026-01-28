@@ -32,7 +32,6 @@ const LandingPage = () => {
   return (
     <div className="blockquest-app">
       <FloatingElements />
-      <FloatingSidePanel />
       <Header />
       <main>
         <HeroSection />
