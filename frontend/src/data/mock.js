@@ -4,6 +4,9 @@
 export const BOOK_COVERS = {
   book1: "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/xslf9n4k_generated_image_20260124_034300_1.png",
   book2: "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/icg19nct_generated_image_20260124_043201_1.png",
+  book3: "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/g39e487y_generated_image_20260126_083415_1.png",
+  book4: "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/z8ysokvd_generated_image_20260126_083437_1.png",
+  book5: "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/vboydr4o_generated_image_20260126_083553_1.png",
 };
 
 // Characters image
