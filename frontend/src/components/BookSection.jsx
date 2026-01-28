@@ -239,12 +239,12 @@ const BookSection = () => {
         </div>
 
         {/* Series Teaser */}
-        <div className="text-center mt-10 p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-purple-900/40 border border-purple-500/20 max-w-2xl mx-auto">
+        <div className="text-center mt-10 p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-purple-900/40 border border-purple-500/20 max-w-3xl mx-auto" data-testid="series-teaser">
           <p className="text-lg sm:text-xl text-gray-300 font-medium">
-            🐐 It all started when Gary traded his goat... Now 5 friends explore the chaos of Web3!
+            🐐 When Gary traded his goat for magic beans (just kidding... or are we?), <span className="text-purple-400 font-bold">Zara</span>, <span className="text-orange-400 font-bold">Sam</span>, <span className="text-cyan-400 font-bold">Miko</span>, <span className="text-green-400 font-bold">Ollie</span>, and <span className="text-yellow-400 font-bold">Lila</span> stumbled into the wild world of Web3!
           </p>
-          <p className="text-orange-400 font-bold mt-2">
-            5-Book Series • Perfect for curious kids (10+) and confused adults!
+          <p className="text-orange-400 font-bold mt-3 text-lg">
+            📚 5-Book Series • Perfect for curious minds (10+) and confused adults!
           </p>
         </div>
       </div>
