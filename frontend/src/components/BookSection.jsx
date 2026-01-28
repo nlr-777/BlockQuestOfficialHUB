@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
-import { books } from '../data/mock';
+import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, ShoppingCart, Users } from 'lucide-react';
+import { books, characters, CHARACTERS_IMAGE } from '../data/mock';
 
 const BookSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -41,7 +41,7 @@ const BookSection = () => {
       </div>
 
       {/* Section Title */}
-      <div className="text-center mb-12 relative z-10">
+      <div className="text-center mb-8 relative z-10">
         <p className="text-sm sm:text-base font-bold text-purple-400 mb-2 tracking-wider">
           WEB3 CHAOS CHRONICLES
         </p>
@@ -53,6 +53,43 @@ const BookSection = () => {
           Learn Web3 Through Epic Stories!
           <span className="text-2xl">🐐📚</span>
         </p>
+      </div>
+
+      {/* Meet the Characters Section */}
+      <div className="max-w-4xl mx-auto mb-12 relative z-10">
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-purple-900/30 via-indigo-900/20 to-purple-900/30 border border-purple-500/20">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {/* Characters Image */}
+            <div className="flex-shrink-0">
+              <img 
+                src={CHARACTERS_IMAGE} 
+                alt="The 5 Friends" 
+                className="w-48 h-48 md:w-56 md:h-56 rounded-xl object-cover border-4 border-purple-500/30 shadow-lg shadow-purple-500/20"
+              />
+            </div>
+            
+            {/* Characters Info */}
+            <div className="flex-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
+                <Users className="w-5 h-5 text-purple-400" />
+                <h3 className="text-xl font-bold text-white">Meet the 5 Friends!</h3>
+              </div>
+              <p className="text-gray-300 text-sm mb-4">
+                Follow their adventure from Gary's goat trade to the future of Web3!
+              </p>
+              <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                {characters.map((char, i) => (
+                  <span 
+                    key={i}
+                    className={`px-3 py-1 rounded-full bg-gray-800/60 border border-gray-600/40 text-xs font-semibold ${char.color}`}
+                  >
+                    {char.name} ({char.age})
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Book Carousel */}
@@ -178,7 +215,7 @@ const BookSection = () => {
         {/* Series Teaser */}
         <div className="text-center mt-10 p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-purple-900/40 border border-purple-500/20 max-w-2xl mx-auto">
           <p className="text-lg sm:text-xl text-gray-300 font-medium">
-            🐐 Join Gary the Goat on an epic journey through the chaos of money, blockchains, and Web3!
+            🐐 It all started when Gary traded his goat... Now 5 friends explore the chaos of Web3!
           </p>
           <p className="text-orange-400 font-bold mt-2">
             5-Book Series • Perfect for curious kids (10+) and confused adults!
