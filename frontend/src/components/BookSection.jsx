@@ -77,34 +77,39 @@ const BookSection = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row items-center gap-8">
-            {/* Characters Group Image */}
+            {/* Characters Group Image - Full View */}
             <div className="flex-shrink-0 relative group">
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-orange-500 to-cyan-500 rounded-2xl opacity-30 group-hover:opacity-50 blur-lg transition-opacity duration-500"></div>
+              <div className="absolute -inset-3 bg-gradient-to-r from-purple-500 via-orange-500 to-cyan-500 rounded-2xl opacity-30 group-hover:opacity-50 blur-xl transition-opacity duration-500"></div>
               <img 
                 src={CHARACTERS_IMAGE} 
                 alt="The 5 Friends - Zara, Sam, Miko, Ollie, and Lila" 
                 data-testid="characters-group-image"
-                className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-2xl object-cover border-4 border-purple-500/50 shadow-2xl shadow-purple-500/30 transition-transform duration-300 group-hover:scale-105"
+                className="relative w-auto h-auto max-w-xs sm:max-w-sm lg:max-w-md rounded-2xl border-4 border-purple-500/50 shadow-2xl shadow-purple-500/30 transition-transform duration-300 group-hover:scale-[1.02]"
               />
             </div>
             
-            {/* Character Cards Grid */}
+            {/* Character Cards Grid with Tooltips */}
             <div className="flex-1 w-full">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" data-testid="character-cards-grid">
                 {characters.map((char, i) => (
                   <div 
                     key={i}
                     data-testid={`character-card-${char.name.split(' ')[0].toLowerCase()}`}
-                    className="group relative p-3 rounded-xl bg-gray-800/60 border border-gray-600/40 hover:border-purple-500/60 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
+                    className="group/card relative p-4 rounded-xl bg-gray-800/60 border border-gray-600/40 hover:border-purple-500/60 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
                   >
                     <div className="text-center">
-                      <p className={`font-bold text-sm ${char.color} mb-1`}>
+                      <p className={`font-bold text-base ${char.color} mb-1`}>
                         {char.name.split(' ')[0]}
                       </p>
-                      <p className="text-gray-500 text-xs mb-2">Age {char.age}</p>
-                      <span className={`inline-block px-2 py-0.5 rounded-full bg-gray-900/60 text-xs font-medium ${char.color} border border-current/20`}>
+                      <span className={`inline-block px-3 py-1 rounded-full bg-gray-900/60 text-xs font-medium ${char.color} border border-current/20`}>
                         {char.trait}
                       </span>
+                    </div>
+                    
+                    {/* Quote Tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-3 rounded-lg bg-gray-900 border border-purple-500/40 shadow-xl opacity-0 invisible group-hover/card:opacity-100 group-hover/card:visible transition-all duration-300 z-20">
+                      <p className={`text-xs italic ${char.color}`}>"{char.quote}"</p>
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900"></div>
                     </div>
                   </div>
                 ))}
