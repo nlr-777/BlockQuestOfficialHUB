@@ -28,7 +28,7 @@ export const games = [
   {
     id: 1,
     title: "BlockQuest Retro Arcade 🎮⬡",
-    description: "Learn Web3 While You Play! Master levels like Block, Chain, Ledger, Hash, DAO & more!",
+    description: "A retro-style educational game where you learn Web3 concepts through fun arcade gameplay. Explore levels covering Blocks, Chains, Ledgers, Hashes, DAOs & more!",
     url: "https://readtext-fix.preview.emergentagent.com/",
     theme: "rainbow",
     emojis: ["🎮", "⬡", "🏆", "⚡", "💎"],
