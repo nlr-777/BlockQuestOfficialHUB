@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Instagram, Send, Rocket, Zap, Shield, FileText, Wallet, ExternalLink, Gem, Coins } from 'lucide-react';
+import { Instagram, Send, Rocket, Zap, Shield, FileText } from 'lucide-react';
 import { socialLinks } from '../data/mock';
 
 const Footer = () => {
@@ -85,64 +85,6 @@ const Footer = () => {
               ✨ You're in the quest! Check your inbox! ✨
             </p>
           )}
-        </div>
-
-        {/* Blockchain Coming Soon Section */}
-        <div className="blockchain-coming-soon mb-10 p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-purple-900/40 border border-purple-500/30 relative overflow-hidden">
-          {/* Animated glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/10 to-transparent animate-pulse pointer-events-none" />
-          
-          <div className="relative z-10">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Gem className="w-6 h-6 text-purple-400 animate-pulse" />
-              <h4 className="text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400">
-                Coming Soon for Collectors!
-              </h4>
-              <span className="text-xl animate-bounce">✨</span>
-            </div>
-            
-            <p className="text-center text-gray-300 text-sm sm:text-base mb-4 max-w-2xl mx-auto">
-              Optional wallet to mint your badges on <span className="text-cyan-400 font-semibold">Apertum chain</span>, 
-              BLQ adventure surprises, and visit the marketplace!
-            </p>
-
-            {/* Features Grid */}
-            <div className="flex flex-wrap justify-center gap-3 mb-4">
-              <span className="px-3 py-1.5 rounded-full bg-purple-800/40 border border-purple-500/30 text-xs sm:text-sm font-semibold text-purple-300 flex items-center gap-1.5">
-                <Coins className="w-4 h-4" />
-                BLQ Adventure Points – Coming Soon!
-              </span>
-              <span className="px-3 py-1.5 rounded-full bg-cyan-800/40 border border-cyan-500/30 text-xs sm:text-sm font-semibold text-cyan-300">
-                🏅 Mintable Badges
-              </span>
-              <span className="px-3 py-1.5 rounded-full bg-pink-800/40 border border-pink-500/30 text-xs sm:text-sm font-semibold text-pink-300">
-                94M BLQ Cap
-              </span>
-            </div>
-
-            {/* OpenPlaza Link & Wallet Button */}
-            <div className="flex flex-wrap justify-center gap-4 items-center">
-              <a 
-                href="https://openplaza.io/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="coming-soon-link group flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-400/40 text-purple-300 hover:text-white hover:border-purple-400/70 transition-all cursor-pointer"
-                onClick={(e) => e.preventDefault()}
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span className="text-sm font-semibold">OpenPlaza Marketplace</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 animate-pulse">Coming Soon!</span>
-              </a>
-              
-              <button 
-                className="wallet-connect-btn flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800/60 border border-gray-600/40 text-gray-400 cursor-not-allowed opacity-70"
-                disabled
-              >
-                <Wallet className="w-4 h-4" />
-                <span className="text-xs sm:text-sm font-semibold">Optional – Coming Soon Collector Fun</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Divider */}
