@@ -44,7 +44,7 @@ const Header = () => {
 
         {/* CTA */}
         <a 
-          href="https://blocky-arcade.preview.emergentagent.com/" 
+          href="https://crypto-kids.preview.emergentagent.com/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="header-cta flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm"
