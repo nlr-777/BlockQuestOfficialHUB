@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from './ui/button';
 import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, ShoppingCart, Users } from 'lucide-react';
 import { books, characters, CHARACTERS_IMAGE } from '../data/mock';
+
+// Pre-computed sparkle positions for consistent rendering
+const SPARKLE_POSITIONS = Array.from({ length: 20 }, (_, i) => ({
+  left: `${(i * 5 + 3) % 100}%`,
+  top: `${(i * 7 + 10) % 100}%`,
+  width: `${20 + (i % 5) * 4}px`,
+  animationDelay: `${(i % 4) * 0.75}s`
+}));
 
 const BookSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,16 +26,11 @@ const BookSection = () => {
     <section className="book-section py-20 px-4 relative overflow-hidden">
       {/* Background sparkles */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {SPARKLE_POSITIONS.map((pos, i) => (
           <Sparkles
             key={i}
             className="absolute text-orange-400/30 animate-twinkle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${20 + Math.random() * 20}px`,
-              animationDelay: `${Math.random() * 3}s`
-            }}
+            style={pos}
           />
         ))}
       </div>
