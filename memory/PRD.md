@@ -34,8 +34,8 @@ The story begins with Gary's legendary goat trade and follows the friends as the
 - [x] **Hero Section:** Retro-neon title, tagline, mascot (Gary the Goat), CTAs
 - [x] **Arcade Zone (QuestSection):** Game cards for "BlockQuest Retro Arcade" and coming soon placeholder
 - [x] **Book Section:** Complete with:
-  - "Meet the 5 Friends" character showcase with group image
-  - Individual character cards showing name, age, and trait
+  - "Meet the 5 Friends" character showcase with cropped group image (text labels removed)
+  - Individual character cards showing name and trait (with hover tooltips showing character quotes)
   - "Their Quest" storyline teaser
   - Book carousel (5 books: 2 with covers, 3 coming soon)
   - Series teaser with character names highlighted
