@@ -10,7 +10,7 @@ export const BOOK_COVERS = {
 };
 
 // Characters image
-export const CHARACTERS_IMAGE = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/42e91riu_generated_image_20260128_051915_1.png";
+export const CHARACTERS_IMAGE = "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/z0w00ymu_generated_image_20260128_052414_1.png";
 
 // Gary's Goat mascot (from Book 1 cover)
 export const GARY_MASCOT = BOOK_COVERS.book1;
