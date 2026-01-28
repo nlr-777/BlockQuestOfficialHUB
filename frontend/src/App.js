@@ -8,7 +8,6 @@ import BookSection from "./components/BookSection";
 import ParentSection from "./components/ParentSection";
 import Footer from "./components/Footer";
 import FloatingElements from "./components/FloatingElements";
-import FloatingSidePanel from "./components/FloatingSidePanel";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 
