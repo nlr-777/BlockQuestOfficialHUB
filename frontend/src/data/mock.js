@@ -14,11 +14,11 @@ export const GARY_MASCOT = BOOK_COVERS.book1;
 
 // The 5 Friends
 export const characters = [
-  { name: "Zara Chen", age: 15, color: "text-purple-400", trait: "Tech Whiz" },
-  { name: "Sam Rodriguez", age: 14, color: "text-orange-400", trait: "Skeptic" },
-  { name: "Miko Tanaka", age: 15, color: "text-cyan-400", trait: "Artist" },
-  { name: "Ollie Okafor", age: 13, color: "text-green-400", trait: "Gamer" },
-  { name: "Lila Nakamura", age: 16, color: "text-yellow-400", trait: "Leader" },
+  { name: "Zara Chen", age: 15, color: "text-purple-400", trait: "Tech Whiz", quote: "Every blockchain tells a story... you just need to know how to read it!" },
+  { name: "Sam Rodriguez", age: 14, color: "text-orange-400", trait: "Skeptic", quote: "If it sounds too good to be true, it probably needs more research." },
+  { name: "Miko Tanaka", age: 15, color: "text-cyan-400", trait: "Artist", quote: "NFTs aren't just pictures—they're proof that creativity has value!" },
+  { name: "Ollie Okafor", age: 13, color: "text-green-400", trait: "Gamer", quote: "Play-to-earn? More like play-to-LEARN... and earn!" },
+  { name: "Lila Nakamura", age: 16, color: "text-yellow-400", trait: "Leader", quote: "The future of finance is decentralized—and we're building it together." },
 ];
 
 export const games = [
