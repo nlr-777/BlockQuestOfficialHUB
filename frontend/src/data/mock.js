@@ -59,33 +59,33 @@ export const books = [
   },
   {
     id: 3,
-    title: "Tokens & Digital Treasure",
-    subtitle: "Coming Soon",
-    description: "The friends explore tokens, NFTs, and the wild world of digital ownership!",
-    cover: null,
+    title: "Tokens",
+    subtitle: "Not Casino Chips, Not Monopoly Money",
+    description: "The friends explore tokens and discover why they're not just digital coins—they're the building blocks of Web3!",
+    cover: BOOK_COVERS.book3,
     series: "Web3 Chaos Chronicles",
     bookNumber: 3,
-    comingSoon: true
+    comingSoon: false
   },
   {
     id: 4,
-    title: "Web3 Games & Beyond",
-    subtitle: "Coming Soon",
-    description: "Ollie leads the crew into play-to-earn, virtual worlds, and the future of gaming!",
-    cover: null,
+    title: "NFTs Without the Scams",
+    subtitle: "Screenshots, or Headaches",
+    description: "Dive into the world of NFTs—what they really are, how to spot scams, and why owning digital art actually matters!",
+    cover: BOOK_COVERS.book4,
     series: "Web3 Chaos Chronicles", 
     bookNumber: 4,
-    comingSoon: true
+    comingSoon: false
   },
   {
     id: 5,
-    title: "The Future of Finance",
-    subtitle: "Coming Soon",
-    description: "The 5 friends tackle DeFi, DAOs, and how they're changing the financial world forever!",
-    cover: null,
+    title: "Web3 Games",
+    subtitle: "Digital Ownership & The Future Internet",
+    description: "The crew explores play-to-earn gaming, digital ownership, and what the future of the internet looks like!",
+    cover: BOOK_COVERS.book5,
     series: "Web3 Chaos Chronicles", 
     bookNumber: 5,
-    comingSoon: true
+    comingSoon: false
   }
 ];
 
