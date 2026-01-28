@@ -70,6 +70,16 @@ export const books = [
     series: "Web3 Chaos Chronicles", 
     bookNumber: 4,
     comingSoon: true
+  },
+  {
+    id: 5,
+    title: "The Future of Finance",
+    subtitle: "Coming Soon",
+    description: "DeFi, DAOs, and how the financial world is changing forever!",
+    cover: null,
+    series: "Web3 Chaos Chronicles", 
+    bookNumber: 5,
+    comingSoon: true
   }
 ];
 
