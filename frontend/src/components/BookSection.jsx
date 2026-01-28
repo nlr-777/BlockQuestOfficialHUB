@@ -77,17 +77,15 @@ const BookSection = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row items-center gap-8">
-            {/* Characters Group Image - Cropped to hide text labels */}
+            {/* Characters Group Image */}
             <div className="flex-shrink-0 relative group">
               <div className="absolute -inset-3 bg-gradient-to-r from-purple-500 via-orange-500 to-cyan-500 rounded-2xl opacity-30 group-hover:opacity-50 blur-xl transition-opacity duration-500"></div>
-              <div className="relative w-72 sm:w-80 lg:w-96 h-40 sm:h-48 lg:h-52 rounded-2xl overflow-hidden border-4 border-purple-500/50 shadow-2xl shadow-purple-500/30 transition-transform duration-300 group-hover:scale-[1.02]">
-                <img 
-                  src={CHARACTERS_IMAGE} 
-                  alt="The 5 Friends - Zara, Sam, Miko, Ollie, and Lila" 
-                  data-testid="characters-group-image"
-                  className="absolute w-full h-[180%] object-cover object-center -top-[28%]"
-                />
-              </div>
+              <img 
+                src={CHARACTERS_IMAGE} 
+                alt="The 5 Friends - Zara, Sam, Miko, Ollie, and Lila" 
+                data-testid="characters-group-image"
+                className="relative w-auto max-w-xs sm:max-w-sm lg:max-w-md rounded-2xl border-4 border-purple-500/50 shadow-2xl shadow-purple-500/30 transition-transform duration-300 group-hover:scale-[1.02]"
+              />
             </div>
             
             {/* Character Cards Grid with Tooltips */}
