@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, Gamepad2, Gem } from 'lucide-react';
+import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { books } from '../data/mock';
 
 const BookSection = () => {
@@ -21,7 +21,7 @@ const BookSection = () => {
         {[...Array(20)].map((_, i) => (
           <Sparkles
             key={i}
-            className="absolute text-yellow-400/30 animate-twinkle"
+            className="absolute text-orange-400/30 animate-twinkle"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -32,36 +32,39 @@ const BookSection = () => {
         ))}
       </div>
 
-      {/* Floating Icons */}
-      <div className="absolute left-10 bottom-1/3 hidden md:block">
-        <Gamepad2 className="w-12 h-12 text-pink-400/40 spin-slow" />
+      {/* Floating goats */}
+      <div className="absolute left-10 bottom-1/3 hidden md:block text-4xl animate-bounce" style={{ animationDuration: '4s' }}>
+        🐐
       </div>
-      <div className="absolute right-10 top-1/3 hidden md:block">
-        <Gem className="w-10 h-10 text-cyan-400/40 bounce-rotate" />
+      <div className="absolute right-10 top-1/3 hidden md:block text-3xl bounce-rotate">
+        📚
       </div>
 
       {/* Section Title */}
       <div className="text-center mb-12 relative z-10">
-        <h2 className="section-title glitch-hover text-4xl sm:text-6xl md:text-7xl font-black mb-4">
+        <p className="text-sm sm:text-base font-bold text-purple-400 mb-2 tracking-wider">
+          WEB3 CHAOS CHRONICLES
+        </p>
+        <h2 className="section-title glitch-hover text-4xl sm:text-6xl md:text-7xl font-black mb-4" style={{ filter: 'drop-shadow(0 0 20px rgba(155, 93, 229, 0.5))' }}>
           BOOK POWER-UP!
         </h2>
-        <p className="text-2xl sm:text-3xl font-bold text-yellow-400 flex items-center justify-center gap-3">
-          <BookOpen className="w-8 h-8" />
-          THE BLOCKQUEST STORIES
-          <span className="text-3xl">📚🔓</span>
+        <p className="text-xl sm:text-2xl font-bold text-orange-400 flex items-center justify-center gap-3">
+          <BookOpen className="w-7 h-7" />
+          Learn Web3 Through Epic Stories!
+          <span className="text-2xl">🐐📚</span>
         </p>
       </div>
 
       {/* Book Carousel */}
-      <div className="max-w-5xl mx-auto relative z-10">
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="flex items-center justify-center gap-4">
           {/* Prev Button */}
           <Button
             onClick={prevBook}
-            className="carousel-nav-btn h-14 w-14 rounded-full"
+            className="carousel-nav-btn h-14 w-14 rounded-full bg-purple-800/50 border-purple-500/50 hover:bg-purple-700/50"
             aria-label="Previous book"
           >
-            <ChevronLeft className="w-8 h-8" />
+            <ChevronLeft className="w-8 h-8 text-purple-300" />
           </Button>
 
           {/* Books Display */}
@@ -80,31 +83,66 @@ const BookSection = () => {
                     zIndex: isActive ? 10 : 5 - Math.abs(offset)
                   }}
                 >
-                  {/* Book Cover Placeholder */}
-                  <div className="book-cover relative w-48 sm:w-56 h-64 sm:h-80 rounded-lg overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-pink-500 to-yellow-400 flex flex-col items-center justify-center p-4">
-                      <BookOpen className="w-16 h-16 text-white mb-4" />
-                      <p className="text-white text-center text-sm font-bold">
-                        {book.coverPlaceholder}
-                      </p>
-                    </div>
+                  {/* Book Cover */}
+                  <div className="book-cover relative w-48 sm:w-56 h-64 sm:h-80 rounded-lg overflow-hidden shadow-2xl">
+                    {book.cover ? (
+                      // Real book cover
+                      <img 
+                        src={book.cover} 
+                        alt={book.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      // Coming Soon placeholder
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-800 flex flex-col items-center justify-center p-4">
+                        <BookOpen className="w-16 h-16 text-white/50 mb-4" />
+                        <p className="text-white/70 text-center text-lg font-bold">
+                          Book {book.bookNumber}
+                        </p>
+                        <p className="text-purple-300 text-center text-sm mt-2">
+                          Coming Soon
+                        </p>
+                      </div>
+                    )}
                     
                     {/* Coming Soon Badge */}
                     {book.comingSoon && (
-                      <div className="absolute top-2 right-2 bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-black flex items-center gap-1">
+                      <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-3 py-1 rounded-full text-xs font-black flex items-center gap-1 shadow-lg">
                         <Lock className="w-3 h-3" />
                         SOON
                       </div>
                     )}
 
+                    {/* Book Number Badge */}
+                    {!book.comingSoon && (
+                      <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-bold">
+                        Book {book.bookNumber}
+                      </div>
+                    )}
+
                     {/* Glow effect on active */}
-                    {isActive && <div className="book-glow" />}
+                    {isActive && <div className="book-glow" style={{ background: 'linear-gradient(45deg, #ff6b35, #9b5de5, #00d4ff)' }} />}
                   </div>
 
                   {/* Book Info */}
-                  <div className={`mt-4 text-center transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
-                    <h3 className="text-xl font-black text-cyan-400 mb-2">{book.title}</h3>
-                    <p className="text-gray-400 text-sm">{book.description}</p>
+                  <div className={`mt-4 text-center transition-opacity duration-300 max-w-56 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                    <p className="text-xs text-purple-400 font-semibold mb-1">{book.series}</p>
+                    <h3 className="text-lg font-black text-orange-400 mb-1">{book.title}</h3>
+                    {book.subtitle && (
+                      <p className="text-sm text-cyan-400 font-medium mb-2">{book.subtitle}</p>
+                    )}
+                    <p className="text-gray-400 text-xs">{book.description}</p>
+                    
+                    {/* Buy Button for available books */}
+                    {!book.comingSoon && (
+                      <Button 
+                        className="mt-3 bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-400 hover:to-purple-500 text-white text-sm px-4 py-2 rounded-full font-bold flex items-center gap-2 mx-auto"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        Coming Soon
+                      </Button>
+                    )}
                   </div>
                 </div>
               );
@@ -114,10 +152,10 @@ const BookSection = () => {
           {/* Next Button */}
           <Button
             onClick={nextBook}
-            className="carousel-nav-btn h-14 w-14 rounded-full"
+            className="carousel-nav-btn h-14 w-14 rounded-full bg-purple-800/50 border-purple-500/50 hover:bg-purple-700/50"
             aria-label="Next book"
           >
-            <ChevronRight className="w-8 h-8" />
+            <ChevronRight className="w-8 h-8 text-purple-300" />
           </Button>
         </div>
 
@@ -127,17 +165,25 @@ const BookSection = () => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`carousel-dot ${index === currentIndex ? 'carousel-dot-active' : ''}`}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === currentIndex 
+                  ? 'bg-orange-500 shadow-lg shadow-orange-500/50 scale-125' 
+                  : 'bg-purple-700 hover:bg-purple-600'
+              }`}
               aria-label={`Go to book ${index + 1}`}
             />
           ))}
         </div>
 
-        {/* Coming Soon Text */}
-        <p className="text-center text-lg sm:text-xl text-gray-300 mt-8 font-medium">
-          Read to unlock secret powers and game levels! 
-          <span className="text-yellow-400 font-bold"> Coming soon</span> – pure adventure!
-        </p>
+        {/* Series Teaser */}
+        <div className="text-center mt-10 p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-purple-900/40 border border-purple-500/20 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-gray-300 font-medium">
+            🐐 Join Gary the Goat on an epic journey through the chaos of money, blockchains, and Web3!
+          </p>
+          <p className="text-orange-400 font-bold mt-2">
+            5-Book Series • Perfect for curious kids (10+) and confused adults!
+          </p>
+        </div>
       </div>
     </section>
   );
