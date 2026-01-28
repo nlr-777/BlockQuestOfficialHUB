@@ -110,23 +110,16 @@ const QuestSection = () => {
                   <p className="text-purple-300 font-bold text-xl">More Chaos Loading...</p>
                 </div>
               ) : (
-                // Retro Arcade Menu Mock
-                <div className="absolute inset-0 bg-black p-4 sm:p-6 flex flex-col">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-orange-400 font-black text-lg sm:text-xl pixel-font">BLOCKQUEST RETRO ARCADE</h3>
-                    <img src={GARY_MASCOT} alt="Gary" className="w-10 h-10 rounded-full border-2 border-orange-500/50" />
-                  </div>
-                  <p className="text-cyan-400 text-xs sm:text-sm mb-3">Learn Web3 While You Play ⬡</p>
-                  <div className="flex-1 overflow-hidden">
-                    <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
-                      {gameLevels.map((level, i) => (
-                        <div key={i} className="text-green-400 hover:text-yellow-400 transition-colors cursor-pointer">
-                          {level}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-yellow-400 text-xs mt-2">High scores = more rewards! 🏆</p>
+                // Game Preview with actual screenshot
+                <div className="absolute inset-0 bg-black overflow-hidden">
+                  <iframe
+                    src={game.url}
+                    title="BlockQuest Retro Arcade Preview"
+                    className="w-full h-full border-0 pointer-events-none scale-110 origin-center"
+                    loading="lazy"
+                  />
+                  {/* Overlay to prevent interaction in preview */}
+                  <div className="absolute inset-0 bg-transparent" />
                 </div>
               )}
               
