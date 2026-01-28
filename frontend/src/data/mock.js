@@ -6,8 +6,20 @@ export const BOOK_COVERS = {
   book2: "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/icg19nct_generated_image_20260124_043201_1.png",
 };
 
-// Gary the Goat mascot (from Book 1 cover)
+// Characters image
+export const CHARACTERS_IMAGE = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/42e91riu_generated_image_20260128_051915_1.png";
+
+// Gary's Goat mascot (from Book 1 cover)
 export const GARY_MASCOT = BOOK_COVERS.book1;
+
+// The 5 Friends
+export const characters = [
+  { name: "Zara Chen", age: 15, color: "text-purple-400", trait: "Tech Whiz" },
+  { name: "Sam Rodriguez", age: 14, color: "text-orange-400", trait: "Skeptic" },
+  { name: "Miko Tanaka", age: 15, color: "text-cyan-400", trait: "Artist" },
+  { name: "Ollie Okafor", age: 13, color: "text-green-400", trait: "Gamer" },
+  { name: "Lila Nakamura", age: 16, color: "text-yellow-400", trait: "Leader" },
+];
 
 export const games = [
   {
@@ -35,7 +47,7 @@ export const books = [
     id: 1,
     title: "Money's Origin Story",
     subtitle: "From Bartering Goats to Digital Chaos",
-    description: "The wild history of money featuring Gary the Goat! Learn how we went from trading goats to digital gold.",
+    description: "Join 5 friends as they discover how Gary's goat started it all! The wild history of money from ancient trades to digital gold.",
     cover: BOOK_COVERS.book1,
     series: "Web3 Chaos Chronicles",
     bookNumber: 1,
@@ -45,7 +57,7 @@ export const books = [
     id: 2,
     title: "Why Blockchains Exist",
     subtitle: "(AKA Humans Can't Behave)",
-    description: "Ninja kids vs Traditional Ledgers! Discover why we needed an unbreakable chain of trust.",
+    description: "Our 5 friends learn why we needed an unbreakable chain of trust – because humans just can't behave!",
     cover: BOOK_COVERS.book2,
     series: "Web3 Chaos Chronicles",
     bookNumber: 2,
@@ -55,7 +67,7 @@ export const books = [
     id: 3,
     title: "Tokens & Digital Treasure",
     subtitle: "Coming Soon",
-    description: "The adventure continues with tokens, NFTs, and digital ownership!",
+    description: "The friends explore tokens, NFTs, and the wild world of digital ownership!",
     cover: null,
     series: "Web3 Chaos Chronicles",
     bookNumber: 3,
@@ -65,7 +77,7 @@ export const books = [
     id: 4,
     title: "Web3 Games & Beyond",
     subtitle: "Coming Soon",
-    description: "Play-to-earn, virtual worlds, and the future of gaming!",
+    description: "Ollie leads the crew into play-to-earn, virtual worlds, and the future of gaming!",
     cover: null,
     series: "Web3 Chaos Chronicles", 
     bookNumber: 4,
@@ -75,7 +87,7 @@ export const books = [
     id: 5,
     title: "The Future of Finance",
     subtitle: "Coming Soon",
-    description: "DeFi, DAOs, and how the financial world is changing forever!",
+    description: "The 5 friends tackle DeFi, DAOs, and how they're changing the financial world forever!",
     cover: null,
     series: "Web3 Chaos Chronicles", 
     bookNumber: 5,
