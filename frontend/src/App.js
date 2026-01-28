@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import QuestSection from "./components/QuestSection";
 import BookSection from "./components/BookSection";
+import MerchSection from "./components/MerchSection";
 import ParentSection from "./components/ParentSection";
 import Footer from "./components/Footer";
 import FloatingElements from "./components/FloatingElements";
@@ -39,6 +40,9 @@ const LandingPage = () => {
         </section>
         <section id="book-section">
           <BookSection />
+        </section>
+        <section id="merch-section">
+          <MerchSection />
         </section>
         <section id="parent-section">
           <ParentSection />
