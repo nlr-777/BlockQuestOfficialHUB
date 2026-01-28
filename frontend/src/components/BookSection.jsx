@@ -72,7 +72,7 @@ const BookSection = () => {
               <span className="text-2xl">👥</span>
             </div>
             <p className="text-gray-300 text-base max-w-2xl mx-auto">
-              Five curious friends discover the wild world of Web3 together. From Gary's legendary goat trade to the future of digital money—join their chaotic adventure!
+              Five curious friends discover the wild world of Web3 together. From Gary&apos;s legendary goat trade to the future of digital money—join their chaotic adventure!
             </p>
           </div>
 
