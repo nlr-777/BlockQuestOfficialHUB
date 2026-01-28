@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from './ui/button';
-import { Zap, Trophy, Rocket, Star, Gamepad2, Coins, Hexagon, Lock, Play } from 'lucide-react';
-import { games, GARY_MASCOT } from '../data/mock';
+import { Zap, Rocket, Star, Gamepad2, Coins, Lock, Play } from 'lucide-react';
+import { games } from '../data/mock';
 
 const QuestSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -44,9 +44,6 @@ const QuestSection = () => {
     document.body.appendChild(container);
     setTimeout(() => container.remove(), 1200);
   }, []);
-
-  // Game levels for display
-  const gameLevels = ['▶ Block', '▶ Chain', '▶ Hash', '▶ Ledger', '▶ DAO', '▶ Contract', '▶ Quest'];
 
   return (
     <section id="quest-section" className="quest-section py-20 px-4 relative overflow-hidden">
