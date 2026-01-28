@@ -15,16 +15,16 @@ import TermsConditions from "./pages/TermsConditions";
 const LandingPage = () => {
   useEffect(() => {
     // Set page title and meta for SEO
-    document.title = "BlockQuest – Epic Games and Books for All Ages";
+    document.title = "BlockQuest HQ – Epic Games and Books for All Ages";
     
     // Add meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'BlockQuest Official - Epic arcade games and books for all ages! Fun for the whole family with safe, ad-free learning adventures. Suitable for ages 5 and up.');
+      metaDescription.setAttribute('content', 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games. Learn Web3 the fun way! Ages 10+ and confused adults welcome.');
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'BlockQuest Official - Epic arcade games and books for all ages! Fun for the whole family with safe, ad-free learning adventures. Suitable for ages 5 and up.';
+      meta.content = 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games. Learn Web3 the fun way! Ages 10+ and confused adults welcome.';
       document.head.appendChild(meta);
     }
   }, []);
