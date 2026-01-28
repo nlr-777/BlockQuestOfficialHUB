@@ -1,13 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from './ui/button';
-import { Zap, Trophy, Rocket, Star, Gamepad2, Coins, Hexagon } from 'lucide-react';
-import { games } from '../data/mock';
-
-// Game screenshot URLs - actual game preview images
-const gameScreenshots = {
-  1: 'https://blocky-arcade.preview.emergentagent.com/', // Blocky Multiverse
-  2: 'https://crtblitz.preview.emergentagent.com/' // CRT Blitz
-};
+import { Zap, Trophy, Rocket, Star, Gamepad2, Coins, Hexagon, Lock, Play } from 'lucide-react';
+import { games, GARY_MASCOT } from '../data/mock';
 
 const QuestSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -23,8 +17,8 @@ const QuestSection = () => {
       z-index: 9999;
     `;
     
-    const colors = ['#00ffff', '#ff00ff', '#ffff00', '#00ff00', '#ff69b4', '#ff6600'];
-    const shapes = ['●', '★', '◆', '▲', '■', '✦', '⬡', '💎', '🌟', '⚡', '🚀', '🎉', '🏆', '🎮'];
+    const colors = ['#ff6b35', '#9b5de5', '#00d4ff', '#ffff00', '#ff69b4', '#00ff00'];
+    const shapes = ['●', '★', '◆', '▲', '■', '✦', '⬡', '💎', '🐐', '⚡', '🎮', '🏆'];
     
     for (let i = 0; i < 40; i++) {
       const particle = document.createElement('span');
@@ -51,37 +45,40 @@ const QuestSection = () => {
     setTimeout(() => container.remove(), 1200);
   }, []);
 
+  // Game levels for display
+  const gameLevels = ['▶ Block', '▶ Chain', '▶ Hash', '▶ Ledger', '▶ DAO', '▶ Contract', '▶ Quest'];
+
   return (
     <section id="quest-section" className="quest-section py-20 px-4 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-radial from-purple-900/20 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-radial from-orange-900/10 via-purple-900/10 to-transparent" />
 
       {/* Floating decorative icons */}
       <div className="absolute left-4 bottom-1/4 hidden lg:block">
-        <Gamepad2 className="w-10 h-10 text-cyan-400/30 spin-slow" />
+        <Gamepad2 className="w-10 h-10 text-orange-400/30 spin-slow" />
       </div>
       <div className="absolute right-4 top-1/4 hidden lg:block">
         <Coins className="w-8 h-8 text-yellow-400/30 bounce-rotate" />
       </div>
-      <div className="absolute left-1/4 top-20 hidden lg:block">
-        <Hexagon className="w-6 h-6 text-pink-400/20 wobble" />
+      <div className="absolute left-1/4 top-20 hidden lg:block text-3xl wobble">
+        🐐
       </div>
       
       {/* Section Title */}
       <div className="text-center mb-16 relative z-10">
-        <h2 className="section-title rgb-split text-4xl sm:text-6xl md:text-7xl font-black mb-4 cursor-pointer">
-          QUEST EXPLOSION!
+        <h2 className="section-title rgb-split text-4xl sm:text-6xl md:text-7xl font-black mb-4 cursor-pointer" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.5))' }}>
+          ARCADE ZONE!
         </h2>
         <div className="flex justify-center gap-4">
-          <Rocket className="w-8 h-8 text-cyan-400 bounce-rotate neon-glow-cyan" />
-          <Star className="w-8 h-8 text-yellow-400 wobble neon-glow-yellow" />
-          <Zap className="w-8 h-8 text-pink-400 bounce-rotate neon-glow-magenta" />
+          <Rocket className="w-8 h-8 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
+          <Star className="w-8 h-8 text-yellow-400 wobble" style={{ filter: 'drop-shadow(0 0 10px #ffff00)' }} />
+          <Zap className="w-8 h-8 text-purple-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #9b5de5)' }} />
         </div>
         
         {/* XP & Badges Teaser Banner */}
         <div className="mt-8 inline-block">
-          <div className="xp-badge-banner px-6 py-3 rounded-full bg-gradient-to-r from-purple-900/60 via-pink-900/40 to-purple-900/60 border border-pink-500/30">
-            <p className="text-sm sm:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-yellow-400 to-pink-400 flex items-center justify-center gap-2 flex-wrap">
+          <div className="xp-badge-banner px-6 py-3 rounded-full bg-gradient-to-r from-orange-900/60 via-purple-900/40 to-orange-900/60 border border-orange-500/30">
+            <p className="text-sm sm:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-400 to-purple-400 flex items-center justify-center gap-2 flex-wrap">
               <span className="text-lg">⭐</span>
               Earn XP, Levels & Fun Badges in games!
               <span className="text-lg">🏆</span>
@@ -95,27 +92,46 @@ const QuestSection = () => {
         {games.map((game) => (
           <div
             key={game.id}
-            className={`game-card ${game.theme === 'rainbow' ? 'game-card-rainbow' : 'game-card-neon'}`}
+            className={`game-card rounded-3xl overflow-hidden transition-all duration-500 ${
+              game.comingSoon 
+                ? 'border-2 border-purple-500/30 bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900' 
+                : 'border-2 border-orange-500/50 bg-gradient-to-br from-gray-900 via-orange-900/20 to-gray-900'
+            }`}
+            style={{ boxShadow: game.comingSoon ? '0 0 30px rgba(155, 93, 229, 0.2)' : '0 0 30px rgba(255, 107, 53, 0.2)' }}
             onMouseEnter={() => setHoveredCard(game.id)}
             onMouseLeave={() => setHoveredCard(null)}
           >
-            {/* Game Screenshot - Live Preview */}
-            <div className="game-screenshot relative h-48 sm:h-64 rounded-t-2xl overflow-hidden">
-              <iframe
-                src={gameScreenshots[game.id]}
-                title={game.title}
-                className="absolute inset-0 w-full h-full border-0 pointer-events-none"
-                style={{ 
-                  transform: 'scale(0.5)', 
-                  transformOrigin: 'top left',
-                  width: '200%',
-                  height: '200%'
-                }}
-                loading="lazy"
-                sandbox="allow-scripts allow-same-origin"
-              />
-              {/* Overlay gradient for better blending */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent pointer-events-none" />
+            {/* Game Preview Area */}
+            <div className="game-screenshot relative h-48 sm:h-64 overflow-hidden">
+              {game.comingSoon ? (
+                // Coming Soon placeholder
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-purple-900/50 to-indigo-900/50">
+                  <div className="text-6xl mb-4 animate-bounce" style={{ animationDuration: '2s' }}>🚀</div>
+                  <p className="text-purple-300 font-bold text-xl">More Chaos Loading...</p>
+                </div>
+              ) : (
+                // Retro Arcade Menu Mock
+                <div className="absolute inset-0 bg-black p-4 sm:p-6 flex flex-col">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-orange-400 font-black text-lg sm:text-xl pixel-font">BLOCKQUEST RETRO ARCADE</h3>
+                    <img src={GARY_MASCOT} alt="Gary" className="w-10 h-10 rounded-full border-2 border-orange-500/50" />
+                  </div>
+                  <p className="text-cyan-400 text-xs sm:text-sm mb-3">Learn Web3 While You Play ⬡</p>
+                  <div className="flex-1 overflow-hidden">
+                    <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+                      {gameLevels.map((level, i) => (
+                        <div key={i} className="text-green-400 hover:text-yellow-400 transition-colors cursor-pointer">
+                          {level}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-yellow-400 text-xs mt-2">High scores = more rewards! 🏆</p>
+                </div>
+              )}
+              
+              {/* Overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent pointer-events-none" />
               
               {/* Floating emojis on hover */}
               {hoveredCard === game.id && (
@@ -134,34 +150,56 @@ const QuestSection = () => {
                   ))}
                 </div>
               )}
+
+              {/* Coming Soon Badge */}
+              {game.comingSoon && (
+                <div className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-black flex items-center gap-2 shadow-lg">
+                  <Lock className="w-4 h-4" />
+                  COMING SOON
+                </div>
+              )}
             </div>
 
             {/* Card Content */}
             <div className="p-6 sm:p-8">
-              <h3 className={`game-title text-2xl sm:text-3xl font-black mb-4 ${game.theme === 'rainbow' ? 'text-rainbow' : 'text-neon-cyan'}`}>
+              <h3 className={`game-title text-2xl sm:text-3xl font-black mb-4 ${game.comingSoon ? 'text-purple-400' : 'text-orange-400'}`}>
                 {game.title}
               </h3>
               <p className="text-gray-300 text-lg mb-3 font-medium">
                 {game.description}
               </p>
               {/* XP & Badges Teaser - Per Card */}
-              <p className={`text-xs sm:text-sm mb-5 font-semibold ${game.theme === 'rainbow' ? 'text-yellow-400/80' : 'text-cyan-400/80'}`}>
-                ⭐ Earn XP, Levels & Fun Badges! 🏆
-              </p>
-              <a 
-                href={game.url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block"
-                onClick={createExplosion}
-              >
+              {!game.comingSoon && (
+                <p className="text-sm mb-5 font-semibold text-orange-400/80">
+                  ⭐ Earn XP, Levels & Fun Badges! 🏆
+                </p>
+              )}
+              
+              {game.comingSoon ? (
                 <Button 
-                  className={`play-button crt-distort ripple-effect w-full h-16 sm:h-20 text-xl sm:text-2xl font-black ${game.theme === 'rainbow' ? 'play-button-rainbow' : 'play-button-neon'}`}
+                  className="w-full h-16 sm:h-20 text-xl sm:text-2xl font-black bg-purple-800/50 border-2 border-purple-500/50 text-purple-300 cursor-not-allowed"
+                  disabled
                 >
-                  <Trophy className="w-6 h-6 mr-2 bounce-rotate" />
-                  PLAY NOW!
+                  <Lock className="w-6 h-6 mr-2" />
+                  COMING SOON
                 </Button>
-              </a>
+              ) : (
+                <a 
+                  href={game.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block"
+                  onClick={createExplosion}
+                >
+                  <Button 
+                    className="play-button crt-distort ripple-effect w-full h-16 sm:h-20 text-xl sm:text-2xl font-black bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 border-2 border-orange-400/50 text-white"
+                    style={{ boxShadow: '0 0 20px rgba(255, 107, 53, 0.5)' }}
+                  >
+                    <Play className="w-6 h-6 mr-2 bounce-rotate" />
+                    PLAY NOW!
+                  </Button>
+                </a>
+              )}
             </div>
           </div>
         ))}
