@@ -136,17 +136,25 @@ const HeroSection = () => {
 
       {/* Main Content */}
       <div className="relative z-20 text-center px-4 max-w-6xl mx-auto">
-        {/* BlockQuest Logo + Gary */}
+        {/* BlockQuest Logo + Web3 Chaos Chronicles Promo */}
         <div className="mb-6 relative">
-          {/* Gary the Goat - floating beside logo on larger screens */}
-          <div className="hidden lg:block absolute -left-32 top-1/2 -translate-y-1/2">
+          {/* Web3 Chaos Chronicles Promo - floating beside logo on larger screens, links to books */}
+          <a 
+            href="#book-section" 
+            onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); }}
+            className="hidden lg:block absolute -left-44 top-1/2 -translate-y-1/2 group cursor-pointer"
+          >
             <img 
-              src={GARY_MASCOT} 
-              alt="Gary the Goat" 
-              className="w-28 h-28 rounded-full object-cover border-4 border-orange-500/50 shadow-lg shadow-orange-500/30 animate-bounce"
+              src={CHAOS_CHRONICLES_PROMO} 
+              alt="Web3 Chaos Chronicles - Click to explore books" 
+              data-testid="chaos-chronicles-promo"
+              className="w-36 h-auto rounded-xl object-cover border-4 border-purple-500/50 shadow-lg shadow-purple-500/30 animate-bounce group-hover:border-orange-500/70 group-hover:shadow-orange-500/40 transition-all duration-300"
               style={{ animationDuration: '3s' }}
             />
-          </div>
+            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              📚 View Books
+            </span>
+          </a>
           
           <img 
             src={LOGO_URL} 
@@ -154,15 +162,19 @@ const HeroSection = () => {
             className="hero-logo glitch-hover w-64 sm:w-80 md:w-96 lg:w-[500px] mx-auto cursor-pointer"
           />
           
-          {/* Gary on mobile - below logo */}
-          <div className="lg:hidden flex justify-center mt-4">
+          {/* Web3 Chaos Chronicles Promo on mobile - below logo, links to books */}
+          <a 
+            href="#book-section" 
+            onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); }}
+            className="lg:hidden flex justify-center mt-4"
+          >
             <img 
-              src={GARY_MASCOT} 
-              alt="Gary the Goat" 
-              className="w-20 h-20 rounded-full object-cover border-4 border-orange-500/50 shadow-lg shadow-orange-500/30 animate-bounce"
+              src={CHAOS_CHRONICLES_PROMO} 
+              alt="Web3 Chaos Chronicles - Tap to explore books" 
+              className="w-28 h-auto rounded-xl object-cover border-4 border-purple-500/50 shadow-lg shadow-purple-500/30 animate-bounce"
               style={{ animationDuration: '3s' }}
             />
-          </div>
+          </a>
           
           <div className="flex justify-center gap-3 mt-4">
             <Sparkles className="w-8 h-8 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
