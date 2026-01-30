@@ -191,7 +191,8 @@ const TermsConditions = () => {
 
       {/* Footer */}
       <footer className="border-t border-gray-800 py-8 text-center text-gray-500">
-        <p>© 2025 BlockQuest Official. All rights reserved.</p>
+        <p>© 2026 BlockQuest Official. All rights reserved.</p>
+        <p className="text-sm mt-1">BlockQuest Official | ABN: 71 926 421 644 | Capricorn Coast, QLD</p>
       </footer>
     </div>
   );

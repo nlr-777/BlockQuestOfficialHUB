@@ -112,8 +112,11 @@ const Footer = () => {
         {/* Copyright */}
         <div className="text-center">
           <p className="text-gray-400 mb-2">
-            © 2025 BlockQuest Official – 
+            © 2026 BlockQuest Official – 
             <span className="text-cyan-400 font-bold"> "Get ready to level up!"</span>
+          </p>
+          <p className="text-gray-500 text-sm mb-1">
+            BlockQuest Official | ABN: 71 926 421 644 | Capricorn Coast, QLD
           </p>
           <p className="text-gray-500 text-sm">
             Made with 🚀 in Australia
