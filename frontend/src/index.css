@@ -121,6 +121,13 @@ code {
     }
 }
 
+/* Hide Emergent badge */
+#emergent-badge,
+a[href*="emergent.sh"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
 @layer base {
     [data-debug-wrapper="true"] {
         display: contents !important;
