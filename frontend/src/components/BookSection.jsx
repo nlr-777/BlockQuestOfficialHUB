@@ -196,13 +196,26 @@ const BookSection = () => {
                   </div>
 
                   {/* Book Info */}
-                  <div className={`mt-4 text-center transition-opacity duration-300 max-w-56 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                  <div className={`mt-4 text-center transition-opacity duration-300 max-w-72 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
                     <p className="text-xs text-purple-400 font-semibold mb-1">{book.series}</p>
                     <h3 className="text-lg font-black text-orange-400 mb-1">{book.title}</h3>
                     {book.subtitle && (
                       <p className="text-sm text-cyan-400 font-medium mb-2">{book.subtitle}</p>
                     )}
-                    <p className="text-gray-400 text-xs">{book.description}</p>
+                    
+                    {/* Teaser for books 3-5 */}
+                    {book.teaser && (
+                      <p className="text-yellow-400 font-bold text-sm mb-2 animate-pulse">{book.teaser}</p>
+                    )}
+                    
+                    <p className="text-gray-300 text-xs mb-2">{book.description}</p>
+                    
+                    {/* Hook for books 3-5 */}
+                    {book.hook && (
+                      <div className="mt-2 p-2 rounded-lg bg-purple-900/40 border border-purple-500/30">
+                        <p className="text-xs text-purple-300 italic">{book.hook}</p>
+                      </div>
+                    )}
                     
                     {/* Buy Button for available books */}
                     {!book.comingSoon && (
