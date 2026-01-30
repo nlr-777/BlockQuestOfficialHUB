@@ -1,0 +1,121 @@
+{
+  "identity": {
+    "persona": "E1",
+    "role": "Creative Designer (Anti-AI)",
+    "principles": [
+      "Fusion over Imitation: Mix Retro Arcade + Modern Web3 + Kid Education.",
+      "Emotion First: Curiosity, Excitement, Safety.",
+      "Content is King: Every pixel tells the story of 'Chaos Unlocked'.",
+      "Zoom In: Focus on pixel details and neon glows.",
+      "Negative Space: Use black void to make neons pop."
+    ]
+  },
+  "theme": {
+    "mode": "dark",
+    "name": "Retro Neon Arcade",
+    "background": "#050505",
+    "primary": "#FF00FF",
+    "secondary": "#00FFFF",
+    "accent": "#39FF14",
+    "warning": "#FFD700",
+    "surface": "#111111",
+    "border": "#333333"
+  },
+  "typography": {
+    "headings": {
+      "fontFamily": "\"Press Start 2P\", cursive",
+      "usage": "Main titles, Hero text, Game titles",
+      "className": "font-['Press_Start_2P']"
+    },
+    "subheadings": {
+      "fontFamily": "\"Orbitron\", sans-serif",
+      "usage": "Section headers, UI labels",
+      "className": "font-['Orbitron']"
+    },
+    "body": {
+      "fontFamily": "\"Rajdhani\", sans-serif",
+      "usage": "Paragraphs, descriptions, footer",
+      "className": "font-['Rajdhani']"
+    }
+  },
+  "colors": {
+    "palette": {
+      "obsidian": "#050505",
+      "neonPink": "#FF00FF",
+      "neonCyan": "#00FFFF",
+      "neonLime": "#39FF14",
+      "neonPurple": "#B026FF",
+      "gold": "#FFD700",
+      "error": "#FF3B30"
+    },
+    "gradients": {
+      "hero": "linear-gradient(135deg, #050505 0%, #1a0b2e 100%)",
+      "button": "linear-gradient(90deg, #FF00FF 0%, #B026FF 100%)",
+      "text": "linear-gradient(to right, #00FFFF, #FF00FF)"
+    }
+  },
+  "layout_strategy": {
+    "grid_system": "Bento Grid (Tailwind)",
+    "spacing": "Generous (p-8 to p-24)",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "sections": {
+      "hero": "Asymmetrical. Left: Text + CTAs. Right: Massive Pixel Art Scene. Logo must be SMALLER (max-w-xs).",
+      "arcade_zone": "Bento Grid. Mix of 2x2 (Featured Game) and 1x1 (Mini Games) cards.",
+      "book_section": "3D Carousel or Horizontal Scroll with 'Tilt' effect on covers.",
+      "parent_zone": "Clean, trustworthy, less neon. White/Light Grey text on dark bg. Shield icons."
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "Pixelated border (box-shadow hack), Neon Pink bg, White text, Hover: Glitch effect.",
+      "secondary": "Hollow Neon Cyan border, Transparent bg, Cyan text, Hover: Fill Cyan.",
+      "cta_text": "INSERT COIN, START GAME, UNLOCK CHAOS"
+    },
+    "cards": {
+      "game_card": "Dark bg, Neon border glow on hover, Pixelated corners.",
+      "book_card": "3D perspective, shadow-lg, hover: scale-105."
+    },
+    "visual_enhancers": {
+      "scanlines": "Overlay with low opacity repeating linear gradient.",
+      "particles": "Floating pixel bits (squares) in background.",
+      "glow": "Drop-shadow with neon colors (e.g., drop-shadow-[0_0_10px_rgba(0,255,255,0.7)])."
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_bg": "https://images.unsplash.com/photo-1636070759654-5c93bbca2862?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "arcade_cabinet": "https://images.unsplash.com/photo-1754246522949-69355c187b13?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "gary_the_goat": "https://images.unsplash.com/photo-1759663174316-24e737d47d9e?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "book_cover_1": "https://images.unsplash.com/photo-1763315371267-86318801d8ed?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "book_cover_2": "https://images.unsplash.com/photo-1613574841859-cbab4621150f?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "kid_playing": "https://images.unsplash.com/photo-1758612897213-fbe111d74c8a?crop=entropy&cs=srgb&fm=jpg&q=85",
+      "trust_badge": "Use Lucide Icons (Shield, Lock, Heart)"
+    },
+    "icons": "Lucide React (default) or Phosphor Icons (Pixel style if available)"
+  },
+  "motion": {
+    "hover": "Scale 1.05, Glitch effect, Neon Glow intensity increase.",
+    "scroll": "Fade in up, Staggered reveal for grid items.",
+    "floating": "Continuous slow float for background elements (coins, controllers)."
+  },
+  "instructions_to_main_agent": [
+    "1. HERO LOGO: The user explicitly requested a SMALLER logo. Ensure the BlockQuest logo in the hero is max-w-[200px] or max-w-xs.",
+    "2. CURIOSITY: Add 'Secret' hover states. Example: Hovering over a coin plays a sound or spins it. Hidden 'Easter Eggs' in the UI.",
+    "3. PARENT ZONE: Keep this section visually distinct—calmer, more structured, to build trust.",
+    "4. DO NOT use gradients for text unless it's a very large heading.",
+    "5. USE 'Press Start 2P' sparingly (Headings only) to ensure readability.",
+    "6. IMPLEMENT a 'Konami Code' listener (optional but cool) that triggers a confetti explosion."
+  ],
+  "universal_guidelines": {
+    "do_not": [
+      "Do not use generic 'SaaS Blue'.",
+      "Do not use rounded corners > 4px (keep it boxy/pixelated).",
+      "Do not clutter the screen—use negative space to let the neon breathe."
+    ],
+    "must_do": [
+      "Use 'data-testid' for all interactive elements.",
+      "Ensure contrast ratios are met even with neon colors (use dark fills behind text if needed).",
+      "Make it responsive—mobile users should still feel the arcade vibe."
+    ]
+  }
+}
