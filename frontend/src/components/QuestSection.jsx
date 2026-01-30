@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from './ui/button';
 import { Zap, Rocket, Star, Gamepad2, Coins, Lock, Play } from 'lucide-react';
-import { games } from '../data/mock';
+import { games, GAME_PREVIEW_IMAGE } from '../data/mock';
 
 const QuestSection = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
