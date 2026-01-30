@@ -107,16 +107,14 @@ const QuestSection = () => {
                   <p className="text-purple-300 font-bold text-xl">More Chaos Loading...</p>
                 </div>
               ) : (
-                // Game Preview with actual screenshot
+                // Game Preview with screenshot image
                 <div className="absolute inset-0 bg-black overflow-hidden">
-                  <iframe
-                    src={game.url}
-                    title="BlockQuest Retro Arcade Preview"
-                    className="w-full h-full border-0 pointer-events-none scale-110 origin-center"
-                    loading="lazy"
+                  <img 
+                    src={GAME_PREVIEW_IMAGE}
+                    alt="BlockQuest Retro Arcade Preview"
+                    className="w-full h-full object-cover object-top"
+                    data-testid="game-preview-image"
                   />
-                  {/* Overlay to prevent interaction in preview */}
-                  <div className="absolute inset-0 bg-transparent" />
                 </div>
               )}
               
