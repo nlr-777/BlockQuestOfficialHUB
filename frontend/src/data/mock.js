@@ -15,6 +15,9 @@ export const CHARACTERS_IMAGE = "https://customer-assets.emergentagent.com/job_3
 // Web3 Chaos Chronicles promo image (floating hero image linking to books)
 export const CHAOS_CHRONICLES_PROMO = "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/nqif8u1e_generated_image_20260124_035327_1.png";
 
+// Game preview screenshot
+export const GAME_PREVIEW_IMAGE = "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/wblbvhal_Screenshot_20260129-171852.Chrome.png";
+
 // Gary's Goat mascot (from Book 1 cover)
 export const GARY_MASCOT = BOOK_COVERS.book1;
 
