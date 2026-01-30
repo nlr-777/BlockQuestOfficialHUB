@@ -136,67 +136,98 @@ const HeroSection = () => {
 
       {/* Main Content */}
       <div className="relative z-20 text-center px-4 max-w-6xl mx-auto">
-        {/* BlockQuest Logo + Web3 Chaos Chronicles Promo */}
+        {/* Curiosity Hook - Floating Question */}
+        <div className="mb-4 animate-pulse">
+          <span className="inline-block px-4 py-2 bg-gradient-to-r from-purple-900/60 to-cyan-900/60 rounded-full border border-cyan-500/30 text-cyan-400 text-sm font-bold">
+            🤔 Ever wondered why money exists? Or what a blockchain actually IS?
+          </span>
+        </div>
+
+        {/* BlockQuest Logo - SMALLER */}
         <div className="mb-6 relative">
-          {/* Web3 Chaos Chronicles Promo - floating beside logo on larger screens, links to books */}
-          <a 
-            href="#book-section" 
-            onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); }}
-            className="hidden lg:block absolute -left-44 top-1/2 -translate-y-1/2 group cursor-pointer"
-          >
-            <img 
-              src={CHAOS_CHRONICLES_PROMO} 
-              alt="Web3 Chaos Chronicles - Click to explore books" 
-              data-testid="chaos-chronicles-promo"
-              className="w-36 h-auto rounded-xl object-cover border-4 border-purple-500/50 shadow-lg shadow-purple-500/30 animate-bounce group-hover:border-orange-500/70 group-hover:shadow-orange-500/40 transition-all duration-300"
-              style={{ animationDuration: '3s' }}
-            />
-            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              📚 View Books
-            </span>
-          </a>
-          
           <img 
             src={LOGO_URL} 
             alt="BlockQuest" 
-            className="hero-logo glitch-hover w-64 sm:w-80 md:w-96 lg:w-[500px] mx-auto cursor-pointer"
+            data-testid="blockquest-logo"
+            className="hero-logo glitch-hover w-48 sm:w-56 md:w-64 lg:w-72 mx-auto cursor-pointer"
           />
           
-          {/* Web3 Chaos Chronicles Promo on mobile - below logo, links to books */}
-          <a 
-            href="#book-section" 
-            onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); }}
-            className="lg:hidden flex justify-center mt-4"
-          >
-            <img 
-              src={CHAOS_CHRONICLES_PROMO} 
-              alt="Web3 Chaos Chronicles - Tap to explore books" 
-              className="w-28 h-auto rounded-xl object-cover border-4 border-purple-500/50 shadow-lg shadow-purple-500/30 animate-bounce"
-              style={{ animationDuration: '3s' }}
-            />
-          </a>
-          
-          <div className="flex justify-center gap-3 mt-4">
-            <Sparkles className="w-8 h-8 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
-            <Zap className="w-8 h-8 text-purple-400 wobble" style={{ filter: 'drop-shadow(0 0 10px #9b5de5)' }} />
-            <Sparkles className="w-8 h-8 text-cyan-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #00d4ff)' }} />
+          <div className="flex justify-center gap-4 mt-3">
+            <Sparkles className="w-6 h-6 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
+            <Zap className="w-6 h-6 text-purple-400 wobble" style={{ filter: 'drop-shadow(0 0 10px #9b5de5)' }} />
+            <Sparkles className="w-6 h-6 text-cyan-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #00d4ff)' }} />
           </div>
         </div>
 
-        {/* New Chaos Tagline */}
-        <p className="hero-subtitle text-xl sm:text-2xl md:text-3xl mb-4 font-bold">
-          Chaos Unlocked: Epic Books + Retro Arcade Games 🎮📚
+        {/* Epic Tagline */}
+        <h1 className="hero-subtitle text-2xl sm:text-3xl md:text-4xl mb-3 font-black">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-500 to-cyan-400">
+            CHAOS UNLOCKED
+          </span>
+        </h1>
+        <p className="text-lg sm:text-xl text-gray-200 mb-6 max-w-xl mx-auto font-medium">
+          Epic Books + Retro Arcade Games 🎮📚
         </p>
-        <p className="text-base sm:text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-          From bartering goats to blockchain rebellion – read the stories, play the chaos, master Web3 the fun way!
+        
+        {/* Curiosity Description */}
+        <p className="text-base text-gray-400 mb-8 max-w-2xl mx-auto">
+          5 friends. 1 goat trade. Infinite chaos. <br className="hidden sm:block" />
+          <span className="text-cyan-400">Discover how money went from shells to Bitcoin</span> – through stories you&apos;ll actually want to read!
         </p>
 
-        {/* Hero CTA Buttons */}
+        {/* Featured Content Cards */}
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+          {/* Book Promo Card */}
+          <a 
+            href="#book-section" 
+            onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); createExplosion(e); }}
+            className="group relative cursor-pointer"
+            data-testid="book-promo-card"
+          >
+            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-40 group-hover:opacity-70 transition duration-300"></div>
+            <div className="relative flex items-center gap-4 px-6 py-4 bg-gray-900 rounded-xl border border-purple-500/30 group-hover:border-purple-400/60 transition-all">
+              <img 
+                src={CHAOS_CHRONICLES_PROMO} 
+                alt="Web3 Chaos Chronicles" 
+                className="w-16 h-20 rounded-lg object-cover shadow-lg"
+              />
+              <div className="text-left">
+                <p className="text-purple-400 text-xs font-bold mb-1">📚 5-BOOK SERIES</p>
+                <p className="text-white font-bold text-lg">Web3 Chaos Chronicles</p>
+                <p className="text-gray-400 text-sm">Ages 10+ & confused adults!</p>
+              </div>
+              <ChevronDown className="w-5 h-5 text-purple-400 rotate-[-90deg] group-hover:translate-x-1 transition-transform" />
+            </div>
+          </a>
+
+          {/* Game Promo Card */}
+          <a 
+            href="#quest-section" 
+            onClick={(e) => { e.preventDefault(); document.getElementById('quest-section')?.scrollIntoView({ behavior: 'smooth' }); createExplosion(e); }}
+            className="group relative cursor-pointer"
+            data-testid="game-promo-card"
+          >
+            <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-yellow-600 rounded-xl blur opacity-40 group-hover:opacity-70 transition duration-300"></div>
+            <div className="relative flex items-center gap-4 px-6 py-4 bg-gray-900 rounded-xl border border-orange-500/30 group-hover:border-orange-400/60 transition-all">
+              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center shadow-lg">
+                <Gamepad2 className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-orange-400 text-xs font-bold mb-1">🎮 PLAY FREE</p>
+                <p className="text-white font-bold text-lg">Retro Arcade</p>
+                <p className="text-gray-400 text-sm">Learn Web3 while you play!</p>
+              </div>
+              <ChevronDown className="w-5 h-5 text-orange-400 rotate-[-90deg] group-hover:translate-x-1 transition-transform" />
+            </div>
+          </a>
+        </div>
+
+        {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <a href="#quest-section" onClick={(e) => { e.preventDefault(); document.getElementById('quest-section')?.scrollIntoView({ behavior: 'smooth' }); createExplosion(e); }}>
-            <Button className="hero-cta-btn bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-black text-lg px-8 py-6 rounded-xl border-2 border-orange-400/50 shadow-lg shadow-orange-500/30 flex items-center gap-2">
-              <Gamepad2 className="w-6 h-6" />
-              Play the Arcade
+            <Button className="hero-cta-btn bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-black text-base px-6 py-5 rounded-lg border-2 border-orange-400/50 shadow-lg shadow-orange-500/30 flex items-center gap-2" data-testid="play-arcade-btn">
+              <Gamepad2 className="w-5 h-5" />
+              INSERT COIN
             </Button>
           </a>
           <a href="#book-section" onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); createExplosion(e); }}>
