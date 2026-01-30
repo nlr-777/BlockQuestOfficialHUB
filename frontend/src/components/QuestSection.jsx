@@ -62,23 +62,33 @@ const QuestSection = () => {
       </div>
       
       {/* Section Title */}
-      <div className="text-center mb-16 relative z-10">
-        <h2 className="section-title rgb-split text-4xl sm:text-6xl md:text-7xl font-black mb-4 cursor-pointer" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.5))' }}>
+      <div className="text-center mb-12 relative z-10">
+        <h2 className="section-title rgb-split text-4xl sm:text-5xl md:text-6xl font-black mb-4 cursor-pointer" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.5))' }}>
           ARCADE ZONE!
         </h2>
-        <div className="flex justify-center gap-4">
-          <Rocket className="w-8 h-8 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
-          <Star className="w-8 h-8 text-yellow-400 wobble" style={{ filter: 'drop-shadow(0 0 10px #ffff00)' }} />
-          <Zap className="w-8 h-8 text-purple-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #9b5de5)' }} />
+        <div className="flex justify-center gap-4 mb-6">
+          <Rocket className="w-7 h-7 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
+          <Star className="w-7 h-7 text-yellow-400 wobble" style={{ filter: 'drop-shadow(0 0 10px #ffff00)' }} />
+          <Zap className="w-7 h-7 text-purple-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #9b5de5)' }} />
+        </div>
+        
+        {/* Story Connection Description */}
+        <div className="max-w-2xl mx-auto mb-6">
+          <p className="text-gray-300 text-base sm:text-lg mb-3">
+            <span className="text-cyan-400 font-bold">Play what you read!</span> The 5 friends from Web3 Chaos Chronicles built this arcade to test everything they learned.
+          </p>
+          <p className="text-gray-400 text-sm sm:text-base">
+            🐐 From Gary&apos;s legendary goat trade to smart contracts — <span className="text-orange-400 font-semibold">master each concept through gameplay!</span>
+          </p>
         </div>
         
         {/* XP & Badges Teaser Banner */}
-        <div className="mt-8 inline-block">
-          <div className="xp-badge-banner px-6 py-3 rounded-full bg-gradient-to-r from-orange-900/60 via-purple-900/40 to-orange-900/60 border border-orange-500/30">
-            <p className="text-sm sm:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-400 to-purple-400 flex items-center justify-center gap-2 flex-wrap">
-              <span className="text-lg">⭐</span>
-              Earn XP, Levels & Fun Badges in games!
-              <span className="text-lg">🏆</span>
+        <div className="inline-block">
+          <div className="xp-badge-banner px-5 py-2 rounded-full bg-gradient-to-r from-orange-900/60 via-purple-900/40 to-orange-900/60 border border-orange-500/30">
+            <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-400 to-purple-400 flex items-center justify-center gap-2 flex-wrap">
+              <span>⭐</span>
+              Earn XP, Levels & Badges as you learn!
+              <span>🏆</span>
             </p>
           </div>
         </div>
