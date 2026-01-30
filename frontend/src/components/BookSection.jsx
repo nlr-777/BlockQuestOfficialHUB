@@ -138,20 +138,24 @@ const BookSection = () => {
             <ChevronLeft className="w-8 h-8 text-purple-300" />
           </Button>
 
-          {/* Books Display */}
-          <div className="flex gap-4 sm:gap-6 overflow-hidden py-8">
+          {/* Books Display - Centered Active Book */}
+          <div className="flex items-center justify-center gap-4 sm:gap-6 py-8 min-h-[500px]">
             {books.map((book, index) => {
               const isActive = index === currentIndex;
               const offset = index - currentIndex;
+              const isVisible = Math.abs(offset) <= 1;
+              
+              if (!isVisible) return null;
               
               return (
                 <div
                   key={book.id}
-                  className={`book-card transition-all duration-500 ${isActive ? 'book-card-active' : 'book-card-inactive'}`}
+                  data-testid={`book-card-${book.bookNumber}`}
+                  className={`book-card transition-all duration-500 flex-shrink-0 ${isActive ? 'book-card-active' : 'book-card-inactive'}`}
                   style={{
-                    transform: `translateX(${offset * 20}px) scale(${isActive ? 1 : 0.85})`,
-                    opacity: Math.abs(offset) > 1 ? 0 : isActive ? 1 : 0.6,
-                    zIndex: isActive ? 10 : 5 - Math.abs(offset)
+                    transform: `scale(${isActive ? 1 : 0.8})`,
+                    opacity: isActive ? 1 : 0.5,
+                    zIndex: isActive ? 10 : 5
                   }}
                 >
                   {/* Book Cover */}
