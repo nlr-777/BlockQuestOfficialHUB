@@ -243,15 +243,6 @@ const HeroSection = () => {
           <ChevronDown className="w-8 h-8 text-gray-500 mx-auto" />
         </div>
       </div>
-
-      {/* Scroll Hint */}
-      <button 
-        onClick={handleScrollHint}
-        className="absolute bottom-8 z-20 animate-bounce cursor-pointer"
-        aria-label="Scroll down"
-      >
-        <ChevronDown className="w-12 h-12 text-orange-400 drop-shadow-glow" />
-      </button>
     </section>
   );
 };
