@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { Button } from './ui/button';
 import { ChevronDown, Sparkles, Zap, Gamepad2, BookOpen } from 'lucide-react';
-import { GARY_MASCOT } from '../data/mock';
+import { CHAOS_CHRONICLES_PROMO } from '../data/mock';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/3oc0w6yi_blockquest_logo_primary.png";
 
