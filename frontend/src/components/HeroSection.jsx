@@ -231,11 +231,16 @@ const HeroSection = () => {
             </Button>
           </a>
           <a href="#book-section" onClick={(e) => { e.preventDefault(); document.getElementById('book-section')?.scrollIntoView({ behavior: 'smooth' }); createExplosion(e); }}>
-            <Button className="hero-cta-btn bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white font-black text-lg px-8 py-6 rounded-xl border-2 border-purple-400/50 shadow-lg shadow-purple-500/30 flex items-center gap-2">
-              <BookOpen className="w-6 h-6" />
-              Read the Books
+            <Button className="hero-cta-btn bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white font-black text-base px-6 py-5 rounded-lg border-2 border-purple-400/50 shadow-lg shadow-purple-500/30 flex items-center gap-2" data-testid="read-books-btn">
+              <BookOpen className="w-5 h-5" />
+              UNLOCK CHAOS
             </Button>
           </a>
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="mt-8 animate-bounce">
+          <ChevronDown className="w-8 h-8 text-gray-500 mx-auto" />
         </div>
       </div>
 
