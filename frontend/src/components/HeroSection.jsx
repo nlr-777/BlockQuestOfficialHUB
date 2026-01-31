@@ -172,7 +172,7 @@ const HeroSection = () => {
         {/* Curiosity Description */}
         <p className="text-base text-gray-400 mb-8 max-w-2xl mx-auto">
           5 friends. 1 goat trade. Infinite chaos. <br className="hidden sm:block" />
-          <span className="text-cyan-400">Discover how money went from shells to Bitcoin</span> – through stories you&apos;ll actually want to read!
+          <span className="text-cyan-400">Discover technology through stories you&apos;ll actually want to read!</span>
         </p>
 
         {/* Featured Content Cards */}
