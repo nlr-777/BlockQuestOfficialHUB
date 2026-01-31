@@ -2,19 +2,52 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Instagram, Send, Rocket, Zap, Shield, FileText } from 'lucide-react';
+import { Instagram, Send, Rocket, Zap, Shield, FileText, HelpCircle, Users } from 'lucide-react';
 import { socialLinks } from '../data/mock';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const Footer = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubscribe = (e) => {
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+    
+    setLoading(true);
+    setError('');
+    setMessage('');
+    
+    try {
+      const response = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Something went wrong');
+      }
+      
       setSubscribed(true);
+      setMessage(data.message);
       setEmail('');
-      setTimeout(() => setSubscribed(false), 3000);
+      
+      // Reset after 5 seconds
+      setTimeout(() => {
+        setSubscribed(false);
+        setMessage('');
+      }, 5000);
+    } catch (err) {
+      setError(err.message || 'Failed to subscribe. Please try again!');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,6 +76,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className={`social-icon-link ${social.icon === 'instagram' ? 'social-icon-instagram' : ''}`}
                 aria-label={social.name}
+                data-testid={`social-link-${social.icon}`}
               >
                 <Icon className="w-8 h-8 sm:w-10 sm:h-10" />
               </a>
@@ -58,7 +92,7 @@ const Footer = () => {
             <Rocket className="w-6 h-6" />
           </h4>
           
-          <form onSubmit={handleSubscribe} className="flex gap-2">
+          <form onSubmit={handleSubscribe} className="flex gap-2" data-testid="newsletter-form">
             <Input
               type="email"
               placeholder="your@email.com"
@@ -66,13 +100,18 @@ const Footer = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="newsletter-input flex-1 h-12 text-lg"
               required
+              disabled={loading}
+              data-testid="newsletter-email-input"
             />
             <Button 
               type="submit" 
               className="newsletter-btn h-12 px-6"
-              disabled={subscribed}
+              disabled={subscribed || loading}
+              data-testid="newsletter-submit-btn"
             >
-              {subscribed ? (
+              {loading ? (
+                <span className="animate-spin">⏳</span>
+              ) : subscribed ? (
                 <span className="text-sm">🎉 YAY!</span>
               ) : (
                 <Send className="w-5 h-5" />
@@ -80,9 +119,15 @@ const Footer = () => {
             </Button>
           </form>
           
-          {subscribed && (
-            <p className="text-center text-green-400 mt-3 font-bold animate-pulse">
-              ✨ You're in the quest! Check your inbox! ✨
+          {message && (
+            <p className="text-center text-green-400 mt-3 font-bold animate-pulse" data-testid="newsletter-success">
+              ✨ {message} ✨
+            </p>
+          )}
+          
+          {error && (
+            <p className="text-center text-red-400 mt-3 font-bold" data-testid="newsletter-error">
+              ❌ {error}
             </p>
           )}
         </div>
@@ -90,22 +135,42 @@ const Footer = () => {
         {/* Divider */}
         <div className="footer-divider w-full h-px mb-8" />
 
-        {/* Legal Links */}
-        <div className="flex justify-center gap-6 mb-6">
+        {/* Navigation Links */}
+        <div className="flex justify-center gap-6 mb-6 flex-wrap">
+          <Link 
+            to="/faq" 
+            className="legal-link flex items-center gap-2 text-gray-400 hover:text-orange-400 transition-colors"
+            data-testid="faq-link"
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span>FAQ</span>
+          </Link>
+          <span className="text-gray-600">|</span>
+          <Link 
+            to="/parents" 
+            className="legal-link flex items-center gap-2 text-gray-400 hover:text-green-400 transition-colors"
+            data-testid="parents-link"
+          >
+            <Users className="w-4 h-4" />
+            <span>Parent Hub</span>
+          </Link>
+          <span className="text-gray-600">|</span>
           <Link 
             to="/privacy" 
             className="legal-link flex items-center gap-2 text-gray-400 hover:text-cyan-400 transition-colors"
+            data-testid="privacy-link"
           >
             <Shield className="w-4 h-4" />
-            <span>Privacy Policy</span>
+            <span>Privacy</span>
           </Link>
           <span className="text-gray-600">|</span>
           <Link 
             to="/terms" 
             className="legal-link flex items-center gap-2 text-gray-400 hover:text-pink-400 transition-colors"
+            data-testid="terms-link"
           >
             <FileText className="w-4 h-4" />
-            <span>Terms & Conditions</span>
+            <span>Terms</span>
           </Link>
         </div>
 
@@ -113,7 +178,7 @@ const Footer = () => {
         <div className="text-center">
           <p className="text-gray-400 mb-2">
             © 2026 BlockQuest Official – 
-            <span className="text-cyan-400 font-bold"> "Get ready to level up!"</span>
+            <span className="text-cyan-400 font-bold"> &quot;Get ready to level up!&quot;</span>
           </p>
           <p className="text-gray-500 text-sm mb-1">
             BlockQuest Official | ABN: 71 926 421 644 | Capricorn Coast, QLD
