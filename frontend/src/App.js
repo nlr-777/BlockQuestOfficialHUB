@@ -61,6 +61,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsConditions />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/parents" element={<ParentHubPage />} />
         </Routes>
       </BrowserRouter>
     </div>
