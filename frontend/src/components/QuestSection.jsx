@@ -87,7 +87,7 @@ const QuestSection = () => {
           <div className="xp-badge-banner px-5 py-2 rounded-full bg-gradient-to-r from-orange-900/60 via-purple-900/40 to-orange-900/60 border border-orange-500/30">
             <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-yellow-400 to-purple-400 flex items-center justify-center gap-2 flex-wrap">
               <span>⭐</span>
-              Earn XP, Levels & Badges as you learn!
+              Earn XP, Levels & Fun Badges!
               <span>🏆</span>
             </p>
           </div>
