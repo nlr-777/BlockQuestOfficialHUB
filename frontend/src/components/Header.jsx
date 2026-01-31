@@ -37,13 +37,13 @@ const Header = () => {
           >
             Books
           </button>
-          <Link 
-            to="/parents"
+          <button 
+            onClick={() => scrollToSection('parent-section')}
             className="nav-link text-gray-300 hover:text-green-400 font-bold transition-colors"
             data-testid="nav-parents"
           >
             Parents
-          </Link>
+          </button>
         </nav>
 
         {/* CTA */}
