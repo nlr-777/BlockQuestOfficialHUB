@@ -11,6 +11,8 @@ import Footer from "./components/Footer";
 import FloatingElements from "./components/FloatingElements";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
+import FAQPage from "./pages/FAQPage";
+import ParentHubPage from "./pages/ParentHubPage";
 
 const LandingPage = () => {
   useEffect(() => {
