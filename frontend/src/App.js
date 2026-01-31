@@ -44,9 +44,6 @@ const LandingPage = () => {
           <BookSection />
         </section>
         {/* MerchSection - Hidden for now, ready for future use */}
-        <section id="parent-section">
-          <ParentSection />
-        </section>
       </main>
       <Footer />
     </div>
