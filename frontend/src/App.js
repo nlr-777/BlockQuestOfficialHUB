@@ -6,7 +6,6 @@ import HeroSection from "./components/HeroSection";
 import QuestSection from "./components/QuestSection";
 import BookSection from "./components/BookSection";
 // import MerchSection from "./components/MerchSection"; // Hidden for now - ready for future use
-import ParentSection from "./components/ParentSection";
 import Footer from "./components/Footer";
 import FloatingElements from "./components/FloatingElements";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
