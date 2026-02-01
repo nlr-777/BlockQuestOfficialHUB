@@ -48,7 +48,7 @@ const Header = () => {
 
         {/* CTA */}
         <a 
-          href="https://readtext-fix.preview.emergentagent.com/" 
+          href="https://game-arcade-doctor.preview.emergentagent.com/" 
           target="_blank" 
           rel="noopener noreferrer"
           className="header-cta flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm"
