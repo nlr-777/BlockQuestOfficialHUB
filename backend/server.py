@@ -1,12 +1,12 @@
 from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
+from supabase import create_client, Client
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict, EmailStr
-from typing import List, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Optional, Any
 import uuid
 from datetime import datetime, timezone
 import re
@@ -15,10 +15,14 @@ import re
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# Supabase connection
+supabase_url = os.environ.get('NEXT_PUBLIC_SUPABASE_URL') or os.environ.get('SUPABASE_URL')
+supabase_key = os.environ.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') or os.environ.get('SUPABASE_ANON_KEY')
+
+if not supabase_url or not supabase_key:
+    raise ValueError("Supabase credentials not found. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY")
+
+supabase: Client = create_client(supabase_url, supabase_key)
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -27,25 +31,23 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+# ============ Models ============
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+# Site Content Models
+class SiteContent(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: int
+    title: str
+    type: str  # 'video', 'book', or 'game'
+    url: str
+    thumbnail_url: Optional[str] = None
 
 # Newsletter Models
 class NewsletterSubscriber(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    id: Optional[int] = None
     email: str
-    subscribed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    source: str = "website"
+    created_at: Optional[datetime] = None
 
 class NewsletterSubscribeRequest(BaseModel):
     email: str
@@ -54,78 +56,216 @@ class NewsletterSubscribeResponse(BaseModel):
     success: bool
     message: str
 
-# Email validation helper
+# Game Stats Models
+class GameStats(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: Optional[int] = None
+    user_id: str
+    score: int = 0
+    inventory: dict = Field(default_factory=dict)  # JSONB for badges/XP/factions
+    last_played: Optional[datetime] = None
+
+class GameStatsCreate(BaseModel):
+    user_id: str
+    score: int = 0
+    inventory: dict = Field(default_factory=dict)
+
+class GameStatsUpdate(BaseModel):
+    score: Optional[int] = None
+    inventory: Optional[dict] = None
+
+
+# ============ Helper Functions ============
+
 def is_valid_email(email: str) -> bool:
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-# Add your routes to the router instead of directly to app
+
+# ============ Routes ============
+
+# Health check
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "BlockQuest API", "status": "healthy", "database": "supabase"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+# ------------ Site Content ------------
 
-# Newsletter endpoint
+@api_router.get("/content", response_model=List[SiteContent])
+async def get_all_content():
+    """Get all site content (videos, books, games)"""
+    try:
+        response = supabase.table("site_content").select("*").execute()
+        return response.data
+    except Exception as e:
+        logging.error(f"Error fetching content: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch content")
+
+@api_router.get("/content/videos", response_model=List[SiteContent])
+async def get_videos():
+    """Get all video content"""
+    try:
+        response = supabase.table("site_content").select("*").eq("type", "video").execute()
+        return response.data
+    except Exception as e:
+        logging.error(f"Error fetching videos: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch videos")
+
+@api_router.get("/content/books", response_model=List[SiteContent])
+async def get_books():
+    """Get all book content"""
+    try:
+        response = supabase.table("site_content").select("*").eq("type", "book").execute()
+        return response.data
+    except Exception as e:
+        logging.error(f"Error fetching books: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch books")
+
+@api_router.get("/content/games", response_model=List[SiteContent])
+async def get_games():
+    """Get all game content"""
+    try:
+        response = supabase.table("site_content").select("*").eq("type", "game").execute()
+        return response.data
+    except Exception as e:
+        logging.error(f"Error fetching games: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch games")
+
+
+# ------------ Newsletter ------------
+
 @api_router.post("/newsletter/subscribe", response_model=NewsletterSubscribeResponse)
 async def subscribe_newsletter(request: NewsletterSubscribeRequest):
+    """Subscribe to newsletter"""
     email = request.email.strip().lower()
     
     # Validate email
     if not email or not is_valid_email(email):
         raise HTTPException(status_code=400, detail="Please enter a valid email address")
     
-    # Check if already subscribed
-    existing = await db.newsletter_subscribers.find_one({"email": email}, {"_id": 0})
-    if existing:
+    try:
+        # Check if already subscribed
+        existing = supabase.table("newsletter_subscribers").select("*").eq("email", email).execute()
+        
+        if existing.data and len(existing.data) > 0:
+            return NewsletterSubscribeResponse(
+                success=True,
+                message="You're already subscribed! Thanks for being part of the BlockQuest crew! 🎮"
+            )
+        
+        # Insert new subscriber
+        supabase.table("newsletter_subscribers").insert({
+            "email": email,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }).execute()
+        
+        logging.info(f"New newsletter subscriber: {email}")
+        
         return NewsletterSubscribeResponse(
             success=True,
-            message="You're already subscribed! Thanks for being part of the BlockQuest crew! 🎮"
+            message="Welcome to the BlockQuest crew! 🚀 You'll be the first to know about new chaos!"
         )
-    
-    # Create subscriber
-    subscriber = NewsletterSubscriber(email=email)
-    doc = subscriber.model_dump()
-    doc['subscribed_at'] = doc['subscribed_at'].isoformat()
-    
-    await db.newsletter_subscribers.insert_one(doc)
-    
-    logger.info(f"New newsletter subscriber: {email}")
-    
-    return NewsletterSubscribeResponse(
-        success=True,
-        message="Welcome to the BlockQuest crew! 🚀 You'll be the first to know about new chaos!"
-    )
+    except Exception as e:
+        logging.error(f"Error subscribing to newsletter: {e}")
+        raise HTTPException(status_code=500, detail="Failed to subscribe. Please try again!")
 
 @api_router.get("/newsletter/subscribers", response_model=List[NewsletterSubscriber])
 async def get_subscribers():
-    subscribers = await db.newsletter_subscribers.find({}, {"_id": 0}).to_list(10000)
-    for sub in subscribers:
-        if isinstance(sub['subscribed_at'], str):
-            sub['subscribed_at'] = datetime.fromisoformat(sub['subscribed_at'])
-    return subscribers
+    """Get all newsletter subscribers (admin)"""
+    try:
+        response = supabase.table("newsletter_subscribers").select("*").order("created_at", desc=True).execute()
+        return response.data
+    except Exception as e:
+        logging.error(f"Error fetching subscribers: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch subscribers")
+
+
+# ------------ Game Stats ------------
+
+@api_router.get("/game/stats/{user_id}", response_model=GameStats)
+async def get_game_stats(user_id: str):
+    """Get game stats for a user"""
+    try:
+        response = supabase.table("game_stats").select("*").eq("user_id", user_id).execute()
+        
+        if not response.data or len(response.data) == 0:
+            # Return default stats if user doesn't exist
+            return GameStats(
+                user_id=user_id,
+                score=0,
+                inventory={"xp": 0, "badges": [], "faction": None},
+                last_played=None
+            )
+        
+        return response.data[0]
+    except Exception as e:
+        logging.error(f"Error fetching game stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch game stats")
+
+@api_router.post("/game/stats", response_model=GameStats)
+async def create_game_stats(stats: GameStatsCreate):
+    """Create game stats for a new user"""
+    try:
+        data = {
+            "user_id": stats.user_id,
+            "score": stats.score,
+            "inventory": stats.inventory,
+            "last_played": datetime.now(timezone.utc).isoformat()
+        }
+        
+        response = supabase.table("game_stats").insert(data).execute()
+        
+        if response.data and len(response.data) > 0:
+            return response.data[0]
+        
+        raise HTTPException(status_code=500, detail="Failed to create game stats")
+    except Exception as e:
+        logging.error(f"Error creating game stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create game stats")
+
+@api_router.put("/game/stats/{user_id}", response_model=GameStats)
+async def update_game_stats(user_id: str, stats: GameStatsUpdate):
+    """Update game stats for a user"""
+    try:
+        # Check if user exists
+        existing = supabase.table("game_stats").select("*").eq("user_id", user_id).execute()
+        
+        update_data = {"last_played": datetime.now(timezone.utc).isoformat()}
+        
+        if stats.score is not None:
+            update_data["score"] = stats.score
+        if stats.inventory is not None:
+            update_data["inventory"] = stats.inventory
+        
+        if existing.data and len(existing.data) > 0:
+            # Update existing
+            response = supabase.table("game_stats").update(update_data).eq("user_id", user_id).execute()
+        else:
+            # Create new
+            update_data["user_id"] = user_id
+            update_data["score"] = stats.score or 0
+            update_data["inventory"] = stats.inventory or {"xp": 0, "badges": [], "faction": None}
+            response = supabase.table("game_stats").insert(update_data).execute()
+        
+        if response.data and len(response.data) > 0:
+            return response.data[0]
+        
+        raise HTTPException(status_code=500, detail="Failed to update game stats")
+    except Exception as e:
+        logging.error(f"Error updating game stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update game stats")
+
+@api_router.delete("/game/stats/{user_id}")
+async def delete_game_stats(user_id: str):
+    """Delete game stats for a user"""
+    try:
+        supabase.table("game_stats").delete().eq("user_id", user_id).execute()
+        return {"success": True, "message": "Game stats deleted"}
+    except Exception as e:
+        logging.error(f"Error deleting game stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete game stats")
+
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -144,7 +284,3 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
