@@ -162,6 +162,7 @@ async def get_games():
 @api_router.post("/newsletter/subscribe", response_model=NewsletterSubscribeResponse)
 async def subscribe_newsletter(request: NewsletterSubscribeRequest):
     """Subscribe to newsletter"""
+    check_supabase()
     email = request.email.strip().lower()
     
     # Validate email
@@ -197,6 +198,7 @@ async def subscribe_newsletter(request: NewsletterSubscribeRequest):
 @api_router.get("/newsletter/subscribers", response_model=List[NewsletterSubscriber])
 async def get_subscribers():
     """Get all newsletter subscribers (admin)"""
+    check_supabase()
     try:
         response = supabase.table("newsletter_subscribers").select("*").order("created_at", desc=True).execute()
         return response.data
