@@ -212,6 +212,7 @@ async def get_subscribers():
 @api_router.get("/game/stats/{user_id}", response_model=GameStats)
 async def get_game_stats(user_id: str):
     """Get game stats for a user"""
+    check_supabase()
     try:
         response = supabase.table("game_stats").select("*").eq("user_id", user_id).execute()
         
@@ -232,6 +233,7 @@ async def get_game_stats(user_id: str):
 @api_router.post("/game/stats", response_model=GameStats)
 async def create_game_stats(stats: GameStatsCreate):
     """Create game stats for a new user"""
+    check_supabase()
     try:
         data = {
             "user_id": stats.user_id,
@@ -253,6 +255,7 @@ async def create_game_stats(stats: GameStatsCreate):
 @api_router.put("/game/stats/{user_id}", response_model=GameStats)
 async def update_game_stats(user_id: str, stats: GameStatsUpdate):
     """Update game stats for a user"""
+    check_supabase()
     try:
         # Check if user exists
         existing = supabase.table("game_stats").select("*").eq("user_id", user_id).execute()
@@ -285,6 +288,7 @@ async def update_game_stats(user_id: str, stats: GameStatsUpdate):
 @api_router.delete("/game/stats/{user_id}")
 async def delete_game_stats(user_id: str):
     """Delete game stats for a user"""
+    check_supabase()
     try:
         supabase.table("game_stats").delete().eq("user_id", user_id).execute()
         return {"success": True, "message": "Game stats deleted"}
