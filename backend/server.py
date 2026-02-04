@@ -89,6 +89,14 @@ def is_valid_email(email: str) -> bool:
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
+def check_supabase():
+    """Check if Supabase is configured and raise error if not"""
+    if supabase is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="Database not configured. Please set Supabase credentials."
+        )
+
 
 # ============ Routes ============
 
