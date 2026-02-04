@@ -103,7 +103,11 @@ def check_supabase():
 # Health check
 @api_router.get("/")
 async def root():
-    return {"message": "BlockQuest API", "status": "healthy", "database": "supabase"}
+    return {
+        "message": "BlockQuest API", 
+        "status": "healthy", 
+        "database": "supabase" if supabase else "not configured"
+    }
 
 
 # ------------ Site Content ------------
@@ -111,6 +115,7 @@ async def root():
 @api_router.get("/content", response_model=List[SiteContent])
 async def get_all_content():
     """Get all site content (videos, books, games)"""
+    check_supabase()
     try:
         response = supabase.table("site_content").select("*").execute()
         return response.data
@@ -121,6 +126,7 @@ async def get_all_content():
 @api_router.get("/content/videos", response_model=List[SiteContent])
 async def get_videos():
     """Get all video content"""
+    check_supabase()
     try:
         response = supabase.table("site_content").select("*").eq("type", "video").execute()
         return response.data
@@ -131,6 +137,7 @@ async def get_videos():
 @api_router.get("/content/books", response_model=List[SiteContent])
 async def get_books():
     """Get all book content"""
+    check_supabase()
     try:
         response = supabase.table("site_content").select("*").eq("type", "book").execute()
         return response.data
@@ -141,6 +148,7 @@ async def get_books():
 @api_router.get("/content/games", response_model=List[SiteContent])
 async def get_games():
     """Get all game content"""
+    check_supabase()
     try:
         response = supabase.table("site_content").select("*").eq("type", "game").execute()
         return response.data
