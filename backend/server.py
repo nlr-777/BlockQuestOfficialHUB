@@ -19,10 +19,18 @@ load_dotenv(ROOT_DIR / '.env')
 supabase_url = os.environ.get('NEXT_PUBLIC_SUPABASE_URL') or os.environ.get('SUPABASE_URL')
 supabase_key = os.environ.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') or os.environ.get('SUPABASE_ANON_KEY')
 
-if not supabase_url or not supabase_key:
-    raise ValueError("Supabase credentials not found. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY")
+supabase: Client = None
 
-supabase: Client = create_client(supabase_url, supabase_key)
+# Only create client if valid credentials are provided
+if supabase_url and supabase_key and supabase_url != 'placeholder' and supabase_key != 'placeholder':
+    try:
+        supabase = create_client(supabase_url, supabase_key)
+        logging.info("Supabase client initialized successfully")
+    except Exception as e:
+        logging.warning(f"Failed to initialize Supabase client: {e}")
+        supabase = None
+else:
+    logging.warning("Supabase credentials not configured. Database features will be disabled.")
 
 # Create the main app without a prefix
 app = FastAPI()
