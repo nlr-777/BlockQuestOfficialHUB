@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Instagram, Send, Rocket, Zap, Shield, FileText, HelpCircle, Users } from 'lucide-react';
 import { socialLinks } from '../data/mock';
+import { subscribeNewsletter, isSupabaseConfigured } from '../lib/supabase';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -23,27 +24,42 @@ const Footer = () => {
     setMessage('');
     
     try {
-      const response = await fetch(`${API_URL}/api/newsletter/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
+      let result;
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.detail || 'Something went wrong');
+      // Try Supabase first, fallback to API
+      if (isSupabaseConfigured()) {
+        result = await subscribeNewsletter(email);
+      } else if (API_URL) {
+        const response = await fetch(`${API_URL}/api/newsletter/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.detail || 'Something went wrong');
+        }
+        
+        result = data;
+      } else {
+        throw new Error('Newsletter service not configured');
       }
       
-      setSubscribed(true);
-      setMessage(data.message);
-      setEmail('');
-      
-      // Reset after 5 seconds
-      setTimeout(() => {
-        setSubscribed(false);
-        setMessage('');
-      }, 5000);
+      if (result.success) {
+        setSubscribed(true);
+        setMessage(result.message);
+        setEmail('');
+        
+        // Reset after 5 seconds
+        setTimeout(() => {
+          setSubscribed(false);
+          setMessage('');
+        }, 5000);
+      } else {
+        throw new Error(result.message);
+      }
     } catch (err) {
       setError(err.message || 'Failed to subscribe. Please try again!');
     } finally {
