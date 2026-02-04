@@ -8,9 +8,10 @@ A vibrant, kid-friendly, retro-arcade-themed landing page for the BlockQuest bra
 - **Arcade Zone** - BlockQuest Retro Arcade game preview with live link
 - **Book Section** - Web3 Chaos Chronicles 5-book series carousel with character showcase
 - **Parent Hub** - Trust badges, FAQ dropdowns, and safety information
-- **Newsletter Signup** - Functional email collection (MongoDB storage)
+- **Newsletter Signup** - Functional email collection (Supabase storage)
 - **FAQ Page** - Accordion-style frequently asked questions
 - **Legal Pages** - Privacy Policy & Terms and Conditions
+- **Game Stats** - Save/load game progress with Supabase
 
 ## 🛠️ Tech Stack
 
@@ -20,10 +21,11 @@ A vibrant, kid-friendly, retro-arcade-themed landing page for the BlockQuest bra
 - Shadcn/UI components
 - React Router DOM
 - Lucide React icons
+- Supabase JS Client
 
 **Backend:**
 - FastAPI (Python)
-- MongoDB (Motor async driver)
+- Supabase (PostgreSQL)
 - Pydantic models
 
 ## 📁 Project Structure
@@ -35,6 +37,7 @@ A vibrant, kid-friendly, retro-arcade-themed landing page for the BlockQuest bra
 │   │   ├── components/ # UI components
 │   │   ├── pages/      # Page components
 │   │   ├── data/       # Mock data
+│   │   ├── lib/        # Utilities (Supabase client)
 │   │   └── App.js      # Main router
 │   ├── public/
 │   └── package.json
@@ -46,12 +49,39 @@ A vibrant, kid-friendly, retro-arcade-themed landing page for the BlockQuest bra
 └── README.md
 ```
 
+## 🗄️ Supabase Database Schema
+
+### `site_content` table
+| Column | Type | Description |
+|--------|------|-------------|
+| id | int8 | Primary key |
+| title | text | Content title |
+| type | text | 'video', 'book', or 'game' |
+| url | text | Link to content |
+| thumbnail_url | text | Thumbnail image URL |
+
+### `game_stats` table
+| Column | Type | Description |
+|--------|------|-------------|
+| id | int8 | Primary key |
+| user_id | uuid | User identifier (Supabase Auth) |
+| score | int4 | Player score |
+| inventory | jsonb | Badges, XP, faction data |
+| last_played | timestamptz | Last activity timestamp |
+
+### `newsletter_subscribers` table
+| Column | Type | Description |
+|--------|------|-------------|
+| id | int8 | Primary key |
+| email | text | Subscriber email |
+| created_at | timestamptz | Subscription date |
+
 ## 🏃‍♂️ Local Development
 
 ### Prerequisites
 - Node.js 18+
 - Python 3.9+
-- MongoDB (local or Atlas)
+- Supabase account
 - Yarn package manager
 
 ### Frontend Setup
@@ -59,7 +89,7 @@ A vibrant, kid-friendly, retro-arcade-themed landing page for the BlockQuest bra
 ```bash
 cd frontend
 cp .env.example .env
-# Edit .env with your backend URL
+# Edit .env with your Supabase credentials
 yarn install
 yarn start
 ```
@@ -69,94 +99,64 @@ yarn start
 ```bash
 cd backend
 cp .env.example .env
-# Edit .env with your MongoDB connection string
+# Edit .env with your Supabase credentials
 pip install -r requirements.txt
 uvicorn server:app --reload --port 8001
 ```
 
 ## 🚀 Vercel Deployment
 
-### Option 1: Frontend Only (Static)
+### 1. Set up Supabase
 
-If deploying frontend only (without backend):
+1. Create a project at [supabase.com](https://supabase.com)
+2. Create the required tables (see schema above)
+3. Get your project URL and anon key from Settings > API
+
+### 2. Deploy to Vercel
 
 1. **Push to GitHub**
 2. **Import to Vercel:**
    - Go to [vercel.com](https://vercel.com)
    - Click "New Project"
    - Import your GitHub repository
-   - Set root directory to `frontend`
-   
-3. **Configure Build:**
-   - Framework Preset: Create React App
-   - Build Command: `yarn build`
-   - Output Directory: `build`
-
-4. **Environment Variables:**
-   ```
-   REACT_APP_BACKEND_URL=https://your-backend-url.com
-   ```
-
-5. **Deploy!**
-
-### Option 2: Full Stack (Frontend + Backend)
-
-1. **Set up MongoDB Atlas:**
-   - Create a free cluster at [mongodb.com/atlas](https://mongodb.com/atlas)
-   - Get your connection string
-
-2. **Deploy Backend (Vercel Serverless):**
-   - The `vercel.json` is configured for full-stack deployment
-   - Backend routes are handled at `/api/*`
 
 3. **Environment Variables (Vercel Dashboard):**
    ```
-   # Frontend
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
    REACT_APP_BACKEND_URL=/api
-   
-   # Backend
-   MONGO_URL=mongodb+srv://...
-   DB_NAME=blockquest_db
    CORS_ORIGINS=https://your-domain.vercel.app
    ```
 
-4. **Deploy:**
-   ```bash
-   vercel --prod
-   ```
-
-### Option 3: Separate Deployments
-
-Deploy frontend and backend separately:
-
-**Frontend (Vercel):**
-- Root: `frontend`
-- Build: `yarn build`
-
-**Backend (Railway/Render/Fly.io):**
-- Use `backend/` directory
-- Set environment variables
-- Update frontend `REACT_APP_BACKEND_URL`
+4. **Deploy!**
 
 ## 📝 API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/` | Health check |
+| GET | `/api/content` | Get all site content |
+| GET | `/api/content/videos` | Get video content |
+| GET | `/api/content/books` | Get book content |
+| GET | `/api/content/games` | Get game content |
 | POST | `/api/newsletter/subscribe` | Subscribe to newsletter |
 | GET | `/api/newsletter/subscribers` | List subscribers (admin) |
+| GET | `/api/game/stats/{user_id}` | Get user's game stats |
+| POST | `/api/game/stats` | Create game stats |
+| PUT | `/api/game/stats/{user_id}` | Update game stats |
+| DELETE | `/api/game/stats/{user_id}` | Delete game stats |
 
 ## 🔧 Environment Variables
 
-### Frontend (.env)
 ```
-REACT_APP_BACKEND_URL=https://your-api-url.com
-```
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-### Backend (.env)
-```
-MONGO_URL=mongodb+srv://...
-DB_NAME=blockquest_db
+# Backend API (optional if using Supabase directly)
+REACT_APP_BACKEND_URL=https://your-api-url.com
+
+# CORS (backend only)
 CORS_ORIGINS=https://your-frontend.com
 ```
 
