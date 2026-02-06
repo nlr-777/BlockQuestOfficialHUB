@@ -106,7 +106,7 @@ const Header = () => {
 
           {/* CTA Button (Desktop) */}
           <a 
-            href="https://game-arcade-doctor.preview.emergentagent.com/"
+            href="https://retro-quest-hub.preview.emergentagent.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden md:flex header-cta items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm bg-gradient-to-r from-orange-500 to-purple-600 text-white hover:from-orange-400 hover:to-purple-500 transition-all shadow-lg shadow-orange-500/20 focus:outline focus:outline-2 focus:outline-blue-500"
@@ -157,7 +157,7 @@ const Header = () => {
             
             {/* Mobile CTA */}
             <a 
-              href="https://game-arcade-doctor.preview.emergentagent.com/"
+              href="https://retro-quest-hub.preview.emergentagent.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-4 py-3 mt-2 rounded-lg font-bold bg-gradient-to-r from-orange-500 to-purple-600 text-white hover:from-orange-400 hover:to-purple-500 transition-all focus:outline focus:outline-2 focus:outline-blue-500"
