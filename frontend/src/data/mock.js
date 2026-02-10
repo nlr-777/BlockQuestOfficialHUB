@@ -35,7 +35,7 @@ export const games = [
     id: 1,
     title: "BlockQuest Retro Arcade 🎮",
     description: "Join Zara, Sam, Miko, Ollie & Lila as they turn Web3 chaos into playable levels! Master the Tech and level UP — one game at a time.",
-    url: "https://retro-quest-hub.preview.emergentagent.com/",
+    url: "https://block-quest-retro-arcade-v1-2026.vercel.app/",
     theme: "rainbow",
     emojis: ["🎮", "⬡", "🏆", "⚡", "💎"],
     comingSoon: false
