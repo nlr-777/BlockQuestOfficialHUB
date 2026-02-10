@@ -178,7 +178,7 @@ const FeaturedGamesCarousel = () => {
         {/* CTA Button */}
         <div className="text-center mt-8">
           <a 
-            href="https://retro-quest-hub.preview.emergentagent.com/"
+            href="https://block-quest-retro-arcade-v1-2026.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 hover:from-orange-400 hover:via-pink-400 hover:to-purple-400 text-white font-black text-lg rounded-xl border-2 border-orange-400/50 shadow-lg shadow-orange-500/30 transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50 focus:outline focus:outline-2 focus:outline-blue-500"
