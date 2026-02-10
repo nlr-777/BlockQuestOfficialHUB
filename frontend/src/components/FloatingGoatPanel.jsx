@@ -148,16 +148,34 @@ const FloatingGoatPanel = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center gap-3 p-4 rounded-xl bg-gradient-to-br from-red-900/30 to-gray-900 border border-red-500/30 hover:border-red-400/60 transition-all"
-                  data-testid="youtube-link"
+                  data-testid="youtube-playlist-link"
                 >
                   <div className="w-12 h-12 rounded-lg bg-red-600 flex items-center justify-center flex-shrink-0">
                     <Play className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">
-                      BlockQuest YouTube
+                      Watch the Playlist
                     </p>
-                    <p className="text-xs text-gray-500">Watch the full playlist</p>
+                    <p className="text-xs text-gray-500">BlockQuest video series</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-red-400" />
+                </a>
+                <a
+                  href={YOUTUBE_CHANNEL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 p-4 rounded-xl bg-gray-800/60 border border-gray-700/50 hover:border-red-500/50 transition-all"
+                  data-testid="youtube-channel-link"
+                >
+                  <div className="w-12 h-12 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0 text-2xl">
+                    📺
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-white group-hover:text-red-400 transition-colors">
+                      YouTube Channel
+                    </p>
+                    <p className="text-xs text-gray-500">@blockquestofficial26</p>
                   </div>
                   <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-red-400" />
                 </a>
