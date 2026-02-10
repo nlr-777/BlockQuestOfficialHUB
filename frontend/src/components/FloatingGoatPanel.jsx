@@ -3,7 +3,7 @@ import { X, FileText, BookOpen, Play, Award, Download, ExternalLink } from 'luci
 
 /* Slide deck PDF data - update paths as needed */
 const DECKS = [
-  { id: 1, title: "Book 1 – Money's Origin Story", subtitle: "From Bartering Goats to Digital Chaos", url: "/decks/book1-moneys-origin-story.pdf" },
+  { id: 1, title: "Book 1 – Money's Origin Story", subtitle: "From Bartering Goats to Digital Chaos", url: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/krqsj69u_From_Goats_to_Bitcoin.pdf" },
   { id: 2, title: "Book 2 – Why Blockchains Exist", subtitle: "(AKA Humans Can't Behave)", url: "/decks/book2-why-blockchains-exist.pdf" },
   { id: 3, title: "Book 3 – Tokens", subtitle: "Not Casino Chips, Not Monopoly Money", url: "/decks/book3-tokens.pdf" },
   { id: 4, title: "Book 4 – NFTs Without the Scams", subtitle: "Screenshots, or Headaches", url: "/decks/book4-nfts-without-the-scams.pdf" },
