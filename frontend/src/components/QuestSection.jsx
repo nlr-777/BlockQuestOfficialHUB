@@ -61,6 +61,15 @@ const QuestSection = () => {
         🐐
       </div>
       
+      {/* Goat Resource Intro */}
+      <div className="max-w-3xl mx-auto mb-10 relative z-10">
+        <div className="px-5 py-3 rounded-xl bg-gradient-to-r from-orange-900/40 via-purple-900/30 to-cyan-900/40 border border-orange-500/20 text-center">
+          <p className="text-sm sm:text-base text-gray-300">
+            Played the Mini Money Quest or Retro Arcade? Tap the floating goat 🐐 (bottom-right) for all slide decks, stories, videos & extras!
+          </p>
+        </div>
+      </div>
+
       {/* Section Title */}
       <div className="text-center mb-12 relative z-10">
         <h2 className="section-title rgb-split text-4xl sm:text-5xl md:text-6xl font-black mb-4 cursor-pointer" style={{ filter: 'drop-shadow(0 0 20px rgba(255, 107, 53, 0.5))' }}>
