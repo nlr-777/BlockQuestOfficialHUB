@@ -1009,3 +1009,15 @@
 .bg-gradient-radial {
   background: radial-gradient(ellipse at center, var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to));
 }
+
+/* ========================================
+   FLOATING GOAT PANEL
+   ======================================== */
+.goat-panel-backdrop {
+  animation: backdrop-fade-in 0.2s ease-out forwards;
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
