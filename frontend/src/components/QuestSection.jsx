@@ -168,11 +168,11 @@ const QuestSection = () => {
             </div>
 
             {/* Card Content */}
-            <div className="p-6 sm:p-8">
-              <h3 className={`game-title text-2xl sm:text-3xl font-black mb-4 ${game.comingSoon ? 'text-purple-400' : 'text-orange-400'}`}>
+            <div className="p-4 sm:p-5">
+              <h3 className={`game-title text-xl sm:text-2xl font-black mb-2 ${game.comingSoon ? 'text-purple-400' : 'text-orange-400'}`}>
                 {game.title}
               </h3>
-              <p className="text-gray-300 text-lg mb-3 font-medium">
+              <p className="text-gray-300 text-sm mb-2 font-medium">
                 {game.description}
               </p>
               {/* XP & Badges Teaser - Per Card */}
