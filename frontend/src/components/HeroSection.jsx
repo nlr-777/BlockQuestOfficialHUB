@@ -110,7 +110,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="hero-section relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <section className="hero-section relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-16">
       {/* Particle Canvas Background */}
       <canvas ref={canvasRef} className="absolute inset-0 z-0" />
       
