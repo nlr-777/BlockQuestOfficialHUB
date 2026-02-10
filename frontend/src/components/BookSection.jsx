@@ -95,9 +95,17 @@ const BookSection = () => {
                   <div 
                     key={i}
                     data-testid={`character-card-${char.name.split(' ')[0].toLowerCase()}`}
-                    className="group/card relative p-4 rounded-xl bg-gray-800/60 border border-gray-600/40 hover:border-purple-500/60 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
+                    className="group/card relative p-3 rounded-xl bg-gray-800/60 border border-gray-600/40 hover:border-purple-500/60 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
                   >
                     <div className="text-center">
+                      {/* Character Portrait */}
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full overflow-hidden border-2 border-gray-600/50 group-hover/card:border-purple-500/60 transition-colors">
+                        <img 
+                          src={char.image} 
+                          alt={char.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       <p className={`font-bold text-base ${char.color} mb-1`}>
                         {char.name.split(' ')[0]}
                       </p>
