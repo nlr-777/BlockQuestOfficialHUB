@@ -155,7 +155,7 @@ const HeroSection = () => {
         {/* Title */}
         <h1 className="hero-subtitle text-2xl sm:text-3xl md:text-4xl mb-3 font-black">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-500 to-cyan-400">
-            BLOCKQUEST – CHAOS UNLOCKED!
+            CHAOS CHRONICLES UNLOCKED!
           </span>
           <span className="ml-2">🐐🎮⚡</span>
         </h1>
