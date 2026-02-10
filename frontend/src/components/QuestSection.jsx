@@ -118,7 +118,7 @@ const QuestSection = () => {
             onMouseLeave={() => setHoveredCard(null)}
           >
             {/* Game Preview Area */}
-            <div className="game-screenshot relative h-48 sm:h-64 overflow-hidden">
+            <div className="game-screenshot relative h-64 sm:h-80 md:h-96 overflow-hidden">
               {game.comingSoon ? (
                 // Coming Soon placeholder
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-purple-900/50 to-indigo-900/50">
