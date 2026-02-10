@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Menu, X, Gamepad2, BookOpen, Users, Mail, Home } from 'lucide-react';
+import { Sparkles, Menu, X, Gamepad2, BookOpen, Users, Home } from 'lucide-react';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/3oc0w6yi_blockquest_logo_primary.png";
 
