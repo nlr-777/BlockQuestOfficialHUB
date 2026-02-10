@@ -213,7 +213,7 @@ const HeroSection = () => {
                 onClick={createExplosion}
                 className="block"
               >
-                <Button className="play-button crt-distort ripple-effect w-full py-3 font-black text-sm bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 border-2 border-orange-400/50 text-white"
+                <Button className="crt-distort ripple-effect w-full py-3 font-black text-xs bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 border-2 border-orange-400/50 text-white rounded-lg"
                   style={{ boxShadow: '0 0 15px rgba(255, 107, 53, 0.4)' }}>
                   INSERT COIN – PLAY FULL 🎮
                 </Button>
