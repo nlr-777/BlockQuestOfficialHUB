@@ -186,7 +186,7 @@ const HeroSection = () => {
                 onClick={createExplosion}
                 className="block"
               >
-                <Button className="play-button crt-distort ripple-effect w-full py-3 font-black text-sm bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-400 hover:to-green-400 border-2 border-cyan-400/50 text-black"
+                <Button className="crt-distort ripple-effect w-full py-3 font-black text-xs bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-400 hover:to-green-400 border-2 border-cyan-400/50 text-black rounded-lg"
                   style={{ boxShadow: '0 0 15px rgba(0, 212, 255, 0.4)' }}>
                   PLAY TEASER NOW 🐐
                 </Button>
