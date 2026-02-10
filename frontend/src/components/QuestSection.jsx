@@ -177,17 +177,17 @@ const QuestSection = () => {
               </p>
               {/* XP & Badges Teaser - Per Card */}
               {!game.comingSoon && (
-                <p className="text-sm mb-5 font-semibold text-orange-400/80">
+                <p className="text-xs mb-3 font-semibold text-orange-400/80">
                   ⭐ Earn XP, Levels & Fun Badges! 🏆
                 </p>
               )}
               
               {game.comingSoon ? (
                 <Button 
-                  className="w-full h-16 sm:h-20 text-xl sm:text-2xl font-black bg-purple-800/50 border-2 border-purple-500/50 text-purple-300 cursor-not-allowed"
+                  className="w-full h-12 sm:h-14 text-lg sm:text-xl font-black bg-purple-800/50 border-2 border-purple-500/50 text-purple-300 cursor-not-allowed"
                   disabled
                 >
-                  <Lock className="w-6 h-6 mr-2" />
+                  <Lock className="w-5 h-5 mr-2" />
                   COMING SOON
                 </Button>
               ) : (
@@ -199,10 +199,10 @@ const QuestSection = () => {
                   onClick={createExplosion}
                 >
                   <Button 
-                    className="play-button crt-distort ripple-effect w-full h-16 sm:h-20 text-xl sm:text-2xl font-black bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 border-2 border-orange-400/50 text-white"
+                    className="play-button crt-distort ripple-effect w-full h-12 sm:h-14 text-lg sm:text-xl font-black bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 border-2 border-orange-400/50 text-white"
                     style={{ boxShadow: '0 0 20px rgba(255, 107, 53, 0.5)' }}
                   >
-                    <Play className="w-6 h-6 mr-2 bounce-rotate" />
+                    <Play className="w-5 h-5 mr-2 bounce-rotate" />
                     PLAY NOW!
                   </Button>
                 </a>
