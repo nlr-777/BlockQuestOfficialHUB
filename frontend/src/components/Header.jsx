@@ -55,9 +55,8 @@ const Header = () => {
   const navItems = [
     { id: 'home', label: 'Home', icon: Home, action: scrollToTop },
     { id: 'quest-section', label: 'Arcade', icon: Gamepad2, action: () => scrollToSection('quest-section') },
-    { id: 'book-section', label: 'Books', icon: BookOpen, action: () => scrollToSection('book-section') },
-    { id: 'parent-section', label: 'Parents', icon: Users, action: () => scrollToSection('parent-section') },
-    { id: 'contact', label: 'Contact', icon: Mail, action: () => scrollToSection('contact') }
+    { id: 'books-section', label: 'Books', icon: BookOpen, action: () => scrollToSection('books-section') },
+    { id: 'parent-section', label: 'Parents', icon: Users, action: () => scrollToSection('parent-section') }
   ];
 
   return (
