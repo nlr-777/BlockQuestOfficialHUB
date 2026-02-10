@@ -238,7 +238,7 @@ const HeroSection = () => {
                 onClick={scrollToBooks}
                 className="block"
               >
-                <Button className="play-button crt-distort ripple-effect w-full py-3 font-black text-sm bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 border-2 border-purple-400/50 text-white"
+                <Button className="crt-distort ripple-effect w-full py-3 font-black text-xs bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 border-2 border-purple-400/50 text-white rounded-lg"
                   style={{ boxShadow: '0 0 15px rgba(155, 93, 229, 0.4)' }}>
                   MEET THE SQUAD & DIVE IN 📚
                 </Button>
