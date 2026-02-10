@@ -41,7 +41,9 @@ const LandingPage = () => {
         <section id="books-section">
           <BookSection />
         </section>
-        <CompactParentFooter />
+        <section id="parent-section">
+          <CompactParentFooter />
+        </section>
       </main>
       <Footer />
       <FloatingGoatPanel />
