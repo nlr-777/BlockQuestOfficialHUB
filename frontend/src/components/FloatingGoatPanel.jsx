@@ -9,7 +9,8 @@ const DECKS = [
   { id: 4, title: "Book 4 – NFTs Without the Scams", subtitle: "Screenshots, or Headaches", url: "/decks/book4-nfts-without-the-scams.pdf" },
 ];
 
-const YOUTUBE_PLAYLIST = "https://www.youtube.com/@BlockQuestOfficial";
+const YOUTUBE_CHANNEL = "https://youtube.com/@blockquestofficial26?si=JYR5yWsSgGz0Zonp";
+const YOUTUBE_PLAYLIST = "https://youtu.be/I6MH9LDYig4?si=s7bfe3d6mf1Lv3Ia";
 
 const TABS = [
   { id: 'decks', label: 'Decks', icon: FileText },
