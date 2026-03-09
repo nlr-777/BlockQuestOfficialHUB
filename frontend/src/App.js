@@ -60,7 +60,7 @@ const LandingPage = () => {
           totalHeroes={totalHeroes}
           onClaimQuest={claimQuest}
         />
-        <section id="quest-section">
+        <section>
           <QuestSection />
         </section>
         <section id="books-section">
