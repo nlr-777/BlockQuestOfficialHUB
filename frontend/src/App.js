@@ -3,28 +3,36 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
+import AvatarSelector from "./components/AvatarSelector";
+import DailyQuest from "./components/DailyQuest";
+import ProgressOverview from "./components/ProgressOverview";
 import QuestSection from "./components/QuestSection";
 import BookSection from "./components/BookSection";
 import CompactParentFooter from "./components/ParentSection";
 import Footer from "./components/Footer";
 import FloatingElements from "./components/FloatingElements";
 import FloatingGoatPanel from "./components/FloatingGoatPanel";
+import useProgress from "./hooks/useProgress";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import FAQPage from "./pages/FAQPage";
 import ParentHubPage from "./pages/ParentHubPage";
 
 const LandingPage = () => {
+  const {
+    progress, claimQuest, unlockHero, selectAvatar,
+    claimDailyQuest, hasProgress, totalQuests, totalHeroes
+  } = useProgress();
+
   useEffect(() => {
     document.title = "BlockQuest HQ – Epic Games and Books for All Ages";
-    
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games. Learn Web3 the fun way! Ages 10+ and confused adults welcome.');
+      metaDescription.setAttribute('content', 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games.');
     } else {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games. Learn Web3 the fun way! Ages 10+ and confused adults welcome.';
+      meta.content = 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games.';
       document.head.appendChild(meta);
     }
   }, []);
@@ -34,7 +42,24 @@ const LandingPage = () => {
       <FloatingElements />
       <Header />
       <main>
-        <HeroSection />
+        <HeroSection questsCompleted={progress.questsCompleted} />
+        <AvatarSelector
+          selectedAvatar={progress.selectedAvatar}
+          onSelect={selectAvatar}
+          onUnlockHero={unlockHero}
+          unlockedHeroes={progress.heroesUnlocked}
+        />
+        <DailyQuest
+          streak={progress.streak}
+          isDone={progress.dailyQuestDate === new Date().toDateString()}
+          onClaim={claimDailyQuest}
+        />
+        <ProgressOverview
+          progress={progress}
+          totalQuests={totalQuests}
+          totalHeroes={totalHeroes}
+          onClaimQuest={claimQuest}
+        />
         <section id="quest-section">
           <QuestSection />
         </section>
@@ -46,7 +71,7 @@ const LandingPage = () => {
         </section>
       </main>
       <Footer />
-      <FloatingGoatPanel />
+      <FloatingGoatPanel hasProgress={hasProgress} />
     </div>
   );
 };

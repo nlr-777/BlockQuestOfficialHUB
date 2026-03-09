@@ -19,26 +19,31 @@ const TABS = [
   { id: 'extras', label: 'Extras', icon: Award },
 ];
 
-const FloatingGoatPanel = () => {
+const FloatingGoatPanel = ({ hasProgress = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('decks');
 
   return (
     <>
       {/* Floating Goat Button - Fixed bottom-right */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all duration-300 hover:scale-110 hover:rotate-12 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-        style={{
-          background: 'linear-gradient(135deg, #ff6b35, #9b5de5, #00d4ff)',
-          boxShadow: '0 0 20px rgba(255, 107, 53, 0.5), 0 0 40px rgba(155, 93, 229, 0.3), 0 0 60px rgba(0, 212, 255, 0.2)',
-          border: '3px solid rgba(255, 255, 255, 0.2)',
-        }}
-        aria-label="Open resources panel"
-        data-testid="floating-goat-btn"
-      >
-        🐐
-      </button>
+      <div className={`fixed bottom-6 right-6 z-50 flex flex-col items-center gap-1 transition-all duration-300 ${isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <span className="text-xs font-bold text-orange-400 animate-bounce bg-gray-900/80 px-2 py-0.5 rounded-full border border-orange-500/30">
+          Tap Here! 👇
+        </span>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all duration-300 hover:scale-110 hover:rotate-12"
+          style={{
+            background: 'linear-gradient(135deg, #ff6b35, #9b5de5, #00d4ff)',
+            boxShadow: '0 0 20px rgba(255, 107, 53, 0.5), 0 0 40px rgba(155, 93, 229, 0.3), 0 0 60px rgba(0, 212, 255, 0.2)',
+            border: '3px solid rgba(255, 255, 255, 0.2)',
+          }}
+          aria-label="Open resources panel"
+          data-testid="floating-goat-btn"
+        >
+          🐐
+        </button>
+      </div>
 
       {/* Backdrop */}
       {isOpen && (
@@ -206,6 +211,24 @@ const FloatingGoatPanel = () => {
                   </div>
                   <Download className="w-4 h-4 text-gray-500 group-hover:text-yellow-400" />
                 </a>
+
+                {hasProgress ? (
+                  <div className="p-3 rounded-xl bg-purple-900/20 border border-purple-500/30">
+                    <p className="text-sm font-bold text-purple-400 mb-2">🎉 Progress Bonuses Unlocked!</p>
+                    <div className="space-y-2 text-xs text-gray-400">
+                      <p>✅ Resource Hub access — you earned it!</p>
+                      <p>🔒 Secret character bios — coming soon</p>
+                      <p>🔒 Bonus mini-game — coming soon</p>
+                      <p>🔒 Exclusive wallpapers — coming soon</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-gray-800/40 border border-gray-700/30">
+                    <p className="text-xs text-gray-500 text-center">
+                      🔒 Play games & earn XP to unlock bonus content here!
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
