@@ -19,7 +19,7 @@ const TABS = [
   { id: 'extras', label: 'Extras', icon: Award },
 ];
 
-const FloatingGoatPanel = ({ hasProgress = false }) => {
+const FloatingGoatPanel = ({ hasProgress = false, currentXp = 0 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('decks');
 
@@ -213,14 +213,31 @@ const FloatingGoatPanel = ({ hasProgress = false }) => {
                 </a>
 
                 {hasProgress ? (
-                  <div className="p-3 rounded-xl bg-purple-900/20 border border-purple-500/30">
-                    <p className="text-sm font-bold text-purple-400 mb-2">🎉 Progress Bonuses Unlocked!</p>
-                    <div className="space-y-2 text-xs text-gray-400">
-                      <p>✅ Resource Hub access — you earned it!</p>
-                      <p>🔒 Secret character bios — coming soon</p>
-                      <p>🔒 Bonus mini-game — coming soon</p>
-                      <p>🔒 Exclusive wallpapers — coming soon</p>
+                  <div className="space-y-3">
+                    <p className="text-sm font-bold text-purple-400 mb-2">🎉 Progress Bonuses!</p>
+                    <div className="space-y-2">
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${currentXp >= 0 ? 'bg-green-900/20 border border-green-500/20' : 'bg-gray-800/40 border border-gray-700/30 opacity-50'}`}>
+                        <span>{currentXp >= 0 ? '✅' : '🔒'}</span>
+                        <span className="text-xs text-gray-300">Resource Hub Access</span>
+                      </div>
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${currentXp >= 200 ? 'bg-green-900/20 border border-green-500/20' : 'bg-gray-800/40 border border-gray-700/30 opacity-50'}`}>
+                        <span>{currentXp >= 200 ? '✅' : '🔒'}</span>
+                        <span className="text-xs text-gray-300">Book 1 Deck Unlocked! (200 XP)</span>
+                      </div>
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${currentXp >= 350 ? 'bg-green-900/20 border border-green-500/20' : 'bg-gray-800/40 border border-gray-700/30 opacity-50'}`}>
+                        <span>{currentXp >= 350 ? '✅' : '🔒'}</span>
+                        <span className="text-xs text-gray-300">Arcade Tips Unlocked! (350 XP)</span>
+                      </div>
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${currentXp >= 500 ? 'bg-green-900/20 border border-green-500/20' : 'bg-gray-800/40 border border-gray-700/30 opacity-50'}`}>
+                        <span>{currentXp >= 500 ? '✅' : '🔒'}</span>
+                        <span className="text-xs text-gray-300">Secret Gary Story! (500 XP)</span>
+                      </div>
+                      <div className={`flex items-center gap-2 p-2 rounded-lg ${currentXp >= 750 ? 'bg-green-900/20 border border-green-500/20' : 'bg-gray-800/40 border border-gray-700/30 opacity-50'}`}>
+                        <span>{currentXp >= 750 ? '✅' : '🔒'}</span>
+                        <span className="text-xs text-gray-300">Champion Certificate! (750 XP)</span>
+                      </div>
                     </div>
+                    <p className="text-[10px] text-gray-600 text-center mt-2">Your XP: {currentXp}</p>
                   </div>
                 ) : (
                   <div className="p-3 rounded-xl bg-gray-800/40 border border-gray-700/30">

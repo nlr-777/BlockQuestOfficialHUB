@@ -25,7 +25,7 @@ const faqData = [
   },
   {
     question: "Where can I read or play?",
-    answer: "Books are released via itch.io and linked from our official website. Games are playable through our website and official links."
+    answer: "Books are available through our official website. Games are playable through our website and official Vercel-hosted links."
   },
   {
     question: "Is this financial or investment advice?",

@@ -121,8 +121,9 @@ const HeroSection = ({ questsCompleted = [] }) => {
                   MINI MONEY QUEST 🐐
                 </h3>
                 <p className="text-xs text-purple-400 font-bold mb-1">The Future Frontier – Quick teaser</p>
-                <p className="text-sm text-gray-300 mb-3 flex-1">Help Gary the Goat trade & discover why money exists! (~5-15 min)</p>
-                {isMiniDone && <p className="text-xs text-green-400 font-bold mb-2">✅ Completed! Reward claimed.</p>}
+                <p className="text-sm text-gray-300 mb-2 flex-1">Help Gary the Goat trade & discover why money exists! (~5-15 min)</p>
+                {isMiniDone && <p className="text-xs text-green-400 font-bold mb-1">✅ Completed! Reward claimed.</p>}
+                <p className="text-[10px] text-gray-500 mb-2">After playing, return & claim in Quest Log below!</p>
                 <a href="https://block-quest-future-frontier.vercel.app/" target="_blank" rel="noopener noreferrer" onClick={createExplosion} className="block">
                   <Button className="crt-distort ripple-effect w-full py-2.5 font-black text-xs bg-gradient-to-r from-cyan-500 to-green-500 hover:from-cyan-400 hover:to-green-400 border-2 border-cyan-400/50 text-black rounded-lg"
                     style={{ boxShadow: '0 0 15px rgba(0, 212, 255, 0.4)' }}>
@@ -145,8 +146,9 @@ const HeroSection = ({ questsCompleted = [] }) => {
                   RETRO ARCADE 🎮
                 </h3>
                 <p className="text-xs text-purple-400 font-bold mb-1">Main free playground</p>
-                <p className="text-sm text-gray-300 mb-3 flex-1">Retro levels, leaderboards, endless chaos!</p>
-                {isArcadeDone && <p className="text-xs text-green-400 font-bold mb-2">✅ Completed! Reward claimed.</p>}
+                <p className="text-sm text-gray-300 mb-2 flex-1">Retro levels, leaderboards, endless chaos!</p>
+                {isArcadeDone && <p className="text-xs text-green-400 font-bold mb-1">✅ Completed! Reward claimed.</p>}
+                <p className="text-[10px] text-gray-500 mb-2">After playing, return & claim in Quest Log to unlock heroes!</p>
                 <a href="https://block-quest-retro-arcade-v1-2026.vercel.app/" target="_blank" rel="noopener noreferrer" onClick={createExplosion} className="block">
                   <Button className="crt-distort ripple-effect w-full py-2.5 font-black text-xs bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 border-2 border-orange-400/50 text-white rounded-lg"
                     style={{ boxShadow: '0 0 15px rgba(255, 107, 53, 0.4)' }}>
@@ -169,8 +171,9 @@ const HeroSection = ({ questsCompleted = [] }) => {
                   CHAOS CHRONICLES 📚
                 </h3>
                 <p className="text-xs text-orange-400 font-bold mb-1">Stories + slide decks</p>
-                <p className="text-sm text-gray-300 mb-3 flex-1">Unlock the real 'why' behind the games!</p>
-                {isChaosDone && <p className="text-xs text-green-400 font-bold mb-2">✅ Completed! Reward claimed.</p>}
+                <p className="text-sm text-gray-300 mb-2 flex-1">Unlock the real 'why' behind the games!</p>
+                {isChaosDone && <p className="text-xs text-green-400 font-bold mb-1">✅ Completed! Reward claimed.</p>}
+                <p className="text-[10px] text-gray-500 mb-2">Explore the books & claim XP bonuses below!</p>
                 <a href="#books-section" onClick={scrollToBooks} className="block">
                   <Button className="crt-distort ripple-effect w-full py-2.5 font-black text-xs bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 border-2 border-purple-400/50 text-white rounded-lg"
                     style={{ boxShadow: '0 0 15px rgba(155, 93, 229, 0.4)' }}>

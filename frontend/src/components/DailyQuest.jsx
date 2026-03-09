@@ -40,7 +40,7 @@ const DailyQuest = ({ streak, isDone, onClaim }) => {
               <p className="text-sm text-gray-200">
                 Today's Challenge: <span className="font-semibold">{challenge.text}</span>
               </p>
-              <p className="text-xs text-purple-400 mt-0.5">→ {challenge.reward}</p>
+              <p className="text-xs text-purple-400 mt-0.5">→ {challenge.reward} (+50 XP)</p>
             </div>
             <button
               onClick={onClaim}

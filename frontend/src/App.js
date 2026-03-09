@@ -21,7 +21,8 @@ import ParentHubPage from "./pages/ParentHubPage";
 const LandingPage = () => {
   const {
     progress, claimQuest, unlockHero, selectAvatar,
-    claimDailyQuest, hasProgress, totalQuests, totalHeroes
+    claimDailyQuest, resetProgress, hasProgress, totalQuests, totalHeroes,
+    lastClaimed, heroThresholds
   } = useProgress();
 
   useEffect(() => {
@@ -48,6 +49,7 @@ const LandingPage = () => {
           onSelect={selectAvatar}
           onUnlockHero={unlockHero}
           unlockedHeroes={progress.heroesUnlocked}
+          currentXp={progress.xp}
         />
         <DailyQuest
           streak={progress.streak}
@@ -59,6 +61,9 @@ const LandingPage = () => {
           totalQuests={totalQuests}
           totalHeroes={totalHeroes}
           onClaimQuest={claimQuest}
+          onReset={resetProgress}
+          lastClaimed={lastClaimed}
+          heroThresholds={heroThresholds}
         />
         <section>
           <QuestSection />
@@ -71,7 +76,7 @@ const LandingPage = () => {
         </section>
       </main>
       <Footer />
-      <FloatingGoatPanel hasProgress={hasProgress} />
+      <FloatingGoatPanel hasProgress={hasProgress} currentXp={progress.xp} />
     </div>
   );
 };
