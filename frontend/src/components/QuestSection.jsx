@@ -103,8 +103,8 @@ const QuestSection = () => {
         </div>
       </div>
 
-      {/* Game Cards - Centered Single Card */}
-      <div className="max-w-2xl mx-auto relative z-10">
+      {/* Game Cards */}
+      <div className="max-w-4xl mx-auto relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
         {games.map((game) => (
           <div
             key={game.id}
@@ -118,7 +118,7 @@ const QuestSection = () => {
             onMouseLeave={() => setHoveredCard(null)}
           >
             {/* Game Preview Area */}
-            <div className="game-screenshot relative h-64 sm:h-80 md:h-96 overflow-hidden">
+            <div className="game-screenshot relative h-48 sm:h-56 overflow-hidden">
               {game.comingSoon ? (
                 // Coming Soon placeholder
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-purple-900/50 to-indigo-900/50">
@@ -129,8 +129,8 @@ const QuestSection = () => {
                 // Game Preview with screenshot image
                 <div className="absolute inset-0 bg-black overflow-hidden">
                   <img 
-                    src={GAME_PREVIEW_IMAGE}
-                    alt="BlockQuest Retro Arcade Preview"
+                    src={game.preview || GAME_PREVIEW_IMAGE}
+                    alt={`${game.title} Preview`}
                     className="w-full h-full object-cover object-top"
                     data-testid="game-preview-image"
                   />

@@ -39,6 +39,16 @@ export const games = [
     theme: "rainbow",
     emojis: ["🎮", "⬡", "🏆", "⚡", "💎"],
     comingSoon: false
+  },
+  {
+    id: 2,
+    title: "BlockQuest Miner's ⛏️",
+    description: "Dig deep, mine blocks, and discover how blockchain mining really works — one block at a time!",
+    url: "https://block-quest-miners-game-dq2b.vercel.app/",
+    theme: "rainbow",
+    emojis: ["⛏️", "💎", "🪨", "⚡", "🔗"],
+    comingSoon: false,
+    preview: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/abc5f9a5cbaa4c3728a6a34a8a5a907c6a7a9f245b01438925d2383e4a78a7e3.png"
   }
 ];
 
