@@ -59,7 +59,7 @@ export const games = [
     theme: "rainbow",
     emojis: ["🎮", "⬡", "🏆", "⚡", "💎"],
     comingSoon: false,
-    preview: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/70db92801a276532cbc0eb47df2b8fd51a390fac307da6ec0553550ceba2235a.png"
+    preview: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/0llvbuko_retroarcadeplaceholder.jpg"
   }
 ];
 
