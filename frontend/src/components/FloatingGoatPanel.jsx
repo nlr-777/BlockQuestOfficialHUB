@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, FileText, BookOpen, Play, Award, Download, ExternalLink } from 'lucide-react';
+import { X, FileText, BookOpen, Play, Award, Download, ExternalLink, HelpCircle } from 'lucide-react';
 
 /* Slide deck PDF data - update paths as needed */
 const DECKS = [
@@ -12,8 +12,24 @@ const DECKS = [
 const YOUTUBE_CHANNEL = "https://youtube.com/@blockquestofficial26?si=JYR5yWsSgGz0Zonp";
 const YOUTUBE_PLAYLIST = "https://youtu.be/I6MH9LDYig4?si=s7bfe3d6mf1Lv3Ia";
 
+const GLOSSARY = [
+  { term: 'Blockchain', emoji: '🔗', def: "Imagine a notebook that everyone in class can read, but nobody can erase or change what's already written. That's a blockchain — a shared record that's super hard to cheat!" },
+  { term: 'Cryptocurrency', emoji: '💰', def: "Digital money that lives on the internet! Like game coins, but people can actually use them to buy stuff. Bitcoin and Ethereum are famous ones." },
+  { term: 'Wallet', emoji: '👛', def: "A special app that holds your digital money — like a piggy bank, but on your phone or computer. Only you have the secret key to open it!" },
+  { term: 'Mining', emoji: '⛏️', def: "Computers solving really hard puzzles to add new pages to the blockchain notebook. The computer that solves it first gets rewarded with crypto — like winning a math race!" },
+  { term: 'Token', emoji: '🪙', def: "Like arcade tokens, but digital! They can represent anything — game points, a vote in a club, or even ownership of something cool." },
+  { term: 'NFT', emoji: '🖼️', def: "A digital certificate that proves YOU own something unique online — like a one-of-a-kind trading card that can't be copied. It stands for 'Non-Fungible Token' (fancy words for 'one of a kind')." },
+  { term: 'Smart Contract', emoji: '🤖', def: "A robot promise! It's code that automatically does something when conditions are met — like a vending machine: put money in → get snack out. No humans needed!" },
+  { term: 'Decentralized', emoji: '🌐', def: "Instead of one boss controlling everything (like a principal), everyone shares the power equally. It's like a group project where no single person is in charge!" },
+  { term: 'Gas Fees', emoji: '⛽', def: "A tiny fee you pay to use the blockchain — like postage stamps for sending digital stuff. Busier times = more expensive stamps!" },
+  { term: 'DeFi', emoji: '🏦', def: "Short for 'Decentralized Finance.' Banking without actual banks! People lend, borrow, and trade directly with each other using code instead of bankers." },
+  { term: 'Web3', emoji: '🕸️', def: "The next version of the internet where YOU own your stuff instead of big companies. Think of Web1 as read-only, Web2 as read-write (social media), and Web3 as read-write-OWN!" },
+  { term: 'Consensus', emoji: '🤝', def: "When all the computers in the blockchain network agree that something is true — like the whole class voting and saying 'Yep, that's correct!' before it gets written down." },
+];
+
 const TABS = [
   { id: 'decks', label: 'Decks', icon: FileText },
+  { id: 'glossary', label: 'Glossary', icon: HelpCircle },
   { id: 'stories', label: 'Stories', icon: BookOpen },
   { id: 'videos', label: 'Videos', icon: Play },
   { id: 'extras', label: 'Extras', icon: Award },
@@ -127,6 +143,31 @@ const FloatingGoatPanel = ({ hasProgress = false, currentXp = 0 }) => {
                     </div>
                     <Download className="w-4 h-4 text-gray-500 group-hover:text-purple-400 flex-shrink-0" />
                   </a>
+                ))}
+              </div>
+            )}
+
+
+            {/* Glossary Tab */}
+            {activeTab === 'glossary' && (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-400 mb-3">
+                  Tap any word to learn what it means — Gerry-approved! 🐐✨
+                </p>
+                {GLOSSARY.map((item, i) => (
+                  <details
+                    key={i}
+                    className="group rounded-xl bg-gray-800/60 border border-gray-700/50 hover:border-cyan-500/40 transition-all overflow-hidden"
+                  >
+                    <summary className="flex items-center gap-2 p-3 cursor-pointer list-none select-none">
+                      <span className="text-lg">{item.emoji}</span>
+                      <span className="text-sm font-bold text-cyan-400 flex-1">{item.term}</span>
+                      <span className="text-gray-600 group-open:rotate-90 transition-transform text-xs">▶</span>
+                    </summary>
+                    <div className="px-3 pb-3 pt-1">
+                      <p className="text-xs text-gray-300 leading-relaxed">{item.def}</p>
+                    </div>
+                  </details>
                 ))}
               </div>
             )}
