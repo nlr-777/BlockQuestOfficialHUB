@@ -104,7 +104,7 @@ const QuestSection = () => {
       </div>
 
       {/* Game Cards */}
-      <div className="max-w-5xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="max-w-5xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
         {games.map((game) => (
           <div
             key={game.id}

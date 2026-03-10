@@ -60,6 +60,16 @@ export const games = [
     emojis: ["🎮", "⬡", "🏆", "⚡", "💎"],
     comingSoon: false,
     preview: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/0llvbuko_retroarcadeplaceholder.jpg"
+  },
+  {
+    id: 4,
+    title: "NFT Creation Studio 🎨",
+    description: "Design, mint, and showcase your own NFT art — learn what makes digital creations unique and valuable!",
+    url: "https://block-quest-nft-creation-studio.vercel.app/",
+    theme: "rainbow",
+    emojis: ["🎨", "🖼️", "✨", "💎", "🐐"],
+    comingSoon: false,
+    preview: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/3c650dd9b9cd0764ad30b5a0b278a599532ad15ace4d6e891b76b34882b5f1b1.png"
   }
 ];
 
