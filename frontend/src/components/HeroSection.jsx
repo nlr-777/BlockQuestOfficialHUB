@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { Button } from './ui/button';
 import { ChevronDown, Sparkles, Zap } from 'lucide-react';
 
-const LOGO_URL = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/3oc0w6yi_blockquest_logo_primary.png";
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/w2ll1mya_gemini-2.5-flash-image_BlockQuest_HQ_logo_design_bold_retro_arcade.jpg";
 
 const CARD_IMAGES = {
   miniMoney: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/y9goe8fx_generated_image_20260201_032529_1.png",
