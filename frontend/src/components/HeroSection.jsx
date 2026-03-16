@@ -88,10 +88,10 @@ const HeroSection = ({ questsCompleted = [] }) => {
 
       <div className="relative z-20 text-center px-4 max-w-6xl mx-auto w-full">
         <div className="mb-4 relative -mx-4 sm:-mx-6 md:mx-0">
-          <div className="w-full md:max-w-3xl md:mx-auto overflow-hidden md:rounded-2xl"
+          <div className="w-full md:max-w-3xl md:mx-auto overflow-hidden md:rounded-2xl h-40 sm:h-48 md:h-56"
             style={{ boxShadow: '0 0 60px rgba(155, 93, 229, 0.3), 0 0 120px rgba(255, 107, 53, 0.15)' }}>
             <img src={LOGO_URL} alt="BlockQuest" data-testid="blockquest-logo"
-              className="hero-logo glitch-hover w-full cursor-pointer block" />
+              className="hero-logo glitch-hover w-full h-full cursor-pointer block object-cover object-center" />
           </div>
           <div className="flex justify-center gap-4 mt-2">
             <Sparkles className="w-5 h-5 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
