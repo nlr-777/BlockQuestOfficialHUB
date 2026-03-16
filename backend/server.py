@@ -22,6 +22,7 @@ supabase_key = os.environ.get('NEXT_PUBLIC_SUPABASE_ANON_KEY') or os.environ.get
 supabase_service_key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
 
 supabase: Client = None
+supabase_admin: Client = None
 
 # Only create client if valid credentials are provided
 if supabase_url and supabase_key and supabase_url != 'placeholder' and supabase_key != 'placeholder':
@@ -33,6 +34,15 @@ if supabase_url and supabase_key and supabase_url != 'placeholder' and supabase_
         supabase = None
 else:
     logging.warning("Supabase credentials not configured. Database features will be disabled.")
+
+# Admin client (bypasses RLS) for admin-only operations
+if supabase_url and supabase_service_key:
+    try:
+        supabase_admin = create_client(supabase_url, supabase_service_key)
+        logging.info("Supabase admin client initialized successfully")
+    except Exception as e:
+        logging.warning(f"Failed to initialize Supabase admin client: {e}")
+        supabase_admin = None
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -46,16 +56,16 @@ api_router = APIRouter(prefix="/api")
 # Site Content Models
 class SiteContent(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    id: int
+    id: Any  # Can be int or UUID string in Supabase
     title: str
-    type: str  # 'video', 'book', or 'game'
+    type: Optional[str] = None  # 'video', 'book', or 'game' - can be null
     url: str
     thumbnail_url: Optional[str] = None
 
 # Newsletter Models
 class NewsletterSubscriber(BaseModel):
     model_config = ConfigDict(extra="ignore")
-    id: Optional[int] = None
+    id: Optional[str] = None  # UUID in Supabase
     email: str
     created_at: Optional[datetime] = None
 
@@ -199,10 +209,12 @@ async def subscribe_newsletter(request: NewsletterSubscribeRequest):
 
 @api_router.get("/newsletter/subscribers", response_model=List[NewsletterSubscriber])
 async def get_subscribers():
-    """Get all newsletter subscribers (admin)"""
-    check_supabase()
+    """Get all newsletter subscribers (admin - uses service_role to bypass RLS)"""
+    admin = supabase_admin or supabase
+    if not admin:
+        raise HTTPException(status_code=503, detail="Database not configured.")
     try:
-        response = supabase.table("newsletter_subscribers").select("*").order("created_at", desc=True).execute()
+        response = admin.table("newsletter_subscribers").select("*").order("created_at", desc=True).execute()
         return response.data
     except Exception as e:
         logging.error(f"Error fetching subscribers: {e}")
