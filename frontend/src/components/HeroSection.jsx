@@ -132,13 +132,13 @@ const HeroSection = ({ questsCompleted = [] }) => {
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-500/40">
               <Megaphone className="w-3.5 h-3.5 text-black" />
             </div>
-            <div className="overflow-hidden flex-1 relative h-5">
+            <div className="overflow-hidden flex-1 relative h-6">
               {ANNOUNCEMENTS.map((msg, i) => (
                 <p
                   key={i}
                   className="absolute inset-0 whitespace-nowrap font-bold tracking-wide transition-all duration-500 ease-in-out"
                   style={{
-                    fontSize: '13px',
+                    fontSize: '16px',
                     background: 'linear-gradient(90deg, #ff6b35, #00d4ff, #9b5de5)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
