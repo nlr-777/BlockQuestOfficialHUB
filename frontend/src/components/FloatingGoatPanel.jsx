@@ -3,10 +3,8 @@ import { X, FileText, BookOpen, Play, Award, Download, ExternalLink, HelpCircle 
 
 /* Slide deck PDF data - update paths as needed */
 const DECKS = [
-  { id: 1, title: "Book 1 – Money's Origin Story", subtitle: "From Bartering Goats to Digital Chaos", url: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/krqsj69u_From_Goats_to_Bitcoin.pdf" },
-  { id: 2, title: "Book 2 – Why Blockchains Exist", subtitle: "(AKA Humans Can't Behave)", url: "/decks/book2-why-blockchains-exist.pdf" },
-  { id: 3, title: "Book 3 – Tokens", subtitle: "Not Casino Chips, Not Monopoly Money", url: "/decks/book3-tokens.pdf" },
-  { id: 4, title: "Book 4 – NFTs Without the Scams", subtitle: "Screenshots, or Headaches", url: "/decks/book4-nfts-without-the-scams.pdf" },
+  { id: 1, title: "Book 1 – From Goats to Bitcoin", subtitle: "From Bartering Goats to Digital Chaos", url: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/krqsj69u_From_Goats_to_Bitcoin.pdf" },
+  { id: 2, title: "Book 2 – The Unbreakable Record", subtitle: "(AKA Humans Can't Behave)", url: "https://customer-assets.emergentagent.com/job_ecdea318-1bef-4472-bf06-96d374e1353d/artifacts/u733qm8o_The_Unbreakable_Record.pdf" },
 ];
 
 const YOUTUBE_CHANNEL = "https://youtube.com/@blockquestofficial26?si=JYR5yWsSgGz0Zonp";
@@ -25,6 +23,12 @@ const GLOSSARY = [
   { term: 'DeFi', emoji: '🏦', def: "Short for 'Decentralized Finance.' Banking without actual banks! People lend, borrow, and trade directly with each other using code instead of bankers." },
   { term: 'Web3', emoji: '🕸️', def: "The next version of the internet where YOU own your stuff instead of big companies. Think of Web1 as read-only, Web2 as read-write (social media), and Web3 as read-write-OWN!" },
   { term: 'Consensus', emoji: '🤝', def: "When all the computers in the blockchain network agree that something is true — like the whole class voting and saying 'Yep, that's correct!' before it gets written down." },
+  { term: 'DAO', emoji: '🏛️', def: "Stands for 'Decentralized Autonomous Organization.' It's like a club where members vote on every decision using tokens — no president, no teacher, just rules written in code that everyone follows!" },
+  { term: 'Staking', emoji: '🥩', def: "Locking up your crypto to help keep the blockchain running — kind of like putting your lunch money in a jar to prove you'll follow the rules. In return, you earn rewards like interest on a savings account!" },
+  { term: 'Metaverse', emoji: '🌍', def: "A virtual world (or lots of them connected together) where you can hang out, play games, and own stuff as digital items. Think of it like Roblox or Minecraft, but where your items are truly YOURS and can travel between worlds!" },
+  { term: 'Private Key', emoji: '🔑', def: "A super-secret password that unlocks your crypto wallet. It's like the combination to your locker — if someone else learns it, they can take your stuff. NEVER share it with anyone, ever!" },
+  { term: 'Public Key', emoji: '📬', def: "Your wallet's address that you CAN share with people — like your home address so friends can send you mail. Anyone can send you crypto with it, but only your private key can open the mailbox!" },
+  { term: 'Airdrop', emoji: '🪂', def: "Free tokens or NFTs dropped into your wallet — like finding surprise candy in your backpack! Projects do this to get people excited and reward early fans." },
 ];
 
 const TABS = [
@@ -174,12 +178,33 @@ const FloatingGoatPanel = ({ hasProgress = false, currentXp = 0 }) => {
 
             {/* Stories Tab */}
             {activeTab === 'stories' && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <span className="text-5xl mb-4">📚</span>
-                <p className="text-lg font-bold text-purple-400 mb-2">PDFs Coming Soon!</p>
-                <p className="text-sm text-gray-400 max-w-xs">
-                  Downloadable story PDFs are being formatted and will be available here shortly. Stay tuned!
+              <div className="space-y-3">
+                <p className="text-sm text-gray-400 mb-4">
+                  Download the Web3 Chaos Chronicles books — free for all explorers! 📚
                 </p>
+                <a
+                  href="https://customer-assets.emergentagent.com/job_ecdea318-1bef-4472-bf06-96d374e1353d/artifacts/lsrd3kh6_Moneys%20origin%20story%20Book%201%20%281%29.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-green-900/30 to-gray-900 border border-green-500/30 hover:border-green-400/60 transition-all"
+                  data-testid="story-book-1"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white group-hover:text-green-400 transition-colors">
+                      Book 1 — Money's Origin Story
+                    </p>
+                    <p className="text-xs text-gray-500">From Bartering Goats to Digital Chaos</p>
+                  </div>
+                  <Download className="w-4 h-4 text-gray-500 group-hover:text-green-400 flex-shrink-0" />
+                </a>
+                <div className="mt-4 p-3 rounded-xl bg-gray-800/40 border border-gray-700/30">
+                  <p className="text-xs text-gray-500 text-center">
+                    More books coming soon — stay tuned!
+                  </p>
+                </div>
               </div>
             )}
 

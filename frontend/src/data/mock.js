@@ -82,7 +82,8 @@ export const books = [
     cover: BOOK_COVERS.book1,
     series: "Web3 Chaos Chronicles",
     bookNumber: 1,
-    comingSoon: false
+    comingSoon: false,
+    downloadUrl: "https://customer-assets.emergentagent.com/job_ecdea318-1bef-4472-bf06-96d374e1353d/artifacts/lsrd3kh6_Moneys%20origin%20story%20Book%201%20%281%29.pdf"
   },
   {
     id: 2,

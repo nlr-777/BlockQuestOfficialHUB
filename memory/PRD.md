@@ -83,14 +83,19 @@ Create a landing page for "BlockQuest" that evolved into a comprehensive, intera
 - `users_public` view created to exclude password_hash
 - 21/21 backend tests passing
 
+### Phase 6: Book 1 PDF Download (Complete - March 2026)
+- Added Book 1 "Money's Origin Story" PDF as free download
+- Book 1 button changed from "Coming Soon" to "Free Download" (green, links to PDF)
+- Resource Hub Stories tab updated with Book 1 download entry
+- Other books (2-5) retain "Coming Soon" buttons
+
 ## Pending/Known Issues
 - `game_stats` has FK constraint to `users` table (expected behavior)
 - Vercel deployments may need "Save to GitHub" sync before redeploy
 
 ## Backlog (P1-P2)
-- P1: Migrate localStorage progress tracking to Supabase backend
-- P2: Re-introduce Web3 teasers (BLQ token, Apertum, OpenPlaza)
-- P2: Activate MerchSection.jsx component
+- P1: Migrate localStorage progress tracking to Supabase backend (UUID-based, no login)
+- P1: Cross-game leaderboard page/section
 - P2: Refactor state management (prop drilling → React Context)
 - P2: Split mock.js into focused data modules
 

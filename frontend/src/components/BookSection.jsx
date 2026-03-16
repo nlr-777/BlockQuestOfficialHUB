@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from './ui/button';
-import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, ShoppingCart, Users } from 'lucide-react';
+import { BookOpen, Sparkles, Lock, ChevronLeft, ChevronRight, ShoppingCart, Users, Download } from 'lucide-react';
 import { books, characters, CHARACTERS_IMAGE } from '../data/mock';
 
 // Pre-computed sparkle positions for consistent rendering
@@ -229,8 +229,22 @@ const BookSection = () => {
                       </div>
                     )}
                     
-                    {/* Buy Button for available books */}
-                    {!book.comingSoon && (
+                    {/* Download/Buy Button for available books */}
+                    {!book.comingSoon && book.downloadUrl ? (
+                      <a
+                        href={book.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-testid={`book-download-${book.bookNumber}`}
+                      >
+                        <Button 
+                          className="mt-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white text-sm px-5 py-2 rounded-full font-bold flex items-center gap-2 mx-auto shadow-lg shadow-green-500/30"
+                        >
+                          <Download className="w-4 h-4" />
+                          Free Download
+                        </Button>
+                      </a>
+                    ) : !book.comingSoon && (
                       <Button 
                         className="mt-3 bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-400 hover:to-purple-500 text-white text-sm px-4 py-2 rounded-full font-bold flex items-center gap-2 mx-auto"
                         onClick={(e) => e.preventDefault()}
