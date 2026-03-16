@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { Button } from './ui/button';
 import { ChevronDown, Sparkles, Zap } from 'lucide-react';
 
-const LOGO_URL = "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/unqcnydj_BlockQuest_HQ_logo_design_bold_retro_arcade.jpg";
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/srvnxh8w_Landscape%20Logo.jpg";
 
 const CARD_IMAGES = {
   miniMoney: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/y9goe8fx_generated_image_20260201_032529_1.png",
@@ -88,10 +88,10 @@ const HeroSection = ({ questsCompleted = [] }) => {
 
       <div className="relative z-20 text-center px-4 max-w-6xl mx-auto w-full">
         <div className="mb-4 relative -mx-4 sm:-mx-6 md:mx-0">
-          <div className="w-full md:max-w-3xl md:mx-auto overflow-hidden md:rounded-2xl h-40 sm:h-48 md:h-56"
+          <div className="w-full md:max-w-3xl md:mx-auto overflow-hidden md:rounded-2xl"
             style={{ boxShadow: '0 0 60px rgba(155, 93, 229, 0.3), 0 0 120px rgba(255, 107, 53, 0.15)' }}>
             <img src={LOGO_URL} alt="BlockQuest" data-testid="blockquest-logo"
-              className="hero-logo glitch-hover w-full h-full cursor-pointer block object-cover object-center" />
+              className="hero-logo glitch-hover w-full cursor-pointer block" />
           </div>
           <div className="flex justify-center gap-4 mt-2">
             <Sparkles className="w-5 h-5 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
