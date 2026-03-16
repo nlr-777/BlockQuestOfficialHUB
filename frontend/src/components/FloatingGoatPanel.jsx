@@ -174,12 +174,33 @@ const FloatingGoatPanel = ({ hasProgress = false, currentXp = 0 }) => {
 
             {/* Stories Tab */}
             {activeTab === 'stories' && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <span className="text-5xl mb-4">📚</span>
-                <p className="text-lg font-bold text-purple-400 mb-2">PDFs Coming Soon!</p>
-                <p className="text-sm text-gray-400 max-w-xs">
-                  Downloadable story PDFs are being formatted and will be available here shortly. Stay tuned!
+              <div className="space-y-3">
+                <p className="text-sm text-gray-400 mb-4">
+                  Download the Web3 Chaos Chronicles books — free for all explorers! 📚
                 </p>
+                <a
+                  href="https://customer-assets.emergentagent.com/job_ecdea318-1bef-4472-bf06-96d374e1353d/artifacts/lsrd3kh6_Moneys%20origin%20story%20Book%201%20%281%29.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-green-900/30 to-gray-900 border border-green-500/30 hover:border-green-400/60 transition-all"
+                  data-testid="story-book-1"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white group-hover:text-green-400 transition-colors">
+                      Book 1 — Money's Origin Story
+                    </p>
+                    <p className="text-xs text-gray-500">From Bartering Goats to Digital Chaos</p>
+                  </div>
+                  <Download className="w-4 h-4 text-gray-500 group-hover:text-green-400 flex-shrink-0" />
+                </a>
+                <div className="mt-4 p-3 rounded-xl bg-gray-800/40 border border-gray-700/30">
+                  <p className="text-xs text-gray-500 text-center">
+                    More books coming soon — stay tuned!
+                  </p>
+                </div>
               </div>
             )}
 
