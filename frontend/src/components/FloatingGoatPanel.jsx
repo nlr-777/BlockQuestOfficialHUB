@@ -10,7 +10,7 @@ const DECKS = [
 ];
 
 const YOUTUBE_CHANNEL = "https://youtube.com/@blockquestofficial26?si=JYR5yWsSgGz0Zonp";
-const YOUTUBE_PLAYLIST = "https://youtu.be/I6MH9LDYig4?si=s7bfe3d6mf1Lv3Ia";
+const YOUTUBE_PLAYLIST = "https://youtube.com/playlist?list=PLgR8StchduZblHIXk0eJ5YO4Op1auHu7f&si=Z1m60AZIXy4EYjru";
 
 const GLOSSARY = [
   { term: 'Blockchain', emoji: '🔗', def: "Imagine a notebook that everyone in class can read, but nobody can erase or change what's already written. That's a blockchain — a shared record that's super hard to cheat!" },
