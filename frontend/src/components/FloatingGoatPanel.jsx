@@ -23,6 +23,11 @@ const GLOSSARY = [
   { term: 'DeFi', emoji: '🏦', def: "Short for 'Decentralized Finance.' Banking without actual banks! People lend, borrow, and trade directly with each other using code instead of bankers." },
   { term: 'Web3', emoji: '🕸️', def: "The next version of the internet where YOU own your stuff instead of big companies. Think of Web1 as read-only, Web2 as read-write (social media), and Web3 as read-write-OWN!" },
   { term: 'Consensus', emoji: '🤝', def: "When all the computers in the blockchain network agree that something is true — like the whole class voting and saying 'Yep, that's correct!' before it gets written down." },
+  { term: 'DAO', emoji: '🏛️', def: "Stands for 'Decentralized Autonomous Organization.' It's like a club where members vote on every decision using tokens — no president, no teacher, just rules written in code that everyone follows!" },
+  { term: 'Staking', emoji: '🥩', def: "Locking up your crypto to help keep the blockchain running — kind of like putting your lunch money in a jar to prove you'll follow the rules. In return, you earn rewards like interest on a savings account!" },
+  { term: 'Metaverse', emoji: '🌍', def: "A virtual world (or lots of them connected together) where you can hang out, play games, and own stuff as digital items. Think of it like Roblox or Minecraft, but where your items are truly YOURS and can travel between worlds!" },
+  { term: 'Private Key', emoji: '🔑', def: "A super-secret password that unlocks your crypto wallet. It's like the combination to your locker — if someone else learns it, they can take your stuff. NEVER share it with anyone, ever!" },
+  { term: 'Airdrop', emoji: '🪂', def: "Free tokens or NFTs dropped into your wallet — like finding surprise candy in your backpack! Projects do this to get people excited and reward early fans." },
 ];
 
 const TABS = [
