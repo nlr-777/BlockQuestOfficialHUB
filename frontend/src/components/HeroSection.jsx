@@ -1,8 +1,14 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { Button } from './ui/button';
-import { ChevronDown, Sparkles, Zap } from 'lucide-react';
+import { ChevronDown, Sparkles, Zap, Megaphone } from 'lucide-react';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/srvnxh8w_Landscape%20Logo.jpg";
+
+const ANNOUNCEMENTS = [
+  "Book 1 'Money's Origin Story' is NOW LIVE — free download in the Books section!",
+  "Resource Hub updated — new slide decks & 17 glossary terms added!",
+  "Cross-game score linking is now ACTIVE — play any game, earn XP everywhere!",
+];
 
 const CARD_IMAGES = {
   miniMoney: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/y9goe8fx_generated_image_20260201_032529_1.png",
@@ -12,6 +18,14 @@ const CARD_IMAGES = {
 
 const HeroSection = ({ questsCompleted = [] }) => {
   const canvasRef = useRef(null);
+  const [announcementIdx, setAnnouncementIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnnouncementIdx(prev => (prev + 1) % ANNOUNCEMENTS.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const createExplosion = useCallback((e) => {
     const container = document.createElement('div');
@@ -106,9 +120,32 @@ const HeroSection = ({ questsCompleted = [] }) => {
           </span>
           <span className="ml-2">🐐🎮⚡</span>
         </h1>
-        <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto font-medium">
+        <p className="text-lg sm:text-xl text-gray-200 mb-4 max-w-2xl mx-auto font-medium">
           Your kid understands TikTok but not money? We fixed that. 💸
         </p>
+
+        {/* Rolling Announcement Banner */}
+        <div className="relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-full border border-cyan-500/30 bg-gray-900/80 backdrop-blur-sm" data-testid="announcement-banner">
+          <div className="flex items-center gap-2 px-4 py-2">
+            <Megaphone className="w-4 h-4 text-orange-400 flex-shrink-0 animate-pulse" />
+            <div className="overflow-hidden flex-1 relative h-5">
+              {ANNOUNCEMENTS.map((msg, i) => (
+                <p
+                  key={i}
+                  className="absolute inset-0 text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-500 ease-in-out"
+                  style={{
+                    color: i === announcementIdx ? '#22d3ee' : '#22d3ee',
+                    opacity: i === announcementIdx ? 1 : 0,
+                    transform: i === announcementIdx ? 'translateY(0)' : 'translateY(100%)',
+                  }}
+                >
+                  {msg}
+                </p>
+              ))}
+            </div>
+            <span className="text-[10px] text-gray-500 flex-shrink-0 tabular-nums">{announcementIdx + 1}/{ANNOUNCEMENTS.length}</span>
+          </div>
+        </div>
 
         {/* 3-Way Funnel Cards with Images */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8 max-w-5xl mx-auto">
