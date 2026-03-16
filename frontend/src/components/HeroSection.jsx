@@ -89,7 +89,7 @@ const HeroSection = ({ questsCompleted = [] }) => {
       <div className="relative z-20 text-center px-4 max-w-6xl mx-auto w-full">
         <div className="mb-4 relative">
           <img src={LOGO_URL} alt="BlockQuest" data-testid="blockquest-logo"
-            className="hero-logo glitch-hover w-full max-w-3xl mx-auto cursor-pointer" />
+            className="hero-logo glitch-hover w-56 sm:w-72 md:w-96 mx-auto cursor-pointer rounded-xl" />
           <div className="flex justify-center gap-4 mt-2">
             <Sparkles className="w-5 h-5 text-orange-400 bounce-rotate" style={{ filter: 'drop-shadow(0 0 10px #ff6b35)' }} />
             <Zap className="w-5 h-5 text-purple-400 wobble" style={{ filter: 'drop-shadow(0 0 10px #9b5de5)' }} />
