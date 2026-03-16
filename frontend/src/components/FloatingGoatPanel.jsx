@@ -27,6 +27,7 @@ const GLOSSARY = [
   { term: 'Staking', emoji: '🥩', def: "Locking up your crypto to help keep the blockchain running — kind of like putting your lunch money in a jar to prove you'll follow the rules. In return, you earn rewards like interest on a savings account!" },
   { term: 'Metaverse', emoji: '🌍', def: "A virtual world (or lots of them connected together) where you can hang out, play games, and own stuff as digital items. Think of it like Roblox or Minecraft, but where your items are truly YOURS and can travel between worlds!" },
   { term: 'Private Key', emoji: '🔑', def: "A super-secret password that unlocks your crypto wallet. It's like the combination to your locker — if someone else learns it, they can take your stuff. NEVER share it with anyone, ever!" },
+  { term: 'Public Key', emoji: '📬', def: "Your wallet's address that you CAN share with people — like your home address so friends can send you mail. Anyone can send you crypto with it, but only your private key can open the mailbox!" },
   { term: 'Airdrop', emoji: '🪂', def: "Free tokens or NFTs dropped into your wallet — like finding surprise candy in your backpack! Projects do this to get people excited and reward early fans." },
 ];
 
