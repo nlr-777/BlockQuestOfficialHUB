@@ -3,10 +3,8 @@ import { X, FileText, BookOpen, Play, Award, Download, ExternalLink, HelpCircle 
 
 /* Slide deck PDF data - update paths as needed */
 const DECKS = [
-  { id: 1, title: "Book 1 – Money's Origin Story", subtitle: "From Bartering Goats to Digital Chaos", url: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/krqsj69u_From_Goats_to_Bitcoin.pdf" },
-  { id: 2, title: "Book 2 – Why Blockchains Exist", subtitle: "(AKA Humans Can't Behave)", url: "/decks/book2-why-blockchains-exist.pdf" },
-  { id: 3, title: "Book 3 – Tokens", subtitle: "Not Casino Chips, Not Monopoly Money", url: "/decks/book3-tokens.pdf" },
-  { id: 4, title: "Book 4 – NFTs Without the Scams", subtitle: "Screenshots, or Headaches", url: "/decks/book4-nfts-without-the-scams.pdf" },
+  { id: 1, title: "Book 1 – From Goats to Bitcoin", subtitle: "From Bartering Goats to Digital Chaos", url: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/krqsj69u_From_Goats_to_Bitcoin.pdf" },
+  { id: 2, title: "Book 2 – The Unbreakable Record", subtitle: "(AKA Humans Can't Behave)", url: "https://customer-assets.emergentagent.com/job_ecdea318-1bef-4472-bf06-96d374e1353d/artifacts/u733qm8o_The_Unbreakable_Record.pdf" },
 ];
 
 const YOUTUBE_CHANNEL = "https://youtube.com/@blockquestofficial26?si=JYR5yWsSgGz0Zonp";
