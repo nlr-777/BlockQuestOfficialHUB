@@ -1,8 +1,14 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { Button } from './ui/button';
-import { ChevronDown, Sparkles, Zap } from 'lucide-react';
+import { ChevronDown, Sparkles, Zap, Megaphone } from 'lucide-react';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/srvnxh8w_Landscape%20Logo.jpg";
+
+const ANNOUNCEMENTS = [
+  "Book 1 'Money's Origin Story' is NOW LIVE — free download in the Books section!",
+  "Resource Hub updated — new slide decks & 17 glossary terms added!",
+  "Cross-game score linking is now ACTIVE — play any game, earn XP everywhere!",
+];
 
 const CARD_IMAGES = {
   miniMoney: "https://customer-assets.emergentagent.com/job_d8dff59b-4fda-48a1-a05d-f027b59837f6/artifacts/y9goe8fx_generated_image_20260201_032529_1.png",
@@ -12,6 +18,14 @@ const CARD_IMAGES = {
 
 const HeroSection = ({ questsCompleted = [] }) => {
   const canvasRef = useRef(null);
+  const [announcementIdx, setAnnouncementIdx] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnnouncementIdx(prev => (prev + 1) % ANNOUNCEMENTS.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const createExplosion = useCallback((e) => {
     const container = document.createElement('div');
@@ -106,9 +120,46 @@ const HeroSection = ({ questsCompleted = [] }) => {
           </span>
           <span className="ml-2">🐐🎮⚡</span>
         </h1>
-        <p className="text-lg sm:text-xl text-gray-200 mb-8 max-w-2xl mx-auto font-medium">
+        <p className="text-lg sm:text-xl text-gray-200 mb-4 max-w-2xl mx-auto font-medium">
           Your kid understands TikTok but not money? We fixed that. 💸
         </p>
+
+        {/* Rolling Announcement Banner */}
+        <div className="relative max-w-2xl mx-auto mb-8 group" data-testid="announcement-banner">
+          <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-orange-500 via-cyan-400 to-purple-500 opacity-70 blur-[2px] group-hover:opacity-100 group-hover:blur-[4px] transition-all duration-300 animate-pulse" />
+          <div className="relative flex items-center gap-3 px-5 py-2.5 rounded-full bg-gray-950/90 backdrop-blur-md border border-white/10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-cyan-500/10 pointer-events-none" />
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-500/40">
+              <Megaphone className="w-3.5 h-3.5 text-black" />
+            </div>
+            <div className="overflow-hidden flex-1 relative h-6">
+              {ANNOUNCEMENTS.map((msg, i) => (
+                <p
+                  key={i}
+                  className="absolute inset-0 whitespace-nowrap font-bold tracking-wide transition-all duration-500 ease-in-out"
+                  style={{
+                    fontSize: '16px',
+                    background: 'linear-gradient(90deg, #ff6b35, #00d4ff, #9b5de5)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    opacity: i === announcementIdx ? 1 : 0,
+                    transform: i === announcementIdx ? 'translateY(0)' : 'translateY(100%)',
+                  }}
+                >
+                  {msg}
+                </p>
+              ))}
+            </div>
+            <div className="flex gap-1 flex-shrink-0">
+              {ANNOUNCEMENTS.map((_, i) => (
+                <span key={i} className="block w-1.5 h-1.5 rounded-full transition-all duration-300" style={{
+                  background: i === announcementIdx ? '#00d4ff' : '#374151',
+                  boxShadow: i === announcementIdx ? '0 0 6px #00d4ff' : 'none',
+                }} />
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* 3-Way Funnel Cards with Images */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8 max-w-5xl mx-auto">
