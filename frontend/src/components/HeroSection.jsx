@@ -125,16 +125,23 @@ const HeroSection = ({ questsCompleted = [] }) => {
         </p>
 
         {/* Rolling Announcement Banner */}
-        <div className="relative max-w-2xl mx-auto mb-8 overflow-hidden rounded-full border border-cyan-500/30 bg-gray-900/80 backdrop-blur-sm" data-testid="announcement-banner">
-          <div className="flex items-center gap-2 px-4 py-2">
-            <Megaphone className="w-4 h-4 text-orange-400 flex-shrink-0 animate-pulse" />
+        <div className="relative max-w-2xl mx-auto mb-8 group" data-testid="announcement-banner">
+          <div className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-orange-500 via-cyan-400 to-purple-500 opacity-70 blur-[2px] group-hover:opacity-100 group-hover:blur-[4px] transition-all duration-300 animate-pulse" />
+          <div className="relative flex items-center gap-3 px-5 py-2.5 rounded-full bg-gray-950/90 backdrop-blur-md border border-white/10 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-cyan-500/10 pointer-events-none" />
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-orange-500/40">
+              <Megaphone className="w-3.5 h-3.5 text-black" />
+            </div>
             <div className="overflow-hidden flex-1 relative h-5">
               {ANNOUNCEMENTS.map((msg, i) => (
                 <p
                   key={i}
-                  className="absolute inset-0 text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-500 ease-in-out"
+                  className="absolute inset-0 whitespace-nowrap font-bold tracking-wide transition-all duration-500 ease-in-out"
                   style={{
-                    color: i === announcementIdx ? '#22d3ee' : '#22d3ee',
+                    fontSize: '13px',
+                    background: 'linear-gradient(90deg, #ff6b35, #00d4ff, #9b5de5)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
                     opacity: i === announcementIdx ? 1 : 0,
                     transform: i === announcementIdx ? 'translateY(0)' : 'translateY(100%)',
                   }}
@@ -143,7 +150,14 @@ const HeroSection = ({ questsCompleted = [] }) => {
                 </p>
               ))}
             </div>
-            <span className="text-[10px] text-gray-500 flex-shrink-0 tabular-nums">{announcementIdx + 1}/{ANNOUNCEMENTS.length}</span>
+            <div className="flex gap-1 flex-shrink-0">
+              {ANNOUNCEMENTS.map((_, i) => (
+                <span key={i} className="block w-1.5 h-1.5 rounded-full transition-all duration-300" style={{
+                  background: i === announcementIdx ? '#00d4ff' : '#374151',
+                  boxShadow: i === announcementIdx ? '0 0 6px #00d4ff' : 'none',
+                }} />
+              ))}
+            </div>
           </div>
         </div>
 
