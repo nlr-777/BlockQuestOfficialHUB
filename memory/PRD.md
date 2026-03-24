@@ -11,27 +11,18 @@ A kid-friendly Web3 hub at blockquestofficial.com — React + FastAPI + Supabase
 
 ## What's Been Implemented
 
-### Phases 1-9 (Complete)
-Core app, RLS security, book PDFs, glossary, banner, Gerry AI companion, progress sync, leaderboard profiles, returning explorer welcome-back.
+### Phases 1-11 (Complete)
+Core app, RLS security, book PDFs, glossary, banner, Gerry AI companion, progress sync, leaderboard profiles, returning explorer, Gerry animations, cross-game conversation sync, Gerry remembers.
 
-### Phase 10: Gerry Animation + Cross-Game Sync (Complete)
-Idle bounce + sparkle animations, Chaos Chronicles avatar, bottom-left position, cross-game chat history sync.
-
-### Phase 11: Gerry Remembers (Complete)
-Memory context system, personalized LLM greetings, cross-game conversation awareness.
-
-### Phase 12: Offline-First Leaderboard Sync (Complete - March 2026)
-- **Supabase-driven scores**: Leaderboard reads from `scores` table (all games share same backend). No manual score submission UI.
-- **localStorage caching**: API response cached in `blockquest_leaderboard_cache`. When offline, cached scores displayed with amber offline banner + retry button.
-- **Local score storage**: Games save scores to `blockquest_local_scores` in localStorage via `saveLocalScore(game, score, name)` from ProgressContext.
-- **Auto-sync**: On app load, ProgressContext checks for unsynced local scores and pushes them to backend via `POST /api/leaderboard/submit`. Scores marked `synced: true` after successful upload.
-- **Merged view**: Backend entries + unsynced local entries merged, sorted by score, ranked. Unsynced entries show "SYNCING" badge, synced real players show "PLAYER" badge.
-- **Display names**: Player-set names persist across sessions and show on leaderboard entries.
-- **Shared key convention for games**: `blockquest_local_scores` localStorage key — any game writes `{game, score, name, ts, synced}` entries.
+### Phase 12: Offline-First Leaderboard + Gerry Voice & Visuals (Complete - March 2026)
+- **Leaderboard**: All scores from Supabase `scores` table, no manual submit UI. Scores sync to user profile automatically. localStorage cache for offline viewing with amber banner + retry button.
+- **Auto-sync**: Local scores from `blockquest_local_scores` auto-pushed to backend on load via `POST /api/leaderboard/submit`.
+- **Gerry Voice Improvement**: Rate 0.92, pitch 1.15, prefers warm natural voices (Samantha, Karen, Fiona, Moira) for less robotic, more friendly companion feel. Same settings in both hub component and injectable script.
+- **Concept Visualizations**: 8 kid-friendly illustrations generated for blockchain, NFT, mining, wallet, Web3, smart contracts, tokens, metaverse. When Gerry explains a concept, a purple "Show me: [Concept]" button appears. Clicking reveals the illustration inline in the chat with a label. Toggle to hide/show.
 
 ## Key API Endpoints
-- `GET /api/leaderboard` - Merged leaderboard (scores table + game_progress real players)
-- `POST /api/leaderboard/submit` - Programmatic score sync (from auto-sync, not manual UI)
+- `GET /api/leaderboard` - Merged leaderboard (scores + game_progress real players)
+- `POST /api/leaderboard/submit` - Programmatic score sync (auto-sync only)
 - `GET /api/leaderboard/games` - Game list
 - `GET/PUT /api/profile/{device_id}` - Display name
 - `GET/PUT /api/progress/{device_id}` - Progress sync
