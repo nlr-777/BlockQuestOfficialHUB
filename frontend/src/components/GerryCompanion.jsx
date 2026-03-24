@@ -268,19 +268,20 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
   // Save settings
   useEffect(() => { saveSettings(settings); }, [settings]);
 
-  // Voice synth — warm, friendly kid-companion voice
+  // Voice synth — young, playful kid-friend voice
   const speak = useCallback((text) => {
     if (!settings.voice || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 0.92;
-    u.pitch = 1.15;
-    u.volume = 0.85;
+    u.rate = 1.05;
+    u.pitch = 1.5;
+    u.volume = 0.9;
     const voices = window.speechSynthesis.getVoices();
-    // Prefer warm, natural-sounding voices (in priority order)
+    // Pick the most kid-friendly / young-sounding voice available
     const preferred = [
-      'Samantha', 'Karen', 'Google UK English Female', 'Moira',
-      'Fiona', 'Tessa', 'Google US English', 'Microsoft Zira',
+      'Samantha', 'Karen', 'Fiona', 'Tessa',
+      'Google UK English Female', 'Microsoft Zira',
+      'Google US English',
     ];
     let picked = null;
     for (const name of preferred) {
