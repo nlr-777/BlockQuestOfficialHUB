@@ -194,9 +194,9 @@
     if (!settings.voice || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 0.92; u.pitch = 1.15; u.volume = 0.85;
+    u.rate = 1.05; u.pitch = 1.5; u.volume = 0.9;
     const voices = window.speechSynthesis.getVoices();
-    const preferred = ['Samantha','Karen','Google UK English Female','Moira','Fiona','Tessa','Google US English','Microsoft Zira'];
+    const preferred = ['Samantha','Karen','Fiona','Tessa','Google UK English Female','Microsoft Zira','Google US English'];
     let picked = null;
     for (const name of preferred) {
       picked = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
