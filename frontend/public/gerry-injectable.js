@@ -132,7 +132,8 @@
         body: JSON.stringify({
           message: input,
           hero: 'gerry',
-          session_id: 'injectable_' + deviceId
+          session_id: 'injectable_' + deviceId,
+          device_id: deviceId
         })
       });
       if (!resp.ok) throw new Error('API error');
@@ -140,6 +141,18 @@
       return data.reply;
     } catch (e) {
       return null; // Will fall back to local
+    }
+  };
+
+  // ─── Personalized greeting ───────────────────
+  const getPersonalizedGreeting = async () => {
+    try {
+      const resp = await fetch(`${HUB_API}/api/gerry/greeting/${deviceId}`);
+      if (!resp.ok) throw new Error('Greeting API error');
+      const data = await resp.json();
+      return data.greeting;
+    } catch (e) {
+      return null;
     }
   };
 
@@ -370,11 +383,14 @@
   };
 
   // ─── Events ──────────────────────────────────
-  const toggleOpen = () => {
+  const toggleOpen = async () => {
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
     if (isOpen && messages.length === 0) {
-      addMessage('gerry', "Baaaa! Hey there, I'm Gerry the Goat — your Web3 buddy! Ask me anything about blockchain, crypto, NFTs, or say 'hint' for game tips! I remember our chats from other BlockQuest games too!");
+      // Try personalized greeting first
+      const greeting = await getPersonalizedGreeting();
+      const text = greeting || "Baaaa! Hey there, I'm Gerry the Goat — your Web3 buddy! Ask me anything about blockchain, crypto, NFTs, or say 'hint' for game tips! I remember our chats from other BlockQuest games too!";
+      addMessage('gerry', text);
     }
     renderMessages();
     if (isOpen) { inputEl.focus(); resetStuckTimer(); }

@@ -319,11 +319,12 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     // Try LLM backend first, fall back to rules
     let reply;
     const apiUrl = process.env.REACT_APP_BACKEND_URL;
+    const deviceId = localStorage.getItem(DEVICE_KEY);
     try {
       const resp = await fetch(`${apiUrl}/api/gerry/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, hero: selectedHero, session_id: sessionId.current })
+        body: JSON.stringify({ message: text, hero: selectedHero, session_id: sessionId.current, device_id: deviceId })
       });
       const data = await resp.json();
       reply = data.reply;
@@ -400,11 +401,30 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     }
   }, [dragging, onDragMove, onDragEnd]);
 
-  // Welcome message on first open
-  const onToggle = () => {
-    if (!open && messages.length === 0) {
-      const heroData = HERO_STORIES[selectedHero] || HERO_STORIES.gerry;
-      const welcome = { role: 'gerry', text: `Baaaa! Hey there, I'm Gerry the Goat! Your personal Web3 buddy. Ask me anything about blockchain, crypto, or NFTs — or say "tell me a story" for a ${heroData.name} adventure! I'm here to help whenever you're stuck.`, ts: Date.now() };
+  // Welcome message on first open — personalized for returning players
+  const greetingFetched = useRef(false);
+  const onToggle = async () => {
+    if (!open && messages.length === 0 && !greetingFetched.current) {
+      greetingFetched.current = true;
+      const deviceId = localStorage.getItem(DEVICE_KEY);
+      let welcomeText;
+
+      // Try personalized greeting from backend
+      if (API_URL && deviceId) {
+        try {
+          const resp = await fetch(`${API_URL}/api/gerry/greeting/${deviceId}`);
+          const data = await resp.json();
+          welcomeText = data.greeting;
+        } catch { /* fall through */ }
+      }
+
+      // Fallback
+      if (!welcomeText) {
+        const heroData = HERO_STORIES[selectedHero] || HERO_STORIES.gerry;
+        welcomeText = `Baaaa! Hey there, I'm Gerry the Goat! Your personal Web3 buddy. Ask me anything about blockchain, crypto, or NFTs — or say "tell me a story" for a ${heroData.name} adventure! I'm here to help whenever you're stuck.`;
+      }
+
+      const welcome = { role: 'gerry', text: welcomeText, ts: Date.now() };
       setMessages([welcome]);
       saveHistory([welcome]);
       speak(welcome.text);
@@ -436,9 +456,9 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-600/90 to-amber-600/90">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🐐</span>
+              <img src={GERRY_AVATAR} alt="Gerry" className="w-7 h-7 rounded-full object-cover" />
               <div>
-                <p className="text-sm font-black text-white tracking-wide">GERRY</p>
+                <p className="text-sm font-black text-white tracking-wide">GERRY <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 ml-1 align-middle" title="Synced across games" /></p>
                 <p className="text-[10px] text-orange-200 font-medium">Web3 Companion</p>
               </div>
             </div>
@@ -465,15 +485,20 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
           <div className="h-72 overflow-y-auto px-3 py-3 space-y-3 scrollbar-thin" data-testid="gerry-messages">
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                {m.role === 'gerry' && <span className="text-lg flex-shrink-0 mt-0.5">🐐</span>}
-                <div
-                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                    m.role === 'user'
-                      ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
-                      : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
-                  }`}
-                >
-                  {m.text}
+                {m.role === 'gerry' && <img src={GERRY_AVATAR} alt="G" className="w-5 h-5 rounded-full object-cover flex-shrink-0 mt-0.5" />}
+                <div className="max-w-[80%]">
+                  <div
+                    className={`px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                      m.role === 'user'
+                        ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
+                        : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
+                    }`}
+                  >
+                    {m.text}
+                  </div>
+                  {m.game && m.game !== 'hub' && (
+                    <p className="text-[9px] text-gray-500 mt-0.5 px-1">from {m.game}</p>
+                  )}
                 </div>
               </div>
             ))}

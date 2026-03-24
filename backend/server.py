@@ -128,6 +128,7 @@ class GerryChatRequest(BaseModel):
     message: str
     hero: str = "gerry"
     session_id: str = "default"
+    device_id: Optional[str] = None
 
 class GerryChatResponse(BaseModel):
     reply: str
@@ -661,22 +662,83 @@ Rules:
 - Always be encouraging, especially when someone seems stuck
 - End responses with a fun follow-up question when appropriate"""
 
+
+def _build_memory_context(device_id: str) -> str:
+    """Build a memory context string from a player's cross-game chat history"""
+    if not device_id:
+        return ""
+    try:
+        # Fetch display name
+        hub_id = f"{device_id}_hub"
+        name_resp = supabase.table("game_progress").select("user_name").eq("id", hub_id).execute()
+        player_name = ""
+        if name_resp.data and name_resp.data[0].get("user_name"):
+            player_name = name_resp.data[0]["user_name"]
+
+        # Fetch chat history
+        history_id = f"gerry_{device_id}"
+        hist_resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+        if not hist_resp.data:
+            return f"\nPlayer name: {player_name}" if player_name else ""
+
+        inv = hist_resp.data[0].get("inventory") or {}
+        if not isinstance(inv, dict):
+            return f"\nPlayer name: {player_name}" if player_name else ""
+
+        messages = inv.get("messages", [])
+        if not messages:
+            return f"\nPlayer name: {player_name}" if player_name else ""
+
+        # Extract topics from user messages
+        user_msgs = [m for m in messages if m.get("role") == "user"]
+        games_used = set(m.get("game", "hub") for m in messages if m.get("game"))
+        last_game = inv.get("last_game", "hub")
+
+        # Get recent topics (last 10 user messages)
+        recent_topics = [m.get("text", "")[:80] for m in user_msgs[-10:]]
+
+        # Build context
+        ctx_parts = ["\n\n--- PLAYER MEMORY (use this to personalize responses) ---"]
+        if player_name:
+            ctx_parts.append(f"Player name: {player_name} (use their name occasionally!)")
+        ctx_parts.append(f"Total past conversations: {len(user_msgs)}")
+        if games_used:
+            ctx_parts.append(f"Games they've played: {', '.join(games_used)}")
+        if last_game:
+            ctx_parts.append(f"Last game visited: {last_game}")
+        if recent_topics:
+            ctx_parts.append(f"Recent topics they asked about: {'; '.join(recent_topics[-5:])}")
+        ctx_parts.append("Reference their past questions naturally when relevant. If they asked about NFTs before, mention you remember discussing that!")
+        ctx_parts.append("--- END MEMORY ---")
+
+        return "\n".join(ctx_parts)
+    except Exception as e:
+        logging.warning(f"Could not build memory context: {e}")
+        return ""
+
+
 @api_router.post("/gerry/chat")
 async def gerry_chat(request: GerryChatRequest):
-    """Chat with Gerry using LLM (with rule-based fallback)"""
+    """Chat with Gerry using LLM (with rule-based fallback). Includes memory context if device_id provided."""
     llm_key = os.environ.get("EMERGENT_LLM_KEY")
+
+    # Build memory context from past conversations
+    memory_ctx = _build_memory_context(request.device_id) if request.device_id else ""
 
     if llm_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
 
             session_key = f"gerry_{request.session_id}"
-            if session_key not in gerry_chats:
-                hero_context = f"\nThe current player's hero is: {request.hero}. Personalize responses to mention this character."
+            hero_context = f"\nThe current player's hero is: {request.hero}. Personalize responses to mention this character."
+            full_system = GERRY_SYSTEM_PROMPT + hero_context + memory_ctx
+
+            # Recreate session if memory context changed (new returning player)
+            if session_key not in gerry_chats or (memory_ctx and request.device_id):
                 gerry_chats[session_key] = LlmChat(
                     api_key=llm_key,
                     session_id=session_key,
-                    system_message=GERRY_SYSTEM_PROMPT + hero_context
+                    system_message=full_system
                 ).with_model("openai", "gpt-4.1-mini")
 
             chat = gerry_chats[session_key]
@@ -688,6 +750,101 @@ async def gerry_chat(request: GerryChatRequest):
 
     # Rule-based fallback
     return {"reply": _rule_based_response(request.message, request.hero), "source": "rules"}
+
+
+@api_router.get("/gerry/greeting/{device_id}")
+async def gerry_greeting(device_id: str):
+    """Generate a personalized greeting based on the player's history"""
+    check_supabase()
+    try:
+        # Fetch display name
+        hub_id = f"{device_id}_hub"
+        name_resp = supabase.table("game_progress").select("user_name").eq("id", hub_id).execute()
+        player_name = ""
+        if name_resp.data and name_resp.data[0].get("user_name"):
+            player_name = name_resp.data[0]["user_name"]
+
+        # Fetch chat history
+        history_id = f"gerry_{device_id}"
+        hist_resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+
+        messages = []
+        games_used = set()
+        last_game = "hub"
+        if hist_resp.data:
+            inv = hist_resp.data[0].get("inventory") or {}
+            if isinstance(inv, dict):
+                messages = inv.get("messages", [])
+                games_used = set(m.get("game", "hub") for m in messages if m.get("game"))
+                last_game = inv.get("last_game", "hub")
+
+        user_msgs = [m for m in messages if m.get("role") == "user"]
+
+        # No history — first time player
+        if not user_msgs:
+            name_part = f" What should I call you?" if not player_name else f", {player_name}!"
+            return {
+                "greeting": f"Baaaa! Hey there{name_part} I'm Gerry the Goat, your Web3 buddy! Ask me about blockchain, crypto, NFTs, or say 'hint' for game tips!",
+                "is_returning": False
+            }
+
+        # Returning player — build personalized greeting
+        recent_topics = [m.get("text", "")[:60] for m in user_msgs[-5:]]
+        name_str = player_name if player_name else "explorer"
+
+        # Try LLM for a dynamic greeting
+        llm_key = os.environ.get("EMERGENT_LLM_KEY")
+        if llm_key:
+            try:
+                from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+                greeting_prompt = f"""Generate a SHORT (2 sentences max) personalized welcome-back greeting for a returning player.
+Player name: {name_str}
+Games they've played: {', '.join(games_used) if games_used else 'hub'}
+Last game: {last_game}
+Recent topics they asked about: {'; '.join(recent_topics)}
+Total past messages: {len(user_msgs)}
+
+Be Gerry the Goat — fun, encouraging, reference something specific they discussed before. Use a goat pun. Keep it kid-friendly."""
+
+                chat = LlmChat(
+                    api_key=llm_key,
+                    session_id=f"greeting_{device_id}_{datetime.now(timezone.utc).timestamp()}",
+                    system_message="You are Gerry the Goat, a fun Web3 companion for kids. Generate only the greeting text, nothing else."
+                ).with_model("openai", "gpt-4.1-mini")
+
+                reply = await chat.send_message(UserMessage(text=greeting_prompt))
+                return {"greeting": reply, "is_returning": True, "games_played": list(games_used), "total_chats": len(user_msgs)}
+            except Exception as e:
+                logging.warning(f"Greeting LLM failed: {e}")
+
+        # Rule-based fallback greeting
+        topic_ref = ""
+        if recent_topics:
+            last_topic = recent_topics[-1].lower()
+            if "nft" in last_topic:
+                topic_ref = "Last time we talked about NFTs — ready to dive deeper?"
+            elif "blockchain" in last_topic or "block" in last_topic:
+                topic_ref = "We were exploring blockchain together — shall we continue?"
+            elif "mining" in last_topic or "miner" in last_topic:
+                topic_ref = "Remember when we chatted about mining? Got more questions?"
+            elif "wallet" in last_topic:
+                topic_ref = "We were learning about wallets last time — want more tips?"
+            elif "token" in last_topic:
+                topic_ref = "We discussed tokens before — ready for more?"
+            else:
+                topic_ref = "I remember our last chat — great to see you again!"
+
+        game_ref = ""
+        if last_game and last_game != "hub":
+            game_ref = f" I see you were in {last_game} — "
+        
+        greeting = f"Baaaa! Welcome back, {name_str}!{game_ref} {topic_ref} What shall we explore today?"
+        return {"greeting": greeting, "is_returning": True, "games_played": list(games_used), "total_chats": len(user_msgs)}
+
+    except Exception as e:
+        logging.error(f"Error generating greeting: {e}")
+        return {"greeting": "Baaaa! Hey there, explorer! I'm Gerry, your Web3 buddy! What shall we learn today?", "is_returning": False}
 
 def _rule_based_response(msg: str, hero: str) -> str:
     q = msg.lower()
