@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, Shield, Heart, BookOpen, Gamepad2 } from 'lucide-react';
+import { ChevronDown, Shield, Heart, BookOpen, Gamepad2, Bot } from 'lucide-react';
 
-const CompactParentFooter = () => {
+const CompactParentFooter = ({ gerryEnabled, onToggleGerry }) => {
   const [openSection, setOpenSection] = useState(null);
 
   const toggleSection = (section) => {
@@ -75,6 +75,31 @@ const CompactParentFooter = () => {
                 <p><span className="text-green-400 font-bold">Ages?</span> Games 8+, Books for teens & older readers.</p>
                 <p><span className="text-green-400 font-bold">Crypto/Investing?</span> No — explores ideas through storytelling only.</p>
                 <p><span className="text-green-400 font-bold">Accounts needed?</span> No — no accounts, wallets, or payments required.</p>
+              </div>
+              {/* Gerry AI Toggle */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-orange-900/20 border border-orange-500/20">
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-orange-400" />
+                  <div>
+                    <span className="font-bold text-sm text-orange-400">Gerry AI Companion</span>
+                    <p className="text-gray-400 text-xs">Chat buddy with Web3 tips, hints & stories</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    const next = !gerryEnabled;
+                    onToggleGerry?.(next);
+                    try {
+                      const s = JSON.parse(localStorage.getItem('blockquest_gerry_settings') || '{}');
+                      s.enabled = next;
+                      localStorage.setItem('blockquest_gerry_settings', JSON.stringify(s));
+                    } catch {}
+                  }}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${gerryEnabled ? 'bg-orange-500' : 'bg-gray-700'}`}
+                  data-testid="gerry-toggle"
+                >
+                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${gerryEnabled ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                </button>
               </div>
             </div>
           </div>

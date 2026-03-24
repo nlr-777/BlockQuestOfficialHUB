@@ -87,7 +87,22 @@ Create a landing page for "BlockQuest" that evolved into a comprehensive, intera
 - Added Book 1 "Money's Origin Story" PDF as free download
 - Book 1 button changed from "Coming Soon" to "Free Download" (green, links to PDF)
 - Resource Hub Stories tab updated with Book 1 download entry
+- Resource Hub Decks updated: Book 1 renamed "From Goats to Bitcoin", Book 2 added "The Unbreakable Record", Books 3-4 removed
+- 5 new glossary terms + Public Key added (17 total)
+- Rolling announcement banner in hero section (3 rotating messages)
 - Other books (2-5) retain "Coming Soon" buttons
+
+### Phase 7: Gerry AI Companion (Complete - March 2026)
+- Floating draggable goat chat bubble (bottom-right)
+- Rule-based response engine with 17 Web3 concepts, game-specific hints for all 5 games, hero-personalized stories
+- Web Speech API voice-over on hover and for responses
+- Auto-detect stuck state (45s idle timer → proactive tip)
+- Personalized "what-if" stories based on selected hero (Gerry, Zara, Sam, Miko, Ollie, Lila)
+- Difficulty auto-scaling: 3 fails → easy mode flag in localStorage
+- Conversation history persisted in localStorage
+- Parent Hub toggle to enable/disable Gerry
+- Injectable vanilla JS script for all 5 Vercel games (`/gerry-injectable.js`)
+- Quick action buttons: "What is blockchain?", "Tell me a story", "Game hint", "What is an NFT?"
 
 ## Pending/Known Issues
 - `game_stats` has FK constraint to `users` table (expected behavior)

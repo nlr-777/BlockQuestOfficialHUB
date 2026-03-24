@@ -12,6 +12,7 @@ import CompactParentFooter from "./components/ParentSection";
 import Footer from "./components/Footer";
 import FloatingElements from "./components/FloatingElements";
 import FloatingGoatPanel from "./components/FloatingGoatPanel";
+import GerryCompanion from "./components/GerryCompanion";
 import useProgress from "./hooks/useProgress";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
@@ -24,6 +25,11 @@ const LandingPage = () => {
     claimDailyQuest, resetProgress, hasProgress, totalQuests, totalHeroes,
     lastClaimed, heroThresholds
   } = useProgress();
+
+  const [gerryEnabled, setGerryEnabled] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem('blockquest_gerry_settings'))?.enabled !== false; }
+    catch { return true; }
+  });
 
   useEffect(() => {
     document.title = "BlockQuest HQ – Epic Games and Books for All Ages";
@@ -72,11 +78,12 @@ const LandingPage = () => {
           <BookSection />
         </section>
         <section id="parent-section">
-          <CompactParentFooter />
+          <CompactParentFooter gerryEnabled={gerryEnabled} onToggleGerry={setGerryEnabled} />
         </section>
       </main>
       <Footer />
       <FloatingGoatPanel hasProgress={hasProgress} currentXp={progress.xp} />
+      <GerryCompanion selectedHero={progress.selectedAvatar} enabled={gerryEnabled} />
     </div>
   );
 };
