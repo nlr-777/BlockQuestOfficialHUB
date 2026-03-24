@@ -95,6 +95,45 @@ class GameStatsUpdate(BaseModel):
     inventory: Optional[dict] = None
 
 
+# Progress Sync Models
+class ProgressData(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    xp: int = 0
+    quests_completed: List[str] = Field(default_factory=list)
+    badges: List[str] = Field(default_factory=list)
+    heroes_unlocked: List[str] = Field(default_factory=list)
+    selected_avatar: str = "gerry"
+    daily_streak: int = 0
+    last_daily_claim: Optional[str] = None
+
+class ProgressSyncRequest(BaseModel):
+    device_id: str
+    progress: ProgressData
+
+class ProgressSyncResponse(BaseModel):
+    device_id: str
+    progress: dict
+    last_sync: Optional[str] = None
+
+# Leaderboard Models
+class LeaderboardEntry(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    player_name: str = "Anonymous"
+    game: str
+    score: int
+    created_at: Optional[str] = None
+
+# Gerry Chat Models
+class GerryChatRequest(BaseModel):
+    message: str
+    hero: str = "gerry"
+    session_id: str = "default"
+
+class GerryChatResponse(BaseModel):
+    reply: str
+    source: str = "llm"
+
+
 # ============ Helper Functions ============
 
 def is_valid_email(email: str) -> bool:
@@ -309,6 +348,203 @@ async def delete_game_stats(user_id: str):
     except Exception as e:
         logging.error(f"Error deleting game stats: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete game stats")
+
+
+# ============ Progress Sync (localStorage → Supabase) ============
+
+@api_router.get("/progress/{device_id}")
+async def get_progress(device_id: str):
+    """Fetch player progress by device UUID"""
+    check_supabase()
+    try:
+        resp = supabase.table("player_progress").select("*").eq("device_id", device_id).eq("game_id", "hub").execute()
+        if resp.data and len(resp.data) > 0:
+            row = resp.data[0]
+            return {
+                "device_id": device_id,
+                "progress": row.get("inventory", {}),
+                "xp": row.get("xp", 0),
+                "level": row.get("level", 1),
+                "last_sync": row.get("last_sync")
+            }
+        return {"device_id": device_id, "progress": None, "xp": 0, "level": 1, "last_sync": None}
+    except Exception as e:
+        logging.error(f"Error fetching progress: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch progress")
+
+@api_router.put("/progress/{device_id}")
+async def save_progress(device_id: str, request: ProgressSyncRequest):
+    """Save/update player progress to Supabase"""
+    check_supabase()
+    try:
+        progress_dict = request.progress.model_dump()
+        xp = progress_dict.pop("xp", 0)
+
+        # user_id has FK constraint to profiles table - use null for anonymous device sync
+        # device_id is the primary identifier for localStorage migration
+        row_data = {
+            "user_id": None,  # Anonymous - no profile required
+            "game_id": "hub",
+            "device_id": device_id,
+            "xp": xp,
+            "level": max(1, xp // 100 + 1),
+            "inventory": progress_dict,
+            "last_sync": datetime.now(timezone.utc).isoformat()
+        }
+
+        # Try update first
+        resp = supabase.table("player_progress").select("user_id").eq("device_id", device_id).eq("game_id", "hub").execute()
+        if resp.data and len(resp.data) > 0:
+            supabase.table("player_progress").update(row_data).eq("device_id", device_id).eq("game_id", "hub").execute()
+        else:
+            supabase.table("player_progress").insert(row_data).execute()
+
+        return {"success": True, "device_id": device_id, "synced_at": row_data["last_sync"]}
+    except Exception as e:
+        logging.error(f"Error saving progress: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save progress")
+
+
+# ============ Leaderboard ============
+
+@api_router.get("/leaderboard")
+async def get_leaderboard(game: Optional[str] = None, limit: int = 50):
+    """Get leaderboard scores, optionally filtered by game"""
+    check_supabase()
+    try:
+        query = supabase.table("scores").select("*").order("score", desc=True).limit(limit)
+        if game:
+            query = query.eq("game", game)
+        resp = query.execute()
+
+        # Assign display names (from profile or generated)
+        anon_names = [
+            'CryptoKid', 'BlockMaster', 'GoatRider', 'NFTNinja', 'TokenTornado',
+            'ChainChamp', 'HashHero', 'MintMonster', 'DeFiDragon', 'WalletWizard',
+            'PixelPioneer', 'ByteBoss', 'CodeCrusader', 'DataDuke', 'BitBandit',
+            'SatoshiJr', 'EtherEagle', 'MinerMike', 'StakeShark', 'AirdropAce',
+        ]
+        entries = []
+        for i, row in enumerate(resp.data):
+            name = anon_names[i % len(anon_names)]
+            entries.append({
+                "id": row.get("id"),
+                "rank": i + 1,
+                "player_name": name,
+                "game": row.get("game", "unknown"),
+                "score": row.get("score", 0),
+                "faction_bonus": row.get("faction_bonus", 0),
+                "created_at": row.get("created_at")
+            })
+        return {"leaderboard": entries, "total": len(entries), "game_filter": game}
+    except Exception as e:
+        logging.error(f"Error fetching leaderboard: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch leaderboard")
+
+@api_router.post("/leaderboard/submit")
+async def submit_score(game: str = "unknown", score: int = 0, player_name: str = "Anonymous Explorer", faction_bonus: int = 0):
+    """Submit a new score to the leaderboard"""
+    check_supabase()
+    try:
+        # user_id is UUID type in scores table - use null for anonymous submissions
+        # The player_name is stored separately for display purposes
+        row = {
+            "game": game,
+            "score": score,
+            "user_id": None,  # Anonymous submission - user_id is nullable UUID
+            "faction_bonus": faction_bonus,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        resp = supabase.table("scores").insert(row).execute()
+        # Add player_name to response for display
+        entry = resp.data[0] if resp.data else row
+        entry["player_name"] = player_name
+        return {"success": True, "entry": entry}
+    except Exception as e:
+        logging.error(f"Error submitting score: {e}")
+        raise HTTPException(status_code=500, detail="Failed to submit score")
+
+@api_router.get("/leaderboard/games")
+async def get_game_list():
+    """Get list of games with scores"""
+    check_supabase()
+    try:
+        resp = supabase.table("scores").select("game").execute()
+        games = list(set(row.get("game") for row in resp.data if row.get("game")))
+        return {"games": sorted(games)}
+    except Exception as e:
+        logging.error(f"Error fetching game list: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch game list")
+
+
+# ============ Gerry AI Chat (LLM-powered) ============
+
+gerry_chats: Dict[str, Any] = {}
+
+GERRY_SYSTEM_PROMPT = """You are Gerry the Goat, a fun and friendly Web3 companion for kids on BlockQuest. 
+Your personality: cheerful, encouraging, a bit silly (you're a goat after all!), and passionate about teaching blockchain/Web3 concepts.
+
+Rules:
+- Keep ALL responses kid-friendly (ages 8-14)
+- Explain Web3/blockchain concepts using simple analogies (lunchboxes, playgrounds, trading cards)
+- Keep responses SHORT (2-3 sentences max)
+- Use occasional goat puns ("baaaa-rilliant!", "that's no kidding!")
+- Never mention real cryptocurrency prices, trading, or investing
+- If asked about the current hero, personalize your response
+- If asked for a game hint, give educational Web3 tips related to the game
+- You can reference these BlockQuest games: Retro Arcade, Miners, Wallet Adventure, NFT Studio, Mini Money Quest
+- Always be encouraging, especially when someone seems stuck
+- End responses with a fun follow-up question when appropriate"""
+
+@api_router.post("/gerry/chat")
+async def gerry_chat(request: GerryChatRequest):
+    """Chat with Gerry using LLM (with rule-based fallback)"""
+    llm_key = os.environ.get("EMERGENT_LLM_KEY")
+
+    if llm_key:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+            session_key = f"gerry_{request.session_id}"
+            if session_key not in gerry_chats:
+                hero_context = f"\nThe current player's hero is: {request.hero}. Personalize responses to mention this character."
+                gerry_chats[session_key] = LlmChat(
+                    api_key=llm_key,
+                    session_id=session_key,
+                    system_message=GERRY_SYSTEM_PROMPT + hero_context
+                ).with_model("openai", "gpt-4.1-mini")
+
+            chat = gerry_chats[session_key]
+            user_msg = UserMessage(text=request.message)
+            reply = await chat.send_message(user_msg)
+            return {"reply": reply, "source": "llm"}
+        except Exception as e:
+            logging.warning(f"LLM call failed, falling back to rules: {e}")
+
+    # Rule-based fallback
+    return {"reply": _rule_based_response(request.message, request.hero), "source": "rules"}
+
+def _rule_based_response(msg: str, hero: str) -> str:
+    q = msg.lower()
+    knowledge = {
+        "blockchain": "A blockchain is like a digital notebook everyone shares! Once you write in it, nobody can change it.",
+        "bitcoin": "Bitcoin is digital gold — the very first cryptocurrency, invented in 2009!",
+        "mining": "Mining is computers racing to solve puzzles. Winners add pages to the blockchain and earn crypto!",
+        "wallet": "A crypto wallet is a digital piggy bank with a public address (mailbox) and private key (secret combo).",
+        "nft": "An NFT is a one-of-a-kind digital certificate proving YOU own something unique online!",
+        "token": "Tokens are like digital arcade coins — they can represent points, votes, or ownership!",
+        "web3": "Web3 is the internet where YOU own your stuff. Web1=read, Web2=read+write, Web3=read+write+OWN!",
+    }
+    for key, answer in knowledge.items():
+        if key in q:
+            return answer
+    if any(w in q for w in ["hello", "hi", "hey"]):
+        return f"Hey there! I'm Gerry the Goat, your Web3 buddy! Ask me about blockchain, tokens, or NFTs!"
+    if any(w in q for w in ["hint", "help", "stuck"]):
+        return "Don't worry — every great explorer gets stuck sometimes! Try breaking the problem into smaller steps."
+    if any(w in q for w in ["story", "what if", "imagine"]):
+        return f"What if {hero} discovered a secret level in the blockchain that gives unlimited knowledge tokens? They'd share them with everyone!"
+    return "Baaaa-rilliant question! Try asking about blockchain, NFTs, mining, or say 'hint' for game tips!"
 
 
 # ============ Admin / RLS Management ============

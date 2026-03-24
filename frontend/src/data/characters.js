@@ -1,0 +1,9 @@
+export const CHARACTERS_IMAGE = "https://customer-assets.emergentagent.com/job_3828a6dc-0502-44a7-ab45-71a567e1d959/artifacts/z0w00ymu_generated_image_20260128_052414_1.png";
+
+export const characters = [
+  { name: "Zara Chen", age: 15, color: "text-purple-400", trait: "Tech Whiz", quote: "Every blockchain tells a story... you just need to know how to read it!", image: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/b537425e0c1f544cff5534a3da97e77eefc43623d32af9c8c23d20448d130072.png" },
+  { name: "Sam Rodriguez", age: 14, color: "text-orange-400", trait: "Skeptic", quote: "If it sounds too good to be true, it probably needs more research.", image: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/0040d00c35e50c3d66db0100a6d8dd608dd3efde4d252a69791c59e2fa608c6b.png" },
+  { name: "Miko Tanaka", age: 15, color: "text-cyan-400", trait: "Artist", quote: "NFTs aren't just pictures—they're proof that creativity has value!", image: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/b460503e58b9a3dcc3c579ba8d0ba6f2ee5b17bab28ea17c13633b4c8109051b.png" },
+  { name: "Ollie Okafor", age: 13, color: "text-green-400", trait: "Gamer", quote: "Play-to-earn? More like play-to-LEARN... and earn!", image: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/f73b9f9dbf5be8de2b7d00b96c5f36a762d38522b0295ab61dac7976bdf406bd.png" },
+  { name: "Lila Nakamura", age: 16, color: "text-yellow-400", trait: "Leader", quote: "The future of finance is decentralized—and we're building it together.", image: "https://static.prod-images.emergentagent.com/jobs/d8dff59b-4fda-48a1-a05d-f027b59837f6/images/641198b91feeae555974749d558ad4d63dc19fb2c16c4539babb50123dbb367b.png" },
+];

@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Menu, X, Gamepad2, BookOpen, Users, Home } from 'lucide-react';
+import { Sparkles, Menu, X, Gamepad2, BookOpen, Users, Home, Trophy } from 'lucide-react';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_1b7103cb-60b2-49d7-8677-886184523930/artifacts/3oc0w6yi_blockquest_logo_primary.png";
 
@@ -56,6 +56,7 @@ const Header = () => {
     { id: 'home', label: 'Home', icon: Home, action: scrollToTop },
     { id: 'quest-section', label: 'Arcade', icon: Gamepad2, action: () => scrollToSection('quest-section') },
     { id: 'books-section', label: 'Books', icon: BookOpen, action: () => scrollToSection('books-section') },
+    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, action: () => { window.location.href = '/leaderboard'; setIsMenuOpen(false); } },
     { id: 'parent-section', label: 'Parents', icon: Users, action: () => scrollToSection('parent-section') }
   ];
 

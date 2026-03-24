@@ -253,16 +253,38 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     window.speechSynthesis.speak(u);
   }, [settings.voice]);
 
+  const sessionId = useRef('gerry_' + (localStorage.getItem('blockquest_device_id') || 'anon'));
+
   // Send message
-  const send = useCallback(() => {
+  const send = useCallback(async () => {
     const text = input.trim();
     if (!text) return;
     setInput('');
     const userMsg = { role: 'user', text, ts: Date.now() };
-    const reply = getResponse(text, selectedHero);
+    setMessages(prev => {
+      const next = [...prev, userMsg];
+      saveHistory(next);
+      return next;
+    });
+
+    // Try LLM backend first, fall back to rules
+    let reply;
+    const apiUrl = process.env.REACT_APP_BACKEND_URL;
+    try {
+      const resp = await fetch(`${apiUrl}/api/gerry/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, hero: selectedHero, session_id: sessionId.current })
+      });
+      const data = await resp.json();
+      reply = data.reply;
+    } catch {
+      reply = getResponse(text, selectedHero);
+    }
+
     const gerryMsg = { role: 'gerry', text: reply, ts: Date.now() + 1 };
     setMessages(prev => {
-      const next = [...prev, userMsg, gerryMsg];
+      const next = [...prev, gerryMsg];
       saveHistory(next);
       return next;
     });
