@@ -87,24 +87,59 @@ Create a landing page for "BlockQuest" that evolved into a comprehensive, intera
 - Added Book 1 "Money's Origin Story" PDF as free download
 - Book 1 button changed from "Coming Soon" to "Free Download" (green, links to PDF)
 - Resource Hub Stories tab updated with Book 1 download entry
+- Resource Hub Decks updated: Book 1 renamed "From Goats to Bitcoin", Book 2 added "The Unbreakable Record", Books 3-4 removed
+- 5 new glossary terms + Public Key added (17 total)
+- Rolling announcement banner in hero section (3 rotating messages)
 - Other books (2-5) retain "Coming Soon" buttons
+
+### Phase 7: Gerry AI Companion (Complete - March 2026)
+- Floating draggable goat chat bubble (bottom-right)
+- Rule-based response engine with 17 Web3 concepts, game-specific hints for all 5 games, hero-personalized stories
+- Web Speech API voice-over on hover and for responses
+- Auto-detect stuck state (45s idle timer → proactive tip)
+- Personalized "what-if" stories based on selected hero (Gerry, Zara, Sam, Miko, Ollie, Lila)
+- Difficulty auto-scaling: 3 fails → easy mode flag in localStorage
+- Conversation history persisted in localStorage
+- Parent Hub toggle to enable/disable Gerry
+- Injectable vanilla JS script for all 5 Vercel games (`/gerry-injectable.js`)
+- Quick action buttons: "What is blockchain?", "Tell me a story", "Game hint", "What is an NFT?"
+
+### Phase 8: Full Stack Upgrade (Complete - March 2026)
+- **Progress Sync to Supabase**: Device UUID-based, uses `game_progress` table with jsonb inventory
+  - `GET /api/progress/{device_id}` + `PUT /api/progress/{device_id}`
+  - ProgressContext provider syncs localStorage → Supabase (debounced 2s)
+  - localStorage stays as fast cache, Supabase as cloud backup
+- **Cross-Game Leaderboard**: `/leaderboard` route with 60 demo scores across 5 games
+  - Filter by game, medals for top 3, stats summary
+  - `GET /api/leaderboard`, `POST /api/leaderboard/submit`, `GET /api/leaderboard/games`
+  - Header nav link added
+- **Gerry LLM Integration**: GPT-4.1-mini via Emergent Universal Key
+  - `POST /api/gerry/chat` with conversation memory per session
+  - Kid-friendly system prompt, hero-personalized, rule-based fallback
+- **React Context Refactor**: ProgressProvider wraps app, removes prop drilling
+- **Data Module Split**: mock.js → books.js, characters.js, games.js, social.js
 
 ## Pending/Known Issues
 - `game_stats` has FK constraint to `users` table (expected behavior)
 - Vercel deployments may need "Save to GitHub" sync before redeploy
 
-## Backlog (P1-P2)
-- P1: Migrate localStorage progress tracking to Supabase backend (UUID-based, no login)
-- P1: Cross-game leaderboard page/section
-- P2: Refactor state management (prop drilling → React Context)
-- P2: Split mock.js into focused data modules
+## Backlog (P2)
+- Refine leaderboard with real user profiles when auth is added
+- Add more books to the Stories/Decks sections
+- Optional: Connect injectable script to hub for cross-game conversation sync
 
 ## Key API Endpoints
 - `GET /api/` - Health check
-- `POST /api/newsletter/subscribe` - Newsletter signup (FIXED)
+- `POST /api/newsletter/subscribe` - Newsletter signup
 - `GET /api/newsletter/subscribers` - Admin: list subscribers
 - `GET /api/content` - Site content
 - `GET/POST/PUT/DELETE /api/game/stats/{user_id}` - Game stats CRUD
+- `GET /api/progress/{device_id}` - Fetch player progress
+- `PUT /api/progress/{device_id}` - Save/update progress to Supabase
+- `GET /api/leaderboard` - Cross-game leaderboard (filterable by ?game=)
+- `POST /api/leaderboard/submit` - Submit score
+- `GET /api/leaderboard/games` - List games with scores
+- `POST /api/gerry/chat` - LLM-powered Gerry chat (GPT-4.1-mini)
 - `GET /api/admin/rls-audit` - RLS audit results
 - `GET /api/admin/rls-verify` - RLS verification tests
 - `GET /api/admin/rls-sql` - Get migration SQL

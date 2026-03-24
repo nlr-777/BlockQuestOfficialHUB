@@ -1,0 +1,521 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { X, Send, Volume2, VolumeX, GripVertical } from 'lucide-react';
+
+const GERRY_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ff6b35' opacity='0.15'/%3E%3Ctext x='50' y='62' text-anchor='middle' font-size='50'%3E%F0%9F%90%90%3C/text%3E%3C/svg%3E";
+
+// ─── Knowledge base ──────────────────────────────────────────
+const WEB3_KNOWLEDGE = {
+  blockchain: "A blockchain is like a digital notebook that everyone shares! Once you write something in it, nobody can erase or change it. Every page (block) is chained to the last one.",
+  bitcoin: "Bitcoin was the very first cryptocurrency! It was invented in 2009 by a mystery person called Satoshi Nakamoto. Think of it as digital gold.",
+  mining: "Mining is when computers race to solve a super hard puzzle. The winner gets to add a new page to the blockchain notebook and earns crypto as a reward!",
+  wallet: "A crypto wallet is like a digital piggy bank on your phone. It has a public address (like a mailbox) and a private key (the secret combination to open it).",
+  nft: "An NFT is a one-of-a-kind digital certificate that proves YOU own something unique online — like a signed trading card that can't be faked!",
+  token: "Tokens are like arcade coins, but digital! They can represent game points, a vote in a club, or even ownership of something cool.",
+  gas: "Gas fees are tiny charges you pay to use the blockchain — like postage stamps. When lots of people are using it, stamps get more expensive!",
+  smart_contract: "A smart contract is like a robot promise! It's code that automatically does things when conditions are met — like a vending machine for deals.",
+  defi: "DeFi means banking without banks! People lend, borrow, and trade directly with each other using code — no bank manager needed.",
+  web3: "Web3 is the next version of the internet where YOU own your stuff. Web1 = read, Web2 = read + write, Web3 = read + write + OWN!",
+  consensus: "Consensus is when all computers in the network agree something is true — like the whole class voting 'Yep, that's correct!' before it's written down.",
+  dao: "A DAO is a club where members vote on everything using tokens. No president or teacher — just rules in code that everyone follows!",
+  staking: "Staking means locking up your crypto to help keep the blockchain running. In return, you earn rewards — like interest on a savings account!",
+  metaverse: "The metaverse is a virtual world where you can hang out, play games, and own items. Like Roblox or Minecraft, but your stuff is truly yours!",
+  airdrop: "An airdrop is when free tokens or NFTs are dropped into your wallet — like surprise candy showing up in your backpack!",
+  private_key: "Your private key is a super-secret password for your wallet. NEVER share it — if someone gets it, they can take everything!",
+  public_key: "Your public key is your wallet's address you CAN share — like your home address so friends can send you things.",
+};
+
+const GAME_HINTS = {
+  miners: [
+    "Try placing blocks in the correct order — think about what a real blockchain looks like!",
+    "Remember: each block needs to connect to the previous one. Check the hash values!",
+    "Stuck on the puzzle? Look at the block colors — they give you clues about the right sequence.",
+  ],
+  wallet: [
+    "Make sure to check your balance before sending tokens! Can't send what you don't have.",
+    "The seed phrase is super important — try writing it down in the correct order.",
+    "Watch out for phishing! Not every message is from a real friend in the game.",
+  ],
+  retro_arcade: [
+    "Each level teaches a different Web3 concept. Pay attention to the intro screens!",
+    "The leaderboard rewards speed AND accuracy — balance both for the best score!",
+    "Found a hidden path? Some levels have secret areas with bonus knowledge tokens.",
+  ],
+  nft_studio: [
+    "Your NFT is unique! Try different combinations of traits to create something special.",
+    "The rarity of your NFT depends on which traits you pick — look for the star ratings!",
+    "Don't forget to name your creation — every great NFT has a great story behind it.",
+  ],
+  mini_money: [
+    "Gary the Goat needs help understanding why bartering is tricky — think about what's fair!",
+    "Each era of money solves a problem from the last one. What problem does digital money solve?",
+    "Collect all the history coins to unlock the bonus ending!",
+  ],
+};
+
+const HERO_STORIES = {
+  gerry: {
+    name: "Gerry",
+    stories: [
+      "What if Gerry the Goat accidentally discovered Bitcoin while looking for snacks? He'd probably try to eat the blockchain!",
+      "Imagine Gerry starting his own cryptocurrency called GoatCoin. Every time someone bleats, they earn a token!",
+      "Gerry once tried to explain mining to a sheep. The sheep just said 'baaaah' and walked away. Some things never change!",
+    ],
+  },
+  zara: {
+    name: "Zara",
+    stories: [
+      "What if Zara built an AI that could predict the next big crypto trend? She'd probably use it to fund a tech lab for kids!",
+      "Zara once debugged a smart contract in her sleep. When she woke up, it had already processed 1,000 transactions!",
+      "Imagine Zara creating a Web3 school where homework is submitted as NFTs. No more 'my dog ate it' excuses!",
+    ],
+  },
+  sam: {
+    name: "Sam",
+    stories: [
+      "What if Sam became a blockchain detective? He'd investigate every suspicious token with his magnifying glass emoji!",
+      "Sam once refused to buy an NFT because he wanted to 'do more research.' Three months later, he wrote a 50-page report!",
+      "Imagine Sam starting a Web3 fact-checking service. His catchphrase: 'Trust, but verify... on the blockchain!'",
+    ],
+  },
+  miko: {
+    name: "Miko",
+    stories: [
+      "What if Miko's digital art was the first NFT to be displayed in every metaverse gallery? The whole virtual world would be her canvas!",
+      "Miko once drew a picture so beautiful that someone tried to right-click save it. The NFT guard dog barked them away!",
+      "Imagine Miko creating an NFT collection where each piece changes based on the weather in the real world!",
+    ],
+  },
+  ollie: {
+    name: "Ollie",
+    stories: [
+      "What if Ollie created a play-to-earn game where you earn tokens by doing real homework? His grades would skyrocket!",
+      "Ollie once speed-ran the entire BlockQuest Arcade in 12 minutes. Legend says his high score is still unbeaten!",
+      "Imagine Ollie discovering a secret level in the blockchain that gives unlimited gaming tokens. He'd share them with everyone!",
+    ],
+  },
+  lila: {
+    name: "Lila",
+    stories: [
+      "What if Lila became the youngest DAO president? She'd make sure every kid gets a vote on what game to play next!",
+      "Lila once organized a virtual bake sale using smart contracts. Every cookie was an NFT with a real recipe attached!",
+      "Imagine Lila leading a Web3 summit where world leaders learn blockchain from teenagers. The future is NOW!",
+    ],
+  },
+};
+
+const ENCOURAGEMENT = [
+  "You're doing amazing! Every explorer starts somewhere.",
+  "Keep going! The best blockchain builders never give up.",
+  "Fun fact: even Satoshi Nakamoto had to learn step by step!",
+  "You've got this! Gerry believes in you!",
+  "Remember: making mistakes is how we learn. Try again!",
+  "Baaaa-rilliant effort! You're getting smarter every minute!",
+];
+
+const STUCK_TIPS = [
+  "Looks like you might be stuck! Want me to explain the concept behind this level?",
+  "Hey explorer! Need a hint? I've got plenty of Web3 wisdom to share!",
+  "Gerry here! I noticed you've been on this part for a while. Want a quick tip?",
+  "Don't worry — this part is tricky! Want me to break it down in simple terms?",
+];
+
+const GERRY_KEY = 'blockquest_gerry';
+const GERRY_SETTINGS_KEY = 'blockquest_gerry_settings';
+
+const loadHistory = () => {
+  try {
+    return JSON.parse(localStorage.getItem(GERRY_KEY)) || [];
+  } catch { return []; }
+};
+
+const saveHistory = (h) => {
+  try {
+    const trimmed = h.slice(-50);
+    localStorage.setItem(GERRY_KEY, JSON.stringify(trimmed));
+  } catch { /* */ }
+};
+
+const loadSettings = () => {
+  try {
+    return JSON.parse(localStorage.getItem(GERRY_SETTINGS_KEY)) || { enabled: true, voice: true, failCount: 0 };
+  } catch { return { enabled: true, voice: true, failCount: 0 }; }
+};
+
+const saveSettings = (s) => {
+  try { localStorage.setItem(GERRY_SETTINGS_KEY, JSON.stringify(s)); } catch { /* */ }
+};
+
+// ─── Response engine ─────────────────────────────────────────
+const getResponse = (input, hero) => {
+  const q = input.toLowerCase().trim();
+
+  // Web3 keyword match
+  for (const [key, answer] of Object.entries(WEB3_KNOWLEDGE)) {
+    if (q.includes(key.replace('_', ' ')) || q.includes(key)) {
+      return answer;
+    }
+  }
+
+  // Game hints
+  for (const [game, hints] of Object.entries(GAME_HINTS)) {
+    if (q.includes(game) || q.includes(game.replace('_', ' '))) {
+      return hints[Math.floor(Math.random() * hints.length)];
+    }
+  }
+
+  // Story request
+  if (q.includes('story') || q.includes('what if') || q.includes('imagine')) {
+    const heroData = HERO_STORIES[hero] || HERO_STORIES.gerry;
+    return heroData.stories[Math.floor(Math.random() * heroData.stories.length)];
+  }
+
+  // Help / hint
+  if (q.includes('help') || q.includes('hint') || q.includes('stuck') || q.includes('tip')) {
+    return STUCK_TIPS[Math.floor(Math.random() * STUCK_TIPS.length)];
+  }
+
+  // Greeting
+  if (q.includes('hello') || q.includes('hi') || q.includes('hey') || q.includes('sup')) {
+    return `Hey there, explorer! I'm Gerry the Goat — your Web3 buddy! Ask me about blockchain, tokens, NFTs, or say "tell me a story" for a fun tale about ${(HERO_STORIES[hero] || HERO_STORIES.gerry).name}!`;
+  }
+
+  // XP / progress
+  if (q.includes('xp') || q.includes('progress') || q.includes('score') || q.includes('level')) {
+    return "Check your Quest Log above to see your XP, badges, and hero unlocks! Keep playing games and claiming rewards to level up!";
+  }
+
+  // Fallback
+  const fallbacks = [
+    `Great question! Try asking me about specific Web3 topics like "blockchain", "mining", "NFTs", or "wallets". Or say "tell me a story" for a ${(HERO_STORIES[hero] || HERO_STORIES.gerry).name} adventure!`,
+    `Hmm, I'm still learning about that one! But I know TONS about Web3 — try asking about crypto, smart contracts, or tokens!`,
+    `Baaaa! That's a thinker. Ask me about blockchain basics, game hints, or say "what if" for a fun hero story!`,
+  ];
+  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+};
+
+// ─── Component ───────────────────────────────────────────────
+const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState(loadHistory);
+  const [input, setInput] = useState('');
+  const [settings, setSettings] = useState(loadSettings);
+  const [stuckTimer, setStuckTimer] = useState(null);
+  const [showStuckTip, setShowStuckTip] = useState(false);
+  const [position, setPosition] = useState({ x: null, y: null });
+  const [dragging, setDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const isEnabled = parentEnabled !== undefined ? parentEnabled : settings.enabled;
+
+  // Scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Stuck detection (45s idle resets on message send)
+  useEffect(() => {
+    if (!isEnabled || !open) return;
+    const timer = setTimeout(() => setShowStuckTip(true), 45000);
+    setStuckTimer(timer);
+    return () => clearTimeout(timer);
+  }, [messages, open, isEnabled]);
+
+  // Auto-dismiss stuck tip
+  useEffect(() => {
+    if (showStuckTip) {
+      const tip = STUCK_TIPS[Math.floor(Math.random() * STUCK_TIPS.length)];
+      setMessages(prev => {
+        const next = [...prev, { role: 'gerry', text: tip, ts: Date.now() }];
+        saveHistory(next);
+        return next;
+      });
+      setShowStuckTip(false);
+      if (!open) setOpen(true);
+    }
+  }, [showStuckTip, open]);
+
+  // Save settings
+  useEffect(() => { saveSettings(settings); }, [settings]);
+
+  // Voice synth
+  const speak = useCallback((text) => {
+    if (!settings.voice || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.05;
+    u.pitch = 1.3;
+    u.volume = 0.8;
+    const voices = window.speechSynthesis.getVoices();
+    const kid = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en'));
+    if (kid) u.voice = kid;
+    window.speechSynthesis.speak(u);
+  }, [settings.voice]);
+
+  const sessionId = useRef('gerry_' + (localStorage.getItem('blockquest_device_id') || 'anon'));
+
+  // Send message
+  const send = useCallback(async () => {
+    const text = input.trim();
+    if (!text) return;
+    setInput('');
+    const userMsg = { role: 'user', text, ts: Date.now() };
+    setMessages(prev => {
+      const next = [...prev, userMsg];
+      saveHistory(next);
+      return next;
+    });
+
+    // Try LLM backend first, fall back to rules
+    let reply;
+    const apiUrl = process.env.REACT_APP_BACKEND_URL;
+    try {
+      const resp = await fetch(`${apiUrl}/api/gerry/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, hero: selectedHero, session_id: sessionId.current })
+      });
+      const data = await resp.json();
+      reply = data.reply;
+    } catch {
+      reply = getResponse(text, selectedHero);
+    }
+
+    const gerryMsg = { role: 'gerry', text: reply, ts: Date.now() + 1 };
+    setMessages(prev => {
+      const next = [...prev, gerryMsg];
+      saveHistory(next);
+      return next;
+    });
+    speak(reply);
+  }, [input, selectedHero, speak]);
+
+  // Difficulty auto-scaling: track fail mentions
+  const reportFail = useCallback(() => {
+    setSettings(prev => {
+      const next = { ...prev, failCount: (prev.failCount || 0) + 1 };
+      if (next.failCount >= 3) {
+        localStorage.setItem('blockquest_difficulty', 'easy');
+        setMessages(p => {
+          const msg = { role: 'gerry', text: "Hey, I noticed you're having a tough time! I've told the game to make things a bit easier for you. You've got this! Remember: every expert was once a beginner.", ts: Date.now() };
+          const n = [...p, msg];
+          saveHistory(n);
+          return n;
+        });
+        if (!open) setOpen(true);
+      }
+      return next;
+    });
+  }, [open]);
+
+  // Expose reportFail globally for games
+  useEffect(() => {
+    window.__gerryReportFail = reportFail;
+    return () => { delete window.__gerryReportFail; };
+  }, [reportFail]);
+
+  // Dragging
+  const onDragStart = (e) => {
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const bubble = e.currentTarget.closest('[data-gerry-root]');
+    const rect = bubble.getBoundingClientRect();
+    dragOffset.current = { x: clientX - rect.left, y: clientY - rect.top };
+    setDragging(true);
+  };
+  const onDragMove = useCallback((e) => {
+    if (!dragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    setPosition({
+      x: Math.max(0, Math.min(window.innerWidth - 70, clientX - dragOffset.current.x)),
+      y: Math.max(0, Math.min(window.innerHeight - 70, clientY - dragOffset.current.y)),
+    });
+  }, [dragging]);
+  const onDragEnd = useCallback(() => setDragging(false), []);
+
+  useEffect(() => {
+    if (dragging) {
+      window.addEventListener('mousemove', onDragMove);
+      window.addEventListener('mouseup', onDragEnd);
+      window.addEventListener('touchmove', onDragMove, { passive: false });
+      window.addEventListener('touchend', onDragEnd);
+      return () => {
+        window.removeEventListener('mousemove', onDragMove);
+        window.removeEventListener('mouseup', onDragEnd);
+        window.removeEventListener('touchmove', onDragMove);
+        window.removeEventListener('touchend', onDragEnd);
+      };
+    }
+  }, [dragging, onDragMove, onDragEnd]);
+
+  // Welcome message on first open
+  const onToggle = () => {
+    if (!open && messages.length === 0) {
+      const heroData = HERO_STORIES[selectedHero] || HERO_STORIES.gerry;
+      const welcome = { role: 'gerry', text: `Baaaa! Hey there, I'm Gerry the Goat! Your personal Web3 buddy. Ask me anything about blockchain, crypto, or NFTs — or say "tell me a story" for a ${heroData.name} adventure! I'm here to help whenever you're stuck.`, ts: Date.now() };
+      setMessages([welcome]);
+      saveHistory([welcome]);
+      speak(welcome.text);
+    }
+    setOpen(!open);
+  };
+
+  if (!isEnabled) return null;
+
+  const bubbleStyle = position.x !== null
+    ? { position: 'fixed', left: position.x, top: position.y, zIndex: 9999 }
+    : { position: 'fixed', bottom: 24, right: 24, zIndex: 9999 };
+
+  return (
+    <div data-gerry-root style={bubbleStyle} data-testid="gerry-companion">
+      {/* Chat panel */}
+      {open && (
+        <div
+          className="mb-3 w-80 sm:w-96 rounded-2xl overflow-hidden shadow-2xl border border-orange-500/30"
+          style={{
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+            boxShadow: '0 0 40px rgba(255,107,53,0.2), 0 0 80px rgba(155,93,229,0.1)',
+            position: position.x !== null ? 'absolute' : 'relative',
+            bottom: position.x !== null ? 70 : undefined,
+            right: position.x !== null ? 0 : undefined,
+          }}
+          data-testid="gerry-chat-panel"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-600/90 to-amber-600/90">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🐐</span>
+              <div>
+                <p className="text-sm font-black text-white tracking-wide">GERRY</p>
+                <p className="text-[10px] text-orange-200 font-medium">Web3 Companion</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSettings(p => ({ ...p, voice: !p.voice }))}
+                className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                data-testid="gerry-voice-toggle"
+                title={settings.voice ? 'Mute Gerry' : 'Unmute Gerry'}
+              >
+                {settings.voice ? <Volume2 className="w-4 h-4 text-white" /> : <VolumeX className="w-4 h-4 text-white/50" />}
+              </button>
+              <button
+                onClick={() => setOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                data-testid="gerry-close"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="h-72 overflow-y-auto px-3 py-3 space-y-3 scrollbar-thin" data-testid="gerry-messages">
+            {messages.map((m, i) => (
+              <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                {m.role === 'gerry' && <span className="text-lg flex-shrink-0 mt-0.5">🐐</span>}
+                <div
+                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                    m.role === 'user'
+                      ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
+                      : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
+                  }`}
+                >
+                  {m.text}
+                </div>
+              </div>
+            ))}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Quick actions */}
+          <div className="px-3 pb-2 flex gap-1.5 flex-wrap">
+            {['What is blockchain?', 'Tell me a story', 'Game hint', 'What is an NFT?'].map(q => (
+              <button
+                key={q}
+                onClick={() => { setInput(q); setTimeout(() => { setInput(q); }, 0); }}
+                className="text-[10px] px-2.5 py-1 rounded-full bg-gray-800 border border-gray-700 text-gray-400 hover:text-orange-400 hover:border-orange-500/50 transition-all"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div className="px-3 pb-3">
+            <form
+              onSubmit={(e) => { e.preventDefault(); send(); }}
+              className="flex gap-2"
+            >
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder="Ask Gerry anything..."
+                className="flex-1 px-3 py-2 rounded-xl bg-gray-800/80 border border-gray-700 text-sm text-white placeholder-gray-500 focus:border-orange-500/50 focus:outline-none transition-colors"
+                data-testid="gerry-input"
+              />
+              <button
+                type="submit"
+                className="p-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 transition-all"
+                data-testid="gerry-send"
+              >
+                <Send className="w-4 h-4 text-black" />
+              </button>
+            </form>
+          </div>
+
+          {/* Difficulty indicator */}
+          {(settings.failCount || 0) >= 3 && (
+            <div className="px-3 pb-2">
+              <p className="text-[10px] text-green-400 text-center">Easy mode active — Gerry's got your back!</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Floating bubble */}
+      <div
+        className={`group relative cursor-pointer select-none ${dragging ? 'cursor-grabbing' : ''}`}
+        onClick={() => !dragging && onToggle()}
+        onMouseEnter={() => !open && speak("Need help? Tap me for Web3 tips and game hints!")}
+        data-testid="gerry-bubble"
+      >
+        {/* Glow ring */}
+        <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 opacity-60 blur-sm group-hover:opacity-100 group-hover:blur-md transition-all animate-pulse" />
+
+        {/* Drag handle */}
+        <div
+          onMouseDown={onDragStart}
+          onTouchStart={onDragStart}
+          className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        >
+          <GripVertical className="w-3 h-3 text-gray-400" />
+        </div>
+
+        {/* Avatar */}
+        <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-3xl shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform">
+          🐐
+        </div>
+
+        {/* Notification dot */}
+        {!open && messages.length > 0 && (
+          <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-cyan-400 border-2 border-gray-950 flex items-center justify-center">
+            <span className="text-[8px] font-black text-black">{Math.min(messages.length, 9)}</span>
+          </div>
+        )}
+
+        {/* Hover tooltip */}
+        {!open && (
+          <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-orange-500/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            <p className="text-xs text-orange-300 font-bold">Ask Gerry!</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GerryCompanion;

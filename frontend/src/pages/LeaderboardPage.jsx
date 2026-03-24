@@ -1,0 +1,220 @@
+import React, { useState, useEffect } from 'react';
+import { Trophy, Medal, Star, Crown, Flame, Filter, ArrowLeft, Zap } from 'lucide-react';
+import { Button } from '../components/ui/button';
+
+const API_URL = process.env.REACT_APP_BACKEND_URL;
+
+const GAME_META = {
+  'Retro Arcade': { color: 'from-purple-500 to-pink-500', icon: Zap, emoji: '🕹️' },
+  'Miners': { color: 'from-amber-500 to-orange-500', icon: Flame, emoji: '⛏️' },
+  'Wallet Adventure': { color: 'from-cyan-500 to-blue-500', icon: Star, emoji: '💰' },
+  'NFT Studio': { color: 'from-green-500 to-emerald-500', icon: Crown, emoji: '🎨' },
+  'Mini Money Quest': { color: 'from-yellow-500 to-red-500', icon: Medal, emoji: '🪙' },
+};
+
+const RANK_STYLES = {
+  1: { bg: 'bg-gradient-to-r from-yellow-500/20 to-amber-500/20', border: 'border-yellow-500/40', badge: '🥇' },
+  2: { bg: 'bg-gradient-to-r from-gray-300/10 to-gray-400/10', border: 'border-gray-400/40', badge: '🥈' },
+  3: { bg: 'bg-gradient-to-r from-orange-600/15 to-amber-700/15', border: 'border-orange-600/40', badge: '🥉' },
+};
+
+const LeaderboardPage = () => {
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [gameFilter, setGameFilter] = useState(null);
+  const [games, setGames] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const url = gameFilter
+          ? `${API_URL}/api/leaderboard?game=${encodeURIComponent(gameFilter)}&limit=50`
+          : `${API_URL}/api/leaderboard?limit=50`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        setEntries(data.leaderboard || []);
+      } catch (e) {
+        console.error('Failed to fetch leaderboard:', e);
+      }
+      setLoading(false);
+    };
+
+    const fetchGames = async () => {
+      try {
+        const resp = await fetch(`${API_URL}/api/leaderboard/games`);
+        const data = await resp.json();
+        setGames(data.games || []);
+      } catch (e) {
+        console.error('Failed to fetch games:', e);
+      }
+    };
+
+    fetchData();
+    if (games.length === 0) fetchGames();
+  }, [gameFilter, games.length]);
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white" data-testid="leaderboard-page">
+      {/* Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-transparent to-transparent" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-500/10 rounded-full blur-[120px]" />
+        <div className="relative max-w-5xl mx-auto px-4 pt-8 pb-6">
+          <a href="/" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-orange-400 transition-colors mb-6" data-testid="leaderboard-back">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Hub
+          </a>
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+              <Trophy className="w-7 h-7 text-black" />
+            </div>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Leaderboard</h1>
+              <p className="text-gray-400 text-sm">Top explorers across all BlockQuest games</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Game filter tabs */}
+      <div className="max-w-5xl mx-auto px-4 mb-6">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin" data-testid="game-filter-tabs">
+          <Button
+            variant={gameFilter === null ? "default" : "outline"}
+            size="sm"
+            onClick={() => setGameFilter(null)}
+            className={`rounded-full text-xs font-bold whitespace-nowrap ${
+              !gameFilter ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-black border-0' : 'border-gray-700 text-gray-400 hover:text-white'
+            }`}
+            data-testid="filter-all"
+          >
+            <Filter className="w-3 h-3 mr-1" /> All Games
+          </Button>
+          {games.map(g => {
+            const meta = GAME_META[g] || {};
+            return (
+              <Button
+                key={g}
+                variant={gameFilter === g ? "default" : "outline"}
+                size="sm"
+                onClick={() => setGameFilter(g)}
+                className={`rounded-full text-xs font-bold whitespace-nowrap ${
+                  gameFilter === g
+                    ? `bg-gradient-to-r ${meta.color || 'from-gray-500 to-gray-600'} text-black border-0`
+                    : 'border-gray-700 text-gray-400 hover:text-white'
+                }`}
+                data-testid={`filter-${g.toLowerCase().replace(/\s/g, '-')}`}
+              >
+                {meta.emoji || '🎮'} {g}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Leaderboard table */}
+      <div className="max-w-5xl mx-auto px-4 pb-16">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="text-center py-20 text-gray-500">
+            <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            <p className="text-lg font-bold">No scores yet!</p>
+            <p className="text-sm">Play some games and be the first on the board.</p>
+          </div>
+        ) : (
+          <div className="space-y-2" data-testid="leaderboard-entries">
+            {/* Header row */}
+            <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs text-gray-500 font-bold uppercase tracking-wider">
+              <div className="col-span-1">Rank</div>
+              <div className="col-span-4">Player</div>
+              <div className="col-span-3">Game</div>
+              <div className="col-span-2 text-right">Score</div>
+              <div className="col-span-2 text-right">Bonus</div>
+            </div>
+
+            {entries.map((entry, idx) => {
+              const rank = idx + 1;
+              const style = RANK_STYLES[rank] || { bg: 'bg-gray-900/40', border: 'border-gray-800/50', badge: null };
+              const gameMeta = GAME_META[entry.game] || {};
+
+              return (
+                <div
+                  key={entry.id || idx}
+                  className={`grid grid-cols-12 gap-2 items-center px-4 py-3 rounded-xl border transition-all hover:scale-[1.01] ${style.bg} ${style.border}`}
+                  data-testid={`leaderboard-row-${rank}`}
+                >
+                  {/* Rank */}
+                  <div className="col-span-1">
+                    {style.badge ? (
+                      <span className="text-2xl">{style.badge}</span>
+                    ) : (
+                      <span className="text-lg font-black text-gray-500">#{rank}</span>
+                    )}
+                  </div>
+
+                  {/* Player */}
+                  <div className="col-span-4 flex items-center gap-2">
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${gameMeta.color || 'from-gray-600 to-gray-700'} flex items-center justify-center text-sm`}>
+                      {entry.player_name?.charAt(0) || '?'}
+                    </div>
+                    <span className="font-bold text-sm truncate">{entry.player_name}</span>
+                  </div>
+
+                  {/* Game */}
+                  <div className="col-span-3">
+                    <span className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-gradient-to-r ${gameMeta.color || 'from-gray-600 to-gray-700'} bg-opacity-20 font-bold`}
+                      style={{ background: `linear-gradient(to right, rgba(107,114,128,0.15), rgba(107,114,128,0.15))` }}>
+                      {gameMeta.emoji || '🎮'} {entry.game}
+                    </span>
+                  </div>
+
+                  {/* Score */}
+                  <div className="col-span-2 text-right">
+                    <span className="font-black text-lg tabular-nums" style={{
+                      background: 'linear-gradient(90deg, #f97316, #eab308)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}>
+                      {entry.score?.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Bonus */}
+                  <div className="col-span-2 text-right">
+                    {entry.faction_bonus > 0 && (
+                      <span className="text-xs text-green-400 font-bold">+{entry.faction_bonus}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Stats summary */}
+        {entries.length > 0 && (
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'Total Scores', value: entries.length, icon: Trophy },
+              { label: 'Top Score', value: Math.max(...entries.map(e => e.score)).toLocaleString(), icon: Crown },
+              { label: 'Games', value: [...new Set(entries.map(e => e.game))].length, icon: Star },
+              { label: 'Avg Score', value: Math.round(entries.reduce((a, e) => a + e.score, 0) / entries.length).toLocaleString(), icon: Medal },
+            ].map(({ label, value, icon: Icon }) => (
+              <div key={label} className="p-4 rounded-xl bg-gray-900/60 border border-gray-800/50 text-center">
+                <Icon className="w-5 h-5 mx-auto mb-1 text-orange-400" />
+                <p className="text-lg font-black">{value}</p>
+                <p className="text-xs text-gray-500">{label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LeaderboardPage;

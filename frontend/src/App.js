@@ -1,99 +1,91 @@
-import React, { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Toaster } from "./components/ui/sonner";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
-import AvatarSelector from "./components/AvatarSelector";
-import DailyQuest from "./components/DailyQuest";
-import ProgressOverview from "./components/ProgressOverview";
 import QuestSection from "./components/QuestSection";
 import BookSection from "./components/BookSection";
+import AvatarSelector from "./components/AvatarSelector";
+import ProgressOverview from "./components/ProgressOverview";
+import DailyQuest from "./components/DailyQuest";
 import CompactParentFooter from "./components/ParentSection";
-import Footer from "./components/Footer";
-import FloatingElements from "./components/FloatingElements";
 import FloatingGoatPanel from "./components/FloatingGoatPanel";
-import useProgress from "./hooks/useProgress";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsConditions from "./pages/TermsConditions";
+import GerryCompanion from "./components/GerryCompanion";
 import FAQPage from "./pages/FAQPage";
-import ParentHubPage from "./pages/ParentHubPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import { ProgressProvider, useProgressContext } from "./context/ProgressContext";
+import "./App.css";
 
 const LandingPage = () => {
   const {
     progress, claimQuest, unlockHero, selectAvatar,
     claimDailyQuest, resetProgress, hasProgress, totalQuests, totalHeroes,
     lastClaimed, heroThresholds
-  } = useProgress();
+  } = useProgressContext();
 
-  useEffect(() => {
-    document.title = "BlockQuest HQ – Epic Games and Books for All Ages";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games.');
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'description';
-      meta.content = 'BlockQuest HQ - Chaos Unlocked! Web3 Chaos Chronicles book series featuring Gary the Goat + BlockQuest Retro Arcade games.';
-      document.head.appendChild(meta);
-    }
-  }, []);
+  const [gerryEnabled, setGerryEnabled] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem('blockquest_gerry_settings'))?.enabled !== false; }
+    catch { return true; }
+  });
 
   return (
-    <div className="blockquest-app">
-      <FloatingElements />
+    <div className="min-h-screen bg-gray-950 text-white">
       <Header />
       <main>
-        <HeroSection questsCompleted={progress.questsCompleted} />
-        <AvatarSelector
-          selectedAvatar={progress.selectedAvatar}
-          onSelect={selectAvatar}
-          onUnlockHero={unlockHero}
-          unlockedHeroes={progress.heroesUnlocked}
-          currentXp={progress.xp}
-        />
-        <DailyQuest
-          streak={progress.streak}
-          isDone={progress.dailyQuestDate === new Date().toDateString()}
-          onClaim={claimDailyQuest}
-        />
-        <ProgressOverview
-          progress={progress}
-          totalQuests={totalQuests}
-          totalHeroes={totalHeroes}
-          onClaimQuest={claimQuest}
-          onReset={resetProgress}
-          lastClaimed={lastClaimed}
-          heroThresholds={heroThresholds}
-        />
-        <section>
+        <section id="hero-section">
+          <HeroSection questsCompleted={progress.questsCompleted} />
+        </section>
+        <section id="quest-log-section">
+          <ProgressOverview
+            progress={progress}
+            onClaimQuest={claimQuest}
+            totalQuests={totalQuests}
+          />
+        </section>
+        <section id="character-selector">
+          <AvatarSelector
+            selectedAvatar={progress.selectedAvatar}
+            unlockedHeroes={progress.heroesUnlocked}
+            onSelect={selectAvatar}
+            onUnlockHero={unlockHero}
+            currentXp={progress.xp}
+          />
+        </section>
+        <section id="daily-quest">
+          <DailyQuest
+            onClaimDailyQuest={claimDailyQuest}
+            lastClaimed={lastClaimed}
+            dailyStreak={progress.dailyStreak}
+          />
+        </section>
+        <section id="games-section">
           <QuestSection />
         </section>
         <section id="books-section">
           <BookSection />
         </section>
         <section id="parent-section">
-          <CompactParentFooter />
+          <CompactParentFooter gerryEnabled={gerryEnabled} onToggleGerry={setGerryEnabled} />
         </section>
       </main>
-      <Footer />
       <FloatingGoatPanel hasProgress={hasProgress} currentXp={progress.xp} />
+      <GerryCompanion selectedHero={progress.selectedAvatar} enabled={gerryEnabled} />
+      <Toaster />
     </div>
   );
 };
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
+    <ProgressProvider>
+      <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsConditions />} />
           <Route path="/faq" element={<FAQPage />} />
-          <Route path="/parents" element={<ParentHubPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Routes>
-      </BrowserRouter>
-    </div>
+      </Router>
+    </ProgressProvider>
   );
 }
 
