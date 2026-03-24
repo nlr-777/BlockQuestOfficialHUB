@@ -21,6 +21,7 @@ const DEFAULT_PROGRESS = {
   selectedAvatar: 'gerry',
   dailyQuestDone: false,
   dailyQuestDate: null,
+  displayName: '',
 };
 
 const loadProgress = () => {
@@ -139,10 +140,14 @@ const useProgress = () => {
   const totalHeroes = 6;
   const hasProgress = progress.xp > 0 || progress.questsCompleted.length > 0;
 
+  const setDisplayName = useCallback((name) => {
+    update((prev) => ({ ...prev, displayName: name }));
+  }, [update]);
+
   return {
     progress, claimQuest, unlockHero, selectAvatar, claimDailyQuest,
     resetProgress, hasProgress, totalQuests, totalHeroes, lastClaimed,
-    heroThresholds: HERO_XP_THRESHOLDS,
+    heroThresholds: HERO_XP_THRESHOLDS, setDisplayName,
   };
 };
 

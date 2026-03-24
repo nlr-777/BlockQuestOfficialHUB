@@ -1,0 +1,62 @@
+{
+  "summary": "Iteration 4 testing complete - All new features (Leaderboard with real player names, Score submission, Welcome-back modal) working correctly. 15/15 backend tests passed, all UI tests passed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_leaderboard_profile.py",
+    "/app/test_reports/pytest/pytest_results_iteration4.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "All data-testid attributes properly implemented for testing",
+    "Profile name truncation to 20 chars working correctly",
+    "Score submission only updates if new score is higher (best score preserved)",
+    "Welcome-back modal correctly triggers after 4+ hours of inactivity"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_leaderboard_profile.py"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15 tests passed)",
+    "frontend": "100% (all UI tests passed)"
+  },
+  "test_credentials": "None required - public anon key used",
+  "seed_data_creation": "Test scores submitted during testing (TEST_ prefixed device IDs)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 4 tested new features: (1) Profile name setting via PUT /api/profile/{device_id} - working, (2) Score submission via POST /api/leaderboard/submit - working with best score preservation, (3) Leaderboard with real player badges (is_real=True) - working, (4) Game filter tabs - working, (5) Welcome-back modal after 4+ hours inactivity - working. All features fully functional. Demo data comes from scores table, real player scores from game_progress table with current_phase='leaderboard'.",
+  "features_tested": {
+    "profile_name_setting": {
+      "GET /api/profile/{device_id}": "PASS - returns empty name for new device",
+      "PUT /api/profile/{device_id}": "PASS - sets and persists display name",
+      "name_truncation": "PASS - truncates to 20 chars",
+      "empty_name_rejection": "PASS - returns 400 for empty name",
+      "UI_modal": "PASS - opens, saves, closes correctly"
+    },
+    "score_submission": {
+      "POST /api/leaderboard/submit": "PASS - creates leaderboard entry",
+      "score_appears_on_leaderboard": "PASS - with is_real=True badge",
+      "higher_score_updates": "PASS - updates existing entry",
+      "lower_score_keeps_higher": "PASS - preserves best score",
+      "requires_name_first": "PASS - prompts to set name if not set"
+    },
+    "leaderboard_retrieval": {
+      "GET /api/leaderboard": "PASS - returns sorted scores with ranks",
+      "game_filter": "PASS - filters by game correctly",
+      "demo_and_real_entries": "PASS - both types present with correct badges",
+      "GET /api/leaderboard/games": "PASS - returns game list"
+    },
+    "welcome_back_modal": {
+      "triggers_after_4_hours": "PASS - modal appears correctly",
+      "shows_stats": "PASS - XP, streak, quest count displayed",
+      "dismiss_button": "PASS - closes modal on click"
+    }
+  }
+}

@@ -128,6 +128,7 @@ class GerryChatRequest(BaseModel):
     message: str
     hero: str = "gerry"
     session_id: str = "default"
+    device_id: Optional[str] = None
 
 class GerryChatResponse(BaseModel):
     reply: str
@@ -405,61 +406,204 @@ async def save_progress(device_id: str, request: ProgressSyncRequest):
         raise HTTPException(status_code=500, detail="Failed to save progress")
 
 
+# ============ Player Profile (Display Name) ============
+
+class ProfileUpdateRequest(BaseModel):
+    display_name: str
+
+@api_router.get("/profile/{device_id}")
+async def get_profile(device_id: str):
+    """Get player profile (display name) from game_progress hub entry"""
+    check_supabase()
+    try:
+        progress_id = f"{device_id}_hub"
+        resp = supabase.table("game_progress").select("user_name,inventory").eq("id", progress_id).execute()
+        if resp.data and len(resp.data) > 0:
+            row = resp.data[0]
+            inv = row.get("inventory") or {}
+            # inventory can be list (game data) or dict (hub data)
+            display_name = row.get("user_name") or ""
+            if isinstance(inv, dict):
+                display_name = display_name or inv.get("display_name", "")
+            return {"device_id": device_id, "display_name": display_name}
+        return {"device_id": device_id, "display_name": ""}
+    except Exception as e:
+        logging.error(f"Error fetching profile: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch profile")
+
+@api_router.put("/profile/{device_id}")
+async def update_profile(device_id: str, request: ProfileUpdateRequest):
+    """Set player display name in game_progress hub entry"""
+    check_supabase()
+    try:
+        name = request.display_name.strip()[:20]
+        if not name:
+            raise HTTPException(status_code=400, detail="Display name cannot be empty")
+
+        progress_id = f"{device_id}_hub"
+        resp = supabase.table("game_progress").select("inventory").eq("id", progress_id).execute()
+
+        if resp.data and len(resp.data) > 0:
+            inv = resp.data[0].get("inventory") or {}
+            if isinstance(inv, dict):
+                inv["display_name"] = name
+            else:
+                inv = {"display_name": name}
+            supabase.table("game_progress").update({
+                "user_name": name,
+                "inventory": inv
+            }).eq("id", progress_id).execute()
+        else:
+            # Use progress_id as both id and player_id to avoid unique constraint
+            supabase.table("game_progress").insert({
+                "id": progress_id,
+                "player_id": progress_id,
+                "current_level": 1,
+                "current_phase": "hub",
+                "user_name": name,
+                "inventory": {"display_name": name, "_synced_at": datetime.now(timezone.utc).isoformat()}
+            }).execute()
+
+        # Also update any leaderboard entries for this device
+        try:
+            lb_entries = supabase.table("game_progress").select("id").eq("current_phase", "leaderboard").like("id", f"lb_{device_id}_%").execute()
+            for entry in (lb_entries.data or []):
+                supabase.table("game_progress").update({"user_name": name}).eq("id", entry["id"]).execute()
+        except Exception:
+            pass
+
+        return {"success": True, "device_id": device_id, "display_name": name}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating profile: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update profile")
+
+
 # ============ Leaderboard ============
 
 @api_router.get("/leaderboard")
 async def get_leaderboard(game: Optional[str] = None, limit: int = 50):
-    """Get leaderboard scores, optionally filtered by game"""
+    """Get leaderboard: merges demo scores + real player scores"""
     check_supabase()
     try:
+        # 1. Demo scores from scores table
         query = supabase.table("scores").select("*").order("score", desc=True).limit(limit)
         if game:
             query = query.eq("game", game)
-        resp = query.execute()
+        demo_resp = query.execute()
 
-        # Assign display names (from profile or generated)
         anon_names = [
             'CryptoKid', 'BlockMaster', 'GoatRider', 'NFTNinja', 'TokenTornado',
             'ChainChamp', 'HashHero', 'MintMonster', 'DeFiDragon', 'WalletWizard',
             'PixelPioneer', 'ByteBoss', 'CodeCrusader', 'DataDuke', 'BitBandit',
             'SatoshiJr', 'EtherEagle', 'MinerMike', 'StakeShark', 'AirdropAce',
         ]
-        entries = []
-        for i, row in enumerate(resp.data):
-            name = anon_names[i % len(anon_names)]
-            entries.append({
+
+        all_entries = []
+        for i, row in enumerate(demo_resp.data):
+            all_entries.append({
                 "id": row.get("id"),
-                "rank": i + 1,
-                "player_name": name,
+                "player_name": anon_names[i % len(anon_names)],
                 "game": row.get("game", "unknown"),
                 "score": row.get("score", 0),
                 "faction_bonus": row.get("faction_bonus", 0),
-                "created_at": row.get("created_at")
+                "created_at": row.get("created_at"),
+                "is_real": False
             })
-        return {"leaderboard": entries, "total": len(entries), "game_filter": game}
+
+        # 2. Real player scores from game_progress (leaderboard entries)
+        try:
+            lb_query = supabase.table("game_progress").select("*").eq("current_phase", "leaderboard")
+            lb_resp = lb_query.execute()
+            for row in (lb_resp.data or []):
+                inv = row.get("inventory") or {}
+                if not isinstance(inv, dict):
+                    continue
+                entry_game = inv.get("game", "unknown")
+                entry_score = inv.get("score", 0)
+                if game and entry_game != game:
+                    continue
+                all_entries.append({
+                    "id": row.get("id"),
+                    "player_name": row.get("user_name") or inv.get("display_name") or "Explorer",
+                    "game": entry_game,
+                    "score": entry_score,
+                    "faction_bonus": inv.get("faction_bonus", 0),
+                    "created_at": row.get("created_at"),
+                    "is_real": True
+                })
+        except Exception as e:
+            logging.warning(f"Could not fetch real player scores: {e}")
+
+        # Sort all by score descending and assign ranks
+        all_entries.sort(key=lambda x: x["score"], reverse=True)
+        for i, entry in enumerate(all_entries[:limit]):
+            entry["rank"] = i + 1
+
+        return {"leaderboard": all_entries[:limit], "total": len(all_entries[:limit]), "game_filter": game}
     except Exception as e:
         logging.error(f"Error fetching leaderboard: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch leaderboard")
 
+
+class ScoreSubmitRequest(BaseModel):
+    device_id: str
+    game: str
+    score: int
+    player_name: str = "Explorer"
+
 @api_router.post("/leaderboard/submit")
-async def submit_score(game: str = "unknown", score: int = 0, player_name: str = "Anonymous Explorer", faction_bonus: int = 0):
-    """Submit a new score to the leaderboard"""
+async def submit_score(request: ScoreSubmitRequest):
+    """Submit a player score to the leaderboard via game_progress"""
     check_supabase()
     try:
-        # user_id is UUID type in scores table - use null for anonymous submissions
-        # The player_name is stored separately for display purposes
-        row = {
-            "game": game,
-            "score": score,
-            "user_id": None,  # Anonymous submission - user_id is nullable UUID
-            "faction_bonus": faction_bonus,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        resp = supabase.table("scores").insert(row).execute()
-        # Add player_name to response for display
-        entry = resp.data[0] if resp.data else row
-        entry["player_name"] = player_name
-        return {"success": True, "entry": entry}
+        game_slug = request.game.lower().replace(" ", "_")
+        entry_id = f"lb_{request.device_id}_{game_slug}"
+        # Use a unique player_id per device+game to avoid unique constraint
+        lb_player_id = f"lb_{request.device_id}_{game_slug}"
+        name = request.player_name.strip()[:20] or "Explorer"
+
+        # Check if entry exists (one best score per device per game)
+        existing = supabase.table("game_progress").select("inventory").eq("id", entry_id).execute()
+
+        if existing.data and len(existing.data) > 0:
+            old_inv = existing.data[0].get("inventory") or {}
+            old_score = old_inv.get("score", 0) if isinstance(old_inv, dict) else 0
+            # Only update if new score is higher
+            if request.score <= old_score:
+                return {"success": True, "message": "Existing score is higher", "entry": {
+                    "game": request.game, "score": old_score, "player_name": name
+                }}
+            supabase.table("game_progress").update({
+                "user_name": name,
+                "inventory": {
+                    "type": "leaderboard",
+                    "game": request.game,
+                    "score": request.score,
+                    "display_name": name,
+                    "submitted_at": datetime.now(timezone.utc).isoformat()
+                }
+            }).eq("id", entry_id).execute()
+        else:
+            supabase.table("game_progress").insert({
+                "id": entry_id,
+                "player_id": lb_player_id,
+                "current_level": 1,
+                "current_phase": "leaderboard",
+                "user_name": name,
+                "inventory": {
+                    "type": "leaderboard",
+                    "game": request.game,
+                    "score": request.score,
+                    "display_name": name,
+                    "submitted_at": datetime.now(timezone.utc).isoformat()
+                }
+            }).execute()
+
+        return {"success": True, "entry": {
+            "game": request.game, "score": request.score, "player_name": name
+        }}
     except Exception as e:
         logging.error(f"Error submitting score: {e}")
         raise HTTPException(status_code=500, detail="Failed to submit score")
@@ -469,9 +613,21 @@ async def get_game_list():
     """Get list of games with scores"""
     check_supabase()
     try:
+        # Get games from both sources
+        games_set = set()
         resp = supabase.table("scores").select("game").execute()
-        games = list(set(row.get("game") for row in resp.data if row.get("game")))
-        return {"games": sorted(games)}
+        for row in resp.data:
+            if row.get("game"):
+                games_set.add(row["game"])
+        try:
+            lb_resp = supabase.table("game_progress").select("inventory").eq("current_phase", "leaderboard").execute()
+            for row in (lb_resp.data or []):
+                inv = row.get("inventory") or {}
+                if isinstance(inv, dict) and inv.get("game"):
+                    games_set.add(inv["game"])
+        except Exception:
+            pass
+        return {"games": sorted(games_set)}
     except Exception as e:
         logging.error(f"Error fetching game list: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch game list")
@@ -480,6 +636,16 @@ async def get_game_list():
 # ============ Gerry AI Chat (LLM-powered) ============
 
 gerry_chats: Dict[str, Any] = {}
+
+# Gerry Conversation History Models
+class GerryHistoryMessage(BaseModel):
+    role: str
+    text: str
+    ts: int
+
+class GerryHistorySaveRequest(BaseModel):
+    messages: List[GerryHistoryMessage]
+    game: str = "hub"
 
 GERRY_SYSTEM_PROMPT = """You are Gerry the Goat, a fun and friendly Web3 companion for kids on BlockQuest. 
 Your personality: cheerful, encouraging, a bit silly (you're a goat after all!), and passionate about teaching blockchain/Web3 concepts.
@@ -496,22 +662,83 @@ Rules:
 - Always be encouraging, especially when someone seems stuck
 - End responses with a fun follow-up question when appropriate"""
 
+
+def _build_memory_context(device_id: str) -> str:
+    """Build a memory context string from a player's cross-game chat history"""
+    if not device_id:
+        return ""
+    try:
+        # Fetch display name
+        hub_id = f"{device_id}_hub"
+        name_resp = supabase.table("game_progress").select("user_name").eq("id", hub_id).execute()
+        player_name = ""
+        if name_resp.data and name_resp.data[0].get("user_name"):
+            player_name = name_resp.data[0]["user_name"]
+
+        # Fetch chat history
+        history_id = f"gerry_{device_id}"
+        hist_resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+        if not hist_resp.data:
+            return f"\nPlayer name: {player_name}" if player_name else ""
+
+        inv = hist_resp.data[0].get("inventory") or {}
+        if not isinstance(inv, dict):
+            return f"\nPlayer name: {player_name}" if player_name else ""
+
+        messages = inv.get("messages", [])
+        if not messages:
+            return f"\nPlayer name: {player_name}" if player_name else ""
+
+        # Extract topics from user messages
+        user_msgs = [m for m in messages if m.get("role") == "user"]
+        games_used = set(m.get("game", "hub") for m in messages if m.get("game"))
+        last_game = inv.get("last_game", "hub")
+
+        # Get recent topics (last 10 user messages)
+        recent_topics = [m.get("text", "")[:80] for m in user_msgs[-10:]]
+
+        # Build context
+        ctx_parts = ["\n\n--- PLAYER MEMORY (use this to personalize responses) ---"]
+        if player_name:
+            ctx_parts.append(f"Player name: {player_name} (use their name occasionally!)")
+        ctx_parts.append(f"Total past conversations: {len(user_msgs)}")
+        if games_used:
+            ctx_parts.append(f"Games they've played: {', '.join(games_used)}")
+        if last_game:
+            ctx_parts.append(f"Last game visited: {last_game}")
+        if recent_topics:
+            ctx_parts.append(f"Recent topics they asked about: {'; '.join(recent_topics[-5:])}")
+        ctx_parts.append("Reference their past questions naturally when relevant. If they asked about NFTs before, mention you remember discussing that!")
+        ctx_parts.append("--- END MEMORY ---")
+
+        return "\n".join(ctx_parts)
+    except Exception as e:
+        logging.warning(f"Could not build memory context: {e}")
+        return ""
+
+
 @api_router.post("/gerry/chat")
 async def gerry_chat(request: GerryChatRequest):
-    """Chat with Gerry using LLM (with rule-based fallback)"""
+    """Chat with Gerry using LLM (with rule-based fallback). Includes memory context if device_id provided."""
     llm_key = os.environ.get("EMERGENT_LLM_KEY")
+
+    # Build memory context from past conversations
+    memory_ctx = _build_memory_context(request.device_id) if request.device_id else ""
 
     if llm_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
 
             session_key = f"gerry_{request.session_id}"
-            if session_key not in gerry_chats:
-                hero_context = f"\nThe current player's hero is: {request.hero}. Personalize responses to mention this character."
+            hero_context = f"\nThe current player's hero is: {request.hero}. Personalize responses to mention this character."
+            full_system = GERRY_SYSTEM_PROMPT + hero_context + memory_ctx
+
+            # Recreate session if memory context changed (new returning player)
+            if session_key not in gerry_chats or (memory_ctx and request.device_id):
                 gerry_chats[session_key] = LlmChat(
                     api_key=llm_key,
                     session_id=session_key,
-                    system_message=GERRY_SYSTEM_PROMPT + hero_context
+                    system_message=full_system
                 ).with_model("openai", "gpt-4.1-mini")
 
             chat = gerry_chats[session_key]
@@ -523,6 +750,101 @@ async def gerry_chat(request: GerryChatRequest):
 
     # Rule-based fallback
     return {"reply": _rule_based_response(request.message, request.hero), "source": "rules"}
+
+
+@api_router.get("/gerry/greeting/{device_id}")
+async def gerry_greeting(device_id: str):
+    """Generate a personalized greeting based on the player's history"""
+    check_supabase()
+    try:
+        # Fetch display name
+        hub_id = f"{device_id}_hub"
+        name_resp = supabase.table("game_progress").select("user_name").eq("id", hub_id).execute()
+        player_name = ""
+        if name_resp.data and name_resp.data[0].get("user_name"):
+            player_name = name_resp.data[0]["user_name"]
+
+        # Fetch chat history
+        history_id = f"gerry_{device_id}"
+        hist_resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+
+        messages = []
+        games_used = set()
+        last_game = "hub"
+        if hist_resp.data:
+            inv = hist_resp.data[0].get("inventory") or {}
+            if isinstance(inv, dict):
+                messages = inv.get("messages", [])
+                games_used = set(m.get("game", "hub") for m in messages if m.get("game"))
+                last_game = inv.get("last_game", "hub")
+
+        user_msgs = [m for m in messages if m.get("role") == "user"]
+
+        # No history — first time player
+        if not user_msgs:
+            name_part = f" What should I call you?" if not player_name else f", {player_name}!"
+            return {
+                "greeting": f"Baaaa! Hey there{name_part} I'm Gerry the Goat, your Web3 buddy! Ask me about blockchain, crypto, NFTs, or say 'hint' for game tips!",
+                "is_returning": False
+            }
+
+        # Returning player — build personalized greeting
+        recent_topics = [m.get("text", "")[:60] for m in user_msgs[-5:]]
+        name_str = player_name if player_name else "explorer"
+
+        # Try LLM for a dynamic greeting
+        llm_key = os.environ.get("EMERGENT_LLM_KEY")
+        if llm_key:
+            try:
+                from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+                greeting_prompt = f"""Generate a SHORT (2 sentences max) personalized welcome-back greeting for a returning player.
+Player name: {name_str}
+Games they've played: {', '.join(games_used) if games_used else 'hub'}
+Last game: {last_game}
+Recent topics they asked about: {'; '.join(recent_topics)}
+Total past messages: {len(user_msgs)}
+
+Be Gerry the Goat — fun, encouraging, reference something specific they discussed before. Use a goat pun. Keep it kid-friendly."""
+
+                chat = LlmChat(
+                    api_key=llm_key,
+                    session_id=f"greeting_{device_id}_{datetime.now(timezone.utc).timestamp()}",
+                    system_message="You are Gerry the Goat, a fun Web3 companion for kids. Generate only the greeting text, nothing else."
+                ).with_model("openai", "gpt-4.1-mini")
+
+                reply = await chat.send_message(UserMessage(text=greeting_prompt))
+                return {"greeting": reply, "is_returning": True, "games_played": list(games_used), "total_chats": len(user_msgs)}
+            except Exception as e:
+                logging.warning(f"Greeting LLM failed: {e}")
+
+        # Rule-based fallback greeting
+        topic_ref = ""
+        if recent_topics:
+            last_topic = recent_topics[-1].lower()
+            if "nft" in last_topic:
+                topic_ref = "Last time we talked about NFTs — ready to dive deeper?"
+            elif "blockchain" in last_topic or "block" in last_topic:
+                topic_ref = "We were exploring blockchain together — shall we continue?"
+            elif "mining" in last_topic or "miner" in last_topic:
+                topic_ref = "Remember when we chatted about mining? Got more questions?"
+            elif "wallet" in last_topic:
+                topic_ref = "We were learning about wallets last time — want more tips?"
+            elif "token" in last_topic:
+                topic_ref = "We discussed tokens before — ready for more?"
+            else:
+                topic_ref = "I remember our last chat — great to see you again!"
+
+        game_ref = ""
+        if last_game and last_game != "hub":
+            game_ref = f" I see you were in {last_game} — "
+        
+        greeting = f"Baaaa! Welcome back, {name_str}!{game_ref} {topic_ref} What shall we explore today?"
+        return {"greeting": greeting, "is_returning": True, "games_played": list(games_used), "total_chats": len(user_msgs)}
+
+    except Exception as e:
+        logging.error(f"Error generating greeting: {e}")
+        return {"greeting": "Baaaa! Hey there, explorer! I'm Gerry, your Web3 buddy! What shall we learn today?", "is_returning": False}
 
 def _rule_based_response(msg: str, hero: str) -> str:
     q = msg.lower()
@@ -545,6 +867,73 @@ def _rule_based_response(msg: str, hero: str) -> str:
     if any(w in q for w in ["story", "what if", "imagine"]):
         return f"What if {hero} discovered a secret level in the blockchain that gives unlimited knowledge tokens? They'd share them with everyone!"
     return "Baaaa-rilliant question! Try asking about blockchain, NFTs, mining, or say 'hint' for game tips!"
+
+
+# ─── Gerry Cross-Game Conversation Sync ─────────────────────
+
+@api_router.get("/gerry/history/{device_id}")
+async def get_gerry_history(device_id: str, game: Optional[str] = None):
+    """Fetch Gerry conversation history for a device, optionally filtered by game"""
+    check_supabase()
+    try:
+        history_id = f"gerry_{device_id}"
+        resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+        if resp.data and len(resp.data) > 0:
+            inv = resp.data[0].get("inventory") or {}
+            if isinstance(inv, dict):
+                all_messages = inv.get("messages", [])
+                if game:
+                    # Filter messages by game source
+                    all_messages = [m for m in all_messages if m.get("game", "hub") == game or m.get("game") is None]
+                return {"device_id": device_id, "messages": all_messages[-50:], "total": len(all_messages)}
+            return {"device_id": device_id, "messages": [], "total": 0}
+        return {"device_id": device_id, "messages": [], "total": 0}
+    except Exception as e:
+        logging.error(f"Error fetching gerry history: {e}")
+        return {"device_id": device_id, "messages": [], "total": 0}
+
+@api_router.put("/gerry/history/{device_id}")
+async def save_gerry_history(device_id: str, request: GerryHistorySaveRequest):
+    """Save/merge Gerry conversation history for cross-game sync"""
+    check_supabase()
+    try:
+        history_id = f"gerry_{device_id}"
+        history_player_id = f"gerry_{device_id}"
+        new_messages = [{"role": m.role, "text": m.text, "ts": m.ts, "game": request.game} for m in request.messages]
+
+        resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+
+        if resp.data and len(resp.data) > 0:
+            inv = resp.data[0].get("inventory") or {}
+            if not isinstance(inv, dict):
+                inv = {}
+            existing = inv.get("messages", [])
+            # Merge: add new messages that don't already exist (by timestamp)
+            existing_ts = set(m.get("ts", 0) for m in existing)
+            merged = existing + [m for m in new_messages if m["ts"] not in existing_ts]
+            # Keep last 100 messages
+            merged = merged[-100:]
+            inv["messages"] = merged
+            inv["last_sync"] = datetime.now(timezone.utc).isoformat()
+            inv["last_game"] = request.game
+            supabase.table("game_progress").update({"inventory": inv}).eq("id", history_id).execute()
+        else:
+            supabase.table("game_progress").insert({
+                "id": history_id,
+                "player_id": history_player_id,
+                "current_level": 1,
+                "current_phase": "gerry_history",
+                "inventory": {
+                    "messages": new_messages[-100:],
+                    "last_sync": datetime.now(timezone.utc).isoformat(),
+                    "last_game": request.game,
+                }
+            }).execute()
+
+        return {"success": True, "synced": len(new_messages)}
+    except Exception as e:
+        logging.error(f"Error saving gerry history: {e}")
+        return {"success": False, "error": str(e)}
 
 
 # ============ Admin / RLS Management ============

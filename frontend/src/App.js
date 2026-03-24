@@ -11,6 +11,7 @@ import DailyQuest from "./components/DailyQuest";
 import CompactParentFooter from "./components/ParentSection";
 import FloatingGoatPanel from "./components/FloatingGoatPanel";
 import GerryCompanion from "./components/GerryCompanion";
+import WelcomeBackModal from "./components/WelcomeBackModal";
 import FAQPage from "./pages/FAQPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import { ProgressProvider, useProgressContext } from "./context/ProgressContext";
@@ -20,7 +21,7 @@ const LandingPage = () => {
   const {
     progress, claimQuest, unlockHero, selectAvatar,
     claimDailyQuest, resetProgress, hasProgress, totalQuests, totalHeroes,
-    lastClaimed, heroThresholds
+    lastClaimed, heroThresholds, showWelcomeBack, dismissWelcomeBack, inactiveHours
   } = useProgressContext();
 
   const [gerryEnabled, setGerryEnabled] = React.useState(() => {
@@ -70,6 +71,12 @@ const LandingPage = () => {
       </main>
       <FloatingGoatPanel hasProgress={hasProgress} currentXp={progress.xp} />
       <GerryCompanion selectedHero={progress.selectedAvatar} enabled={gerryEnabled} />
+      <WelcomeBackModal
+        isOpen={showWelcomeBack}
+        onDismiss={dismissWelcomeBack}
+        inactiveHours={inactiveHours}
+        progress={progress}
+      />
       <Toaster />
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Send, Volume2, VolumeX, GripVertical } from 'lucide-react';
 
-const GERRY_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ff6b35' opacity='0.15'/%3E%3Ctext x='50' y='62' text-anchor='middle' font-size='50'%3E%F0%9F%90%90%3C/text%3E%3C/svg%3E";
+const GERRY_AVATAR = "https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/4b8bf7ab25b9d80057b361f33d446357bff4abda8b91b3c16dff2988dc9e02b7.png";
 
 // ─── Knowledge base ──────────────────────────────────────────
 const WEB3_KNOWLEDGE = {
@@ -121,6 +121,8 @@ const STUCK_TIPS = [
 
 const GERRY_KEY = 'blockquest_gerry';
 const GERRY_SETTINGS_KEY = 'blockquest_gerry_settings';
+const DEVICE_KEY = 'blockquest_device_id';
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const loadHistory = () => {
   try {
@@ -254,6 +256,53 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
   }, [settings.voice]);
 
   const sessionId = useRef('gerry_' + (localStorage.getItem('blockquest_device_id') || 'anon'));
+  const syncTimeout = useRef(null);
+
+  // Sync conversation to cloud (debounced)
+  const syncToCloud = useCallback(async (msgs) => {
+    const deviceId = localStorage.getItem(DEVICE_KEY);
+    if (!API_URL || !deviceId) return;
+    try {
+      await fetch(`${API_URL}/api/gerry/history/${deviceId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: msgs.slice(-50), game: 'hub' })
+      });
+    } catch (e) {
+      console.warn('Gerry history sync failed', e);
+    }
+  }, []);
+
+  const debouncedCloudSync = useCallback((msgs) => {
+    clearTimeout(syncTimeout.current);
+    syncTimeout.current = setTimeout(() => syncToCloud(msgs), 2000);
+  }, [syncToCloud]);
+
+  // Fetch and merge cloud history on mount
+  useEffect(() => {
+    const fetchCloudHistory = async () => {
+      const deviceId = localStorage.getItem(DEVICE_KEY);
+      if (!API_URL || !deviceId) return;
+      try {
+        const resp = await fetch(`${API_URL}/api/gerry/history/${deviceId}`);
+        const data = await resp.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(prev => {
+            const localTs = new Set(prev.map(m => m.ts));
+            const newFromCloud = data.messages.filter(m => !localTs.has(m.ts));
+            if (newFromCloud.length === 0) return prev;
+            const merged = [...prev, ...newFromCloud].sort((a, b) => a.ts - b.ts).slice(-50);
+            saveHistory(merged);
+            return merged;
+          });
+        }
+      } catch (e) {
+        console.warn('Could not fetch Gerry cloud history', e);
+      }
+    };
+    fetchCloudHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Send message
   const send = useCallback(async () => {
@@ -270,11 +319,12 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     // Try LLM backend first, fall back to rules
     let reply;
     const apiUrl = process.env.REACT_APP_BACKEND_URL;
+    const deviceId = localStorage.getItem(DEVICE_KEY);
     try {
       const resp = await fetch(`${apiUrl}/api/gerry/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, hero: selectedHero, session_id: sessionId.current })
+        body: JSON.stringify({ message: text, hero: selectedHero, session_id: sessionId.current, device_id: deviceId })
       });
       const data = await resp.json();
       reply = data.reply;
@@ -286,10 +336,11 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     setMessages(prev => {
       const next = [...prev, gerryMsg];
       saveHistory(next);
+      debouncedCloudSync(next);
       return next;
     });
     speak(reply);
-  }, [input, selectedHero, speak]);
+  }, [input, selectedHero, speak, debouncedCloudSync]);
 
   // Difficulty auto-scaling: track fail mentions
   const reportFail = useCallback(() => {
@@ -350,11 +401,30 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     }
   }, [dragging, onDragMove, onDragEnd]);
 
-  // Welcome message on first open
-  const onToggle = () => {
-    if (!open && messages.length === 0) {
-      const heroData = HERO_STORIES[selectedHero] || HERO_STORIES.gerry;
-      const welcome = { role: 'gerry', text: `Baaaa! Hey there, I'm Gerry the Goat! Your personal Web3 buddy. Ask me anything about blockchain, crypto, or NFTs — or say "tell me a story" for a ${heroData.name} adventure! I'm here to help whenever you're stuck.`, ts: Date.now() };
+  // Welcome message on first open — personalized for returning players
+  const greetingFetched = useRef(false);
+  const onToggle = async () => {
+    if (!open && messages.length === 0 && !greetingFetched.current) {
+      greetingFetched.current = true;
+      const deviceId = localStorage.getItem(DEVICE_KEY);
+      let welcomeText;
+
+      // Try personalized greeting from backend
+      if (API_URL && deviceId) {
+        try {
+          const resp = await fetch(`${API_URL}/api/gerry/greeting/${deviceId}`);
+          const data = await resp.json();
+          welcomeText = data.greeting;
+        } catch { /* fall through */ }
+      }
+
+      // Fallback
+      if (!welcomeText) {
+        const heroData = HERO_STORIES[selectedHero] || HERO_STORIES.gerry;
+        welcomeText = `Baaaa! Hey there, I'm Gerry the Goat! Your personal Web3 buddy. Ask me anything about blockchain, crypto, or NFTs — or say "tell me a story" for a ${heroData.name} adventure! I'm here to help whenever you're stuck.`;
+      }
+
+      const welcome = { role: 'gerry', text: welcomeText, ts: Date.now() };
       setMessages([welcome]);
       saveHistory([welcome]);
       speak(welcome.text);
@@ -366,7 +436,7 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
 
   const bubbleStyle = position.x !== null
     ? { position: 'fixed', left: position.x, top: position.y, zIndex: 9999 }
-    : { position: 'fixed', bottom: 24, right: 24, zIndex: 9999 };
+    : { position: 'fixed', bottom: 24, left: 24, zIndex: 9999 };
 
   return (
     <div data-gerry-root style={bubbleStyle} data-testid="gerry-companion">
@@ -379,16 +449,16 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
             boxShadow: '0 0 40px rgba(255,107,53,0.2), 0 0 80px rgba(155,93,229,0.1)',
             position: position.x !== null ? 'absolute' : 'relative',
             bottom: position.x !== null ? 70 : undefined,
-            right: position.x !== null ? 0 : undefined,
+            left: position.x !== null ? 0 : undefined,
           }}
           data-testid="gerry-chat-panel"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-600/90 to-amber-600/90">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🐐</span>
+              <img src={GERRY_AVATAR} alt="Gerry" className="w-7 h-7 rounded-full object-cover" />
               <div>
-                <p className="text-sm font-black text-white tracking-wide">GERRY</p>
+                <p className="text-sm font-black text-white tracking-wide">GERRY <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 ml-1 align-middle" title="Synced across games" /></p>
                 <p className="text-[10px] text-orange-200 font-medium">Web3 Companion</p>
               </div>
             </div>
@@ -415,15 +485,20 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
           <div className="h-72 overflow-y-auto px-3 py-3 space-y-3 scrollbar-thin" data-testid="gerry-messages">
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                {m.role === 'gerry' && <span className="text-lg flex-shrink-0 mt-0.5">🐐</span>}
-                <div
-                  className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                    m.role === 'user'
-                      ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
-                      : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
-                  }`}
-                >
-                  {m.text}
+                {m.role === 'gerry' && <img src={GERRY_AVATAR} alt="G" className="w-5 h-5 rounded-full object-cover flex-shrink-0 mt-0.5" />}
+                <div className="max-w-[80%]">
+                  <div
+                    className={`px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                      m.role === 'user'
+                        ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
+                        : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
+                    }`}
+                  >
+                    {m.text}
+                  </div>
+                  {m.game && m.game !== 'hub' && (
+                    <p className="text-[9px] text-gray-500 mt-0.5 px-1">from {m.game}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -486,6 +561,14 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
         {/* Glow ring */}
         <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 opacity-60 blur-sm group-hover:opacity-100 group-hover:blur-md transition-all animate-pulse" />
 
+        {/* Sparkle particles */}
+        <div className="absolute -inset-3 pointer-events-none">
+          <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-sparkle-1" />
+          <div className="absolute top-1/2 right-0 w-1 h-1 bg-cyan-300 rounded-full animate-sparkle-2" />
+          <div className="absolute bottom-0 left-1/4 w-1.5 h-1.5 bg-orange-300 rounded-full animate-sparkle-3" />
+          <div className="absolute top-1/4 left-0 w-1 h-1 bg-purple-300 rounded-full animate-sparkle-4" />
+        </div>
+
         {/* Drag handle */}
         <div
           onMouseDown={onDragStart}
@@ -495,9 +578,9 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
           <GripVertical className="w-3 h-3 text-gray-400" />
         </div>
 
-        {/* Avatar */}
-        <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-3xl shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform">
-          🐐
+        {/* Avatar with bounce */}
+        <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform bg-gradient-to-br from-orange-500/20 to-purple-600/20 animate-gerry-bounce">
+          <img src={GERRY_AVATAR} alt="Gerry the Goat" className="w-full h-full object-cover" />
         </div>
 
         {/* Notification dot */}
@@ -509,7 +592,7 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
 
         {/* Hover tooltip */}
         {!open && (
-          <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-orange-500/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          <div className="absolute bottom-full left-0 mb-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-orange-500/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
             <p className="text-xs text-orange-300 font-bold">Ask Gerry!</p>
           </div>
         )}
