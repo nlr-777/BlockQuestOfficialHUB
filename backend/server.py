@@ -357,15 +357,17 @@ async def get_progress(device_id: str):
     """Fetch player progress by device UUID"""
     check_supabase()
     try:
-        resp = supabase.table("player_progress").select("*").eq("device_id", device_id).eq("game_id", "hub").execute()
+        progress_id = f"{device_id}_hub"
+        resp = supabase.table("game_progress").select("*").eq("id", progress_id).execute()
         if resp.data and len(resp.data) > 0:
             row = resp.data[0]
+            inv = row.get("inventory", {}) or {}
             return {
                 "device_id": device_id,
-                "progress": row.get("inventory", {}),
-                "xp": row.get("xp", 0),
-                "level": row.get("level", 1),
-                "last_sync": row.get("last_sync")
+                "progress": inv,
+                "xp": inv.get("xp", 0),
+                "level": row.get("current_level", 1),
+                "last_sync": inv.get("_synced_at")
             }
         return {"device_id": device_id, "progress": None, "xp": 0, "level": 1, "last_sync": None}
     except Exception as e:
@@ -374,32 +376,30 @@ async def get_progress(device_id: str):
 
 @api_router.put("/progress/{device_id}")
 async def save_progress(device_id: str, request: ProgressSyncRequest):
-    """Save/update player progress to Supabase"""
+    """Save/update player progress to Supabase using game_progress table"""
     check_supabase()
     try:
         progress_dict = request.progress.model_dump()
-        xp = progress_dict.pop("xp", 0)
+        xp = progress_dict.get("xp", 0)
+        progress_id = f"{device_id}_hub"
+        sync_ts = datetime.now(timezone.utc).isoformat()
 
-        # user_id has FK constraint to profiles table - use null for anonymous device sync
-        # device_id is the primary identifier for localStorage migration
-        row_data = {
-            "user_id": None,  # Anonymous - no profile required
-            "game_id": "hub",
-            "device_id": device_id,
-            "xp": xp,
-            "level": max(1, xp // 100 + 1),
-            "inventory": progress_dict,
-            "last_sync": datetime.now(timezone.utc).isoformat()
-        }
-
-        # Try update first
-        resp = supabase.table("player_progress").select("user_id").eq("device_id", device_id).eq("game_id", "hub").execute()
+        # Check if row exists
+        resp = supabase.table("game_progress").select("id").eq("id", progress_id).execute()
         if resp.data and len(resp.data) > 0:
-            supabase.table("player_progress").update(row_data).eq("device_id", device_id).eq("game_id", "hub").execute()
+            supabase.table("game_progress").update({
+                "inventory": {**progress_dict, "_synced_at": sync_ts},
+                "current_level": max(1, xp // 100 + 1),
+            }).eq("id", progress_id).execute()
         else:
-            supabase.table("player_progress").insert(row_data).execute()
+            supabase.table("game_progress").insert({
+                "id": progress_id,
+                "player_id": device_id,
+                "current_level": max(1, xp // 100 + 1),
+                "inventory": {**progress_dict, "_synced_at": sync_ts},
+            }).execute()
 
-        return {"success": True, "device_id": device_id, "synced_at": row_data["last_sync"]}
+        return {"success": True, "device_id": device_id, "synced_at": sync_ts}
     except Exception as e:
         logging.error(f"Error saving progress: {e}")
         raise HTTPException(status_code=500, detail="Failed to save progress")
