@@ -1,7 +1,33 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Send, Volume2, VolumeX, GripVertical } from 'lucide-react';
+import { X, Send, Volume2, VolumeX, GripVertical, Eye } from 'lucide-react';
 
 const GERRY_AVATAR = "https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/4b8bf7ab25b9d80057b361f33d446357bff4abda8b91b3c16dff2988dc9e02b7.png";
+
+// ─── Concept illustrations ───────────────────────────────────
+const CONCEPT_IMAGES = {
+  blockchain: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/7b043d2e9b79144124afdc32e869afa02908f7ea1cf35e3978613afcf0503096.png', label: 'Blockchain' },
+  nft: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/b7e8a2eb1f71f6ecf7c099ceed893b33d3c2b164b32a811540d69a2319250e62.png', label: 'NFTs' },
+  mining: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/90b8c5a4e7cc6b8f09f8347b18ed94d727cd6d7e387db0930579af03652addc9.png', label: 'Mining' },
+  wallet: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/6ec73321fc0060ab936152b54265e8c9667524e5d9096056bcafebee705d4c8e.png', label: 'Wallet' },
+  web3: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/7c29409ac078b35ade64c823ba0b0dbab06af2efcd18cdb0e8aed553673899eb.png', label: 'Web3' },
+  smart_contract: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/83a59fa247f67751ecf5abd85fcae852fa5c63d99d933158cfb3a92cffa824ef.png', label: 'Smart Contracts' },
+  token: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/083d1715f391999e5453dbad2a4aefd7ed3217b6f35b578e1cff431bb8ae3206.png', label: 'Tokens' },
+  metaverse: { url: 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/7ac12e60667a60a94e30e70c71ac9a4ac36faf0fee3b33f3952283e02aafc283.png', label: 'Metaverse' },
+};
+
+// Detect which concept a message is about
+const detectConcept = (text) => {
+  if (!text) return null;
+  const q = text.toLowerCase();
+  // Check compound terms first
+  if (q.includes('smart contract')) return 'smart_contract';
+  if (q.includes('web3') || q.includes('web 3')) return 'web3';
+  for (const key of Object.keys(CONCEPT_IMAGES)) {
+    if (key === 'smart_contract' || key === 'web3') continue;
+    if (q.includes(key)) return key;
+  }
+  return null;
+};
 
 // ─── Knowledge base ──────────────────────────────────────────
 const WEB3_KNOWLEDGE = {
@@ -205,6 +231,7 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
   const [showStuckTip, setShowStuckTip] = useState(false);
   const [position, setPosition] = useState({ x: null, y: null });
   const [dragging, setDragging] = useState(false);
+  const [expandedImages, setExpandedImages] = useState(new Set());
   const dragOffset = useRef({ x: 0, y: 0 });
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -241,17 +268,28 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
   // Save settings
   useEffect(() => { saveSettings(settings); }, [settings]);
 
-  // Voice synth
+  // Voice synth — warm, friendly kid-companion voice
   const speak = useCallback((text) => {
     if (!settings.voice || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.05;
-    u.pitch = 1.3;
-    u.volume = 0.8;
+    u.rate = 0.92;
+    u.pitch = 1.15;
+    u.volume = 0.85;
     const voices = window.speechSynthesis.getVoices();
-    const kid = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en'));
-    if (kid) u.voice = kid;
+    // Prefer warm, natural-sounding voices (in priority order)
+    const preferred = [
+      'Samantha', 'Karen', 'Google UK English Female', 'Moira',
+      'Fiona', 'Tessa', 'Google US English', 'Microsoft Zira',
+    ];
+    let picked = null;
+    for (const name of preferred) {
+      picked = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+      if (picked) break;
+    }
+    if (!picked) picked = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
+    if (!picked) picked = voices.find(v => v.lang.startsWith('en'));
+    if (picked) u.voice = picked;
     window.speechSynthesis.speak(u);
   }, [settings.voice]);
 
@@ -483,25 +521,59 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
 
           {/* Messages */}
           <div className="h-72 overflow-y-auto px-3 py-3 space-y-3 scrollbar-thin" data-testid="gerry-messages">
-            {messages.map((m, i) => (
-              <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                {m.role === 'gerry' && <img src={GERRY_AVATAR} alt="G" className="w-5 h-5 rounded-full object-cover flex-shrink-0 mt-0.5" />}
-                <div className="max-w-[80%]">
-                  <div
-                    className={`px-3 py-2 rounded-2xl text-sm leading-relaxed ${
-                      m.role === 'user'
-                        ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
-                        : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
-                    }`}
-                  >
-                    {m.text}
+            {messages.map((m, i) => {
+              const concept = m.role === 'gerry' ? detectConcept(m.text) : null;
+              const isExpanded = expandedImages.has(i);
+
+              return (
+                <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                  {m.role === 'gerry' && <img src={GERRY_AVATAR} alt="G" className="w-5 h-5 rounded-full object-cover flex-shrink-0 mt-0.5" />}
+                  <div className="max-w-[85%]">
+                    <div
+                      className={`px-3 py-2 rounded-2xl text-sm leading-relaxed ${
+                        m.role === 'user'
+                          ? 'bg-cyan-600/30 text-cyan-100 rounded-br-md'
+                          : 'bg-orange-900/30 text-orange-100 border border-orange-500/20 rounded-bl-md'
+                      }`}
+                    >
+                      {m.text}
+                    </div>
+                    {m.game && m.game !== 'hub' && (
+                      <p className="text-[9px] text-gray-500 mt-0.5 px-1">from {m.game}</p>
+                    )}
+                    {/* "Show me!" button for concept explanations */}
+                    {concept && CONCEPT_IMAGES[concept] && (
+                      <button
+                        onClick={() => setExpandedImages(prev => {
+                          const next = new Set(prev);
+                          next.has(i) ? next.delete(i) : next.add(i);
+                          return next;
+                        })}
+                        className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all"
+                        data-testid={`show-concept-${concept}`}
+                      >
+                        <Eye className="w-3 h-3" />
+                        {isExpanded ? 'Hide image' : `Show me: ${CONCEPT_IMAGES[concept].label}`}
+                      </button>
+                    )}
+                    {/* Inline concept image */}
+                    {concept && isExpanded && CONCEPT_IMAGES[concept] && (
+                      <div className="mt-2 rounded-xl overflow-hidden border border-purple-500/30 shadow-lg shadow-purple-500/10">
+                        <img
+                          src={CONCEPT_IMAGES[concept].url}
+                          alt={CONCEPT_IMAGES[concept].label}
+                          className="w-full h-auto"
+                          loading="lazy"
+                        />
+                        <p className="text-[10px] text-center py-1.5 text-purple-300 bg-gray-900/80 font-bold">
+                          {CONCEPT_IMAGES[concept].label}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  {m.game && m.game !== 'hub' && (
-                    <p className="text-[9px] text-gray-500 mt-0.5 px-1">from {m.game}</p>
-                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <div ref={chatEndRef} />
           </div>
 
