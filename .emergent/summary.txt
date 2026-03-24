@@ -1,176 +1,139 @@
-<analysis>**original_problem_statement:** The user's initial goal was to build a vibrant, kid-friendly, retro-arcade-themed landing page for the BlockQuest brand. The project has since evolved significantly.
-
-The current set of high-level requirements includes:
-1.  **Full-Stack Application:** A React frontend and a FastAPI backend, now migrated to use Supabase instead of MongoDB.
-2.  **Functional Newsletter:** A footer form that captures user emails and stores them in a Supabase table.
-3.  **Static Pages:** Separate, routable pages for FAQ and a Parent Hub.
-4.  **Comprehensive UI/UX Overhaul:** A major upgrade to the landing page including:
-    *   A sticky navigation bar with smooth scrolling.
-    *   New interactive components: A Featured Games carousel, a contact/feedback form, and social sharing buttons.
-    *   Visual enhancements with retro pixel art, new animations, and an embedded demo video.
-    *   Content polish to reduce emoji use and improve layout with responsive grids.
-    *   Technical upgrades for SEO (meta tags, favicon), performance (minification), and accessibility (ARIA roles, high contrast).
-    *   A debug mode toggle to highlight new elements.
+<analysis>**original_problem_statement:** The user's recent goals focused on fully securing the application by fixing all Row Level Security (RLS) warnings in Supabase, making the interactive elements dynamic, and continuing to build out the kid-friendly Web3 hub. Recent specific requests included migrating  progress to Supabase, adding a cross-game Leaderboard page, integrating a persistent AI companion named Gerry (using an LLM for dynamic responses), updating Book & Resource hub PDFs, adding a rolling announcement banner, and creating a Returning Explorer welcome-back experience.
 
 **User's preferred language**: English
 
-**what currently exists?**
-The project is a full-stack application with a React frontend and a FastAPI backend.
--   **Frontend:** A highly-styled, animated landing page featuring multiple sections (Hero, Arcade, Books, Parent Hub, Footer). It includes new, separate pages for FAQ () and Terms/Privacy. It has been partially prepared for a major UI/UX overhaul, with new empty component files created for a featured games carousel, contact form, and social sharing.
--   **Backend:** A FastAPI server that was migrated from MongoDB to Supabase. It includes an API endpoint () for the newsletter signup. The Supabase connection is not fully functional as it uses placeholder credentials and has been coded to fail gracefully, allowing the server to run but without database connectivity.
+**what currently exists?** 
+A robust, secure full-stack React + FastAPI + Supabase application. All 17 Supabase tables have fully functional RLS policies, ensuring anonymous play works safely. The frontend uses a React Context () to manage client-side state and syncs it to the Supabase  table using a device UUID. A cross-game Leaderboard exists (currently seeded with demo data). A persistent Gerry AI companion is implemented both as a floating React component and an injectable script for external games, powered by the Emergent LLM key on the backend. The UI features new PDF downloads, an expanded 17-term kid-friendly Web3 glossary, and a glowing rolling announcement banner in the hero section.
 
-**Last working item**:
-- **Last item agent was working:** The agent began a comprehensive overhaul of the landing page based on a large set of new requirements from the user. It started by setting up the foundational pieces for this upgrade.
-    - It updated  with new SEO meta tags and a custom title.
-    - It created empty placeholder components: , , and .
-    - It overwrote  to prepare for a new sticky navigation bar.
-    - It was about to add new CSS for retro animations and other visual enhancements.
-- **Status:** IN PROGRESS
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** both
-- **User Testing Done:** N
+**Last working item**: 
+    - **Last item agent was working:** The agent had just gathered the user's requirements for two new features: 1) Refining the Leaderboard to use real user display names via a simple text input, and 2) Building a Returning Explorer welcome-back screen that triggers if the user has been inactive for > 4 hours. The agent was inspecting  and  to begin implementation.
+    - **Status:** IN PROGRESS
+    - **Agent Testing Done:** N
+    - **Which testing method agent to use?** Frontend testing agent
+    - **User Testing Done:** N
 
-**All Pending/In progress Issue list**:
-  - **Issue 1:** The Supabase integration is incomplete. The backend is using placeholder credentials (, ). While the server runs, it cannot connect to the database, preventing any database operations (like newsletter signups or fetching content) from working in a deployed environment. (Priority: P0)
-
-  **Issues Detail:**
-  - **Issue 1:**
-     - **Attempted fixes:** The agent coded the backend to start up even with invalid credentials, logging a Supabase not configured warning. This allows development on other parts of the app to continue but is not a long-term fix.
-     - **Next debug checklist:**
-       1. Obtain the correct  and  from the user or environment.
-       2. Update  with the correct credentials.
-       3. Update  with the correct credentials.
-       4. Restart the backend service: backend: stopped
-backend: started.
-       5. Test the  endpoint again with  to confirm it successfully writes to the Supabase table.
-     - **Why fix this issue and what will be achieved with the fix?** This is a critical blocker for all database-dependent features. Fixing it will make the newsletter signup functional and enable future work on fetching dynamic content and saving game stats.
-     - **Status:** BLOCKED (on user providing credentials)
-     - **Is recurring issue?** N
-     - **Should Test frontend/backend/both after fix?** Backend
-     - **Blocked on other issue:** None
+**All Pending/In progress Issue list**: 
+None blocking currently. The primary focus is on completing the in-progress tasks.
 
 **In progress Task List**:
-  - **Task 1:** Complete the Comprehensive Landing Page Upgrade. (Priority: P0)
+  Task 1: Refine Leaderboard with Real User Profiles (P0)
+  Task 2: Returning Explorer Welcome-Back Screen (P0)
 
-  **Task Detail:**
-  - **Task 1:**
-     - **Where to resume:**
-       1.  Add new CSS to  and/or  for retro animations, pixelated glows, responsive grids, and accessibility improvements.
-       2.  Implement the logic and JSX for the new components: , , and .
-       3.  Integrate these new components into the main  or other relevant section components.
-       4.  Implement the debug mode toggle (e.g., using a URL query parameter ).
-       5.  Refine the sticky header's functionality, including the mobile hamburger menu and smooth scrolling.
-     - **What will be achieved with this?** The landing page will be significantly enhanced to be more interactive, visually appealing, and technically robust, meeting the user's detailed specifications.
-     - **Status:** IN PROGRESS
-     - **Should Test frontend/backend/both after fix?** Frontend
-     - **Blocked on something:** None
+ Task Detail:
+  - Task 1: 
+     - Where to resume: Create a mechanism (e.g., modal, profile settings section, or prompt before playing) for users to input a text-based display name. Save this name to their local profile state and sync it to the Supabase backend. Update the Leaderboard API and frontend to display these custom names instead of Anonymous or demo names.
+     - What will be achieved with this? Personalized leaderboards that show real player inputs.
+     - Status:  IN PROGRESS
+     - Should Test frontend/backend/both after fix? Both
+     - Blocked on something: None
+  - Task 2: 
+     - Where to resume: Implement logic in  or  to compare the current time with the  timestamp. If the difference is > 4 hours, trigger a welcome-back modal summarizing what the player missed (e.g., daily streaks, leaderboard position shifts).
+     - What will be achieved with this? Improved user retention and engagement.
+     - Status:  NOT STARTED
+     - Should Test frontend/backend/both after fix? Frontend
+     - Blocked on something: None
 
 **Upcoming and Future Tasks**
-- **Upcoming Tasks:**
-  - **P1:** Fully integrate Supabase to fetch dynamic content for the landing page (e.g., book and game links from the  table) as requested by the user.
-  - **P1:** Implement a unified profile system using Supabase Auth for seamless syncing across the ecosystem.
-- **Future Tasks:**
-  - **P2:** Re-introduce blockchain/Web3 feature teasers (BLQ token, Apertum blockchain, OpenPlaza marketplace).
-  - **P2:** Activate the  component, which is currently created but hidden from the UI.
-  - **P2:** Implement game progress saving and loading using the  table in Supabase.
+    Upcoming Tasks:
+    - None explicitly requested beyond the current active tasks.
+    
+    Future Tasks:
+    - IMPORTANT: The user explicitly stated: *do not do anything with merch or web3 links they are dormant for a reason.* Do NOT implement  or re-introduce the BLQ token/OpenPlaza Web3 teasers. 
 
 **Completed work in this session**
-- **Database Migration:** Migrated the entire application backend from MongoDB to **Supabase**, including updating environment variables, dependencies, and all database connection logic.
-- **Newsletter Functionality:** Implemented a backend API endpoint () and connected the frontend footer form to successfully capture and store emails.
-- **New Pages:** Created and integrated a full **FAQ page** () and a **Parent Hub page** () with dropdown accordions and custom content.
-- **Landing Page Restructure:** Replaced the old Parent Calm Zone on the main page with the new, more detailed Parent Hub content and updated all navigation to point to the correct sections/pages.
-- **Content & Visuals (Major):**
-  - Completed a full facelift of the **Book Section**, adding character cards with hover-tooltips (quotes), cropping the group image, and adding engaging synopses for books 3, 4, and 5.
-  - Implemented a major visual redesign of the entire page to be more curious and interesting, including a revamped **Hero Section** with a smaller logo and new promo cards.
-  - Aligned the **Arcade Zone** description with the brand's story.
-  - Updated all 5 book covers with new images and titles.
-  - Updated the game preview from a live iframe to a static image as requested.
-- **Business Details:** Added the company ABN and location to the footer, terms, and privacy pages.
-- **Deployment Prep:** Created  and  files and a comprehensive  to prepare the project for Vercel deployment.
-- **Cleanup:** Removed the Made with Emergent badge and deleted an unused  component.
+- Complete RLS Audit & Migration for 17 Supabase tables (fixed P0 Newsletter bug)
+- Integrated Book 1 and Book 2 PDFs with Free Download buttons.
+- Expanded Web3 Glossary to 17 kid-friendly terms.
+- Added glowing, animated rolling announcement banner to .
+- Built Gerry AI Companion ( & ) with Web Speech TTS and LLM integration.
+- Generated  to inject the AI companion into external Vercel games.
+- Migrated state management from prop-drilling to .
+- Built progress sync endpoints () saving to Supabase .
+- Created cross-game Leaderboard page () and  endpoint.
+- Split monolithic  into modular data files.
 
 **Earlier issues found/mentioned but not fixed**
-   - None.
+None.
 
 **Known issue recurrence from previous fork**
-  - None.
+  - Issue recurrence in previous fork: Vercel build failures due to local/remote sync mismatch.
+  - Recurrence count: 1
+  - Status: RESOLVED (The app passed the Deployment Agent health check this session, and user has not reported further Vercel errors).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Frontend:** React, TailwindCSS, .
-- **UI:** Shadcn/UI, custom CSS animations.
-- **Backend:** FastAPI.
-- **Database:** **Supabase** (migrated from MongoDB).
-- **Architecture:** Decoupled SPA with a backend API.
+- **Frontend:** React, TailwindCSS, React Context API ().
+- **State Management:** Local progress tracked via  hook, synced seamlessly to Supabase using a device UUID.
+- **Backend:** FastAPI with Supabase REST API integration.
+- **Database:** Supabase (PostgreSQL) with strict Row Level Security (RLS) policies allowing anonymous inserts.
+- **AI Integration:**  used on the backend to power the Gerry AI companion using the Emergent LLM key.
 
 **key DB schema**
-  - **newsletter_subscribers**: 
-  - **site_content**: 
-  - **game_stats**: 
+- **game_progress**: 
+- **scores**: 
+- **newsletter_subscribers**: 
 
 **changes in tech stack**
-  - **Database:** Migrated from **MongoDB to Supabase**.
+- Added  to FastAPI for LLM access.
 
-**All files of reference**
-- : FastAPI application, now with Supabase logic.
-- : Main router and page structure.
-- : Recently overwritten to become a sticky nav.
-- : New component file, needs implementation.
-- : New component file, needs implementation.
-- : Updated for SEO and meta tags.
-- : Contains new deployment instructions for Vercel and Supabase.
-- : New file for Vercel deployment configuration.
+**All files of reference** 
+- : Houses all new endpoints (Progress Sync, Leaderboard, Gerry LLM chat).
+- : The master SQL script applied to fix all Supabase RLS warnings.
+- : New global state provider.
+- : The floating AI companion component.
+- : Vanilla JS snippet generated for use in external games.
+- : New page for rendering cross-game rankings.
 
-**Areas that need refactoring**:
-- None explicitly required, but  is growing large and could benefit from being split into smaller, component-specific CSS modules.
+**Areas that need refactoring**: 
+-  was successfully split, but  could potentially be streamlined further now that  handles global state distribution.
 
 **key api endpoints**
-- : Adds a new email to the  table.
-- : Status check for the backend API.
-- : New endpoint to fetch site content (not yet used by frontend).
-- : New endpoint to fetch game stats.
-- : New endpoint to save game stats.
+-  & : Syncs player progress to DB.
+- : Fetches top cross-game scores.
+- : LLM endpoint for dynamic Gerry responses.
+- : Newsletter (P0 bug fixed, works perfectly now).
 
-**Critical Info for New Agent**
-- **Supabase Migration:** The project has been migrated from MongoDB to Supabase. However, the backend is running with **placeholder credentials**. You will need to get the actual Supabase URL and Key and configure them in the  files to make the database connection work. The backend is designed to run without valid keys, but it will log warnings and database features will fail.
-- **Massive Feature Request In-Progress:** The user's last message initiated a huge overhaul of the landing page. You are in the middle of this task. You need to complete the implementation of the new components (, , ), add extensive CSS changes, and integrate everything.
-- **Frontend-Driven Logic:** The newsletter form was updated to optimistically use the Supabase JS client on the frontend, falling back to the backend API if the client-side variables are not set. This pattern may be useful for future features.
+**Critical Info for New Agent** 
+- **DB Sync Workaround:** To avoid altering the  schema (which had strict foreign key constraints), progress sync uses the  table. The device UUID is saved in the  text column, and the sync timestamp () is stored inside the  JSONB column. Maintain this pattern.
+- **Leaderboard Data:** Currently populated with 60 generated demo scores.
+- **User Constraints:** DO NOT activate dormant Web3 teasers or the Merch Section.
 
-**documents and test reports created in this job**
-- 
+**documents and test reports created in this job** 
+  - /app/test_reports/iteration_2.json
+  - /app/test_reports/iteration_3.json
+  - /app/memory/PRD.md
+  - /app/backend/migrations/fix_rls_policies.sql
 
-**Last 10 User Messages and any pending HUMAN messages**
-1.  **User (452):** Initiated the current major overhaul task with a very long and detailed list of requirements for UI, UX, interactivity, and technical improvements. (IN PROGRESS)
-2.  **User (451):** Provided a text blob that seems to be a project brief for the major overhaul. (IN PROGRESS)
-3.  **User (406):** Provided detailed schemas for Supabase tables ('site_content', 'game_stats') and confirmed the creation of a 'newsletter_subscribers' table. (COMPLETED)
-4.  **User (403):** Requested the migration from MongoDB to Supabase. (COMPLETED)
-5.  **User (401):** Acknowledged that the backend URL will be a Vercel URL, to be updated later. (COMPLETED)
-6.  **User (382):** Stated intent to prepare the app for Vercel deployment. (COMPLETED)
-7.  **User (379):** Requested updating the game link in the arcade section. (COMPLETED)
-8.  **User (371):** Requested a text update for the arcade placeholder description. (COMPLETED)
-9.  **User (365):** Requested a text update for the hero section tagline. (COMPLETED)
-10. **User (351):** Clarified that the Parent Hub content should replace the Parent Calm Zone *on the landing page*, not be a separate page. (COMPLETED)
+**Last 10 User Messages and any pending HUMAN messages** 
+1. **User:** 1 - text they input. 2 - after 4hrs (Confirmed leaderboard display name should be a simple text input, and returning explorer triggers after 4 hours).
+2. **Agent:** Asked clarification questions on how to implement the display names and time threshold.
+3. **User:** yes lets refine the leaderboard with real user profiles, and enhancement for returning explorer
+4. **Agent:** Finished backend/frontend integration, presented summary, suggested Returning Explorer enhancement.
+5. **User:** Answered DB sync planning questions (1 - reuse exsisting tables. 2 - check supabase and add some demo data. 3 - yes)
+6. **Agent:** Presented plan for Supabase sync, leaderboard, and LLM implementation.
+7. **User:** lets continue with this - Next Action Items Migrate localStorage progress...
+8. **Agent:** Showed successful Deployment Agent health check.
+9. **User:** Call Deployer Agent and Run Health Check...
+10. **Agent:** Finished Gerry AI implementation summary.
 
 **Project Health Check:**
-- **Broken:**
-  - Supabase integration is non-functional due to placeholder credentials in  files. The backend cannot connect to the database.
-- **Mocked:**
-  - The newly created components (, , ) are empty shells.
-  - The frontend does not yet fetch any dynamic content (like book/game links) from Supabase.
+- Broken: None. 
+- Mocked: The leaderboard utilizes seeded demo data. It needs to be wired up to actual user text inputs.
 
-**3rd Party Integrations**
-- **Supabase:** Used for database and potentially authentication. Requires user-provided  and .
+**3rd Party Integrations** 
+- **Supabase** — requires User API Key (Anon/Service Role already configured)
+- **OpenAI GPT/Grok via Emergent LLM Key** — uses Emergent LLM Key (Integrated in )
 
 **Testing status**
-  - **Testing agent used after significant changes:** NO
-  - **Troubleshoot agent used after agent stuck in loop:** NO
-  - **Test files created:** None.
-  - **Known regressions:** None.
+  - Testing agent used after significant changes: YES
+  - Troubleshoot agent used after agent stuck in loop: NO
+  - Test files created: , 
+  - Known regressions: None
 
 **Credentials to test flow:**
-- N/A. Supabase credentials are required for database functionality.
+Handled via existing  variables.
 
 **What agent forgot to execute**
-- The agent has just begun the large task from message #451. It has not yet implemented the  query parameter that was requested as part of the task.</analysis>
+Nothing forgotten; the agent was in the middle of executing the final two user requests when the session ended.</analysis>
