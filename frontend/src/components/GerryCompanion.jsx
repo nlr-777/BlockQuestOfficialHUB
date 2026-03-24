@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Send, Volume2, VolumeX, GripVertical } from 'lucide-react';
 
-const GERRY_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%231a1a2e'/%3E%3Ccircle cx='50' cy='50' r='45' fill='%23ff6b35' opacity='0.15'/%3E%3Ctext x='50' y='62' text-anchor='middle' font-size='50'%3E%F0%9F%90%90%3C/text%3E%3C/svg%3E";
+const GERRY_AVATAR = "https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/4b8bf7ab25b9d80057b361f33d446357bff4abda8b91b3c16dff2988dc9e02b7.png";
 
 // ─── Knowledge base ──────────────────────────────────────────
 const WEB3_KNOWLEDGE = {
@@ -366,7 +366,7 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
 
   const bubbleStyle = position.x !== null
     ? { position: 'fixed', left: position.x, top: position.y, zIndex: 9999 }
-    : { position: 'fixed', bottom: 24, right: 24, zIndex: 9999 };
+    : { position: 'fixed', bottom: 24, left: 24, zIndex: 9999 };
 
   return (
     <div data-gerry-root style={bubbleStyle} data-testid="gerry-companion">
@@ -379,7 +379,7 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
             boxShadow: '0 0 40px rgba(255,107,53,0.2), 0 0 80px rgba(155,93,229,0.1)',
             position: position.x !== null ? 'absolute' : 'relative',
             bottom: position.x !== null ? 70 : undefined,
-            right: position.x !== null ? 0 : undefined,
+            left: position.x !== null ? 0 : undefined,
           }}
           data-testid="gerry-chat-panel"
         >
@@ -496,8 +496,8 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
         </div>
 
         {/* Avatar */}
-        <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-3xl shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform">
-          🐐
+        <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform bg-gradient-to-br from-orange-500/20 to-purple-600/20">
+          <img src={GERRY_AVATAR} alt="Gerry the Goat" className="w-full h-full object-cover" />
         </div>
 
         {/* Notification dot */}
@@ -509,7 +509,7 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
 
         {/* Hover tooltip */}
         {!open && (
-          <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-orange-500/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          <div className="absolute bottom-full left-0 mb-2 px-3 py-1.5 rounded-lg bg-gray-900 border border-orange-500/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
             <p className="text-xs text-orange-300 font-bold">Ask Gerry!</p>
           </div>
         )}
