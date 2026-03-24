@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Medal, Star, Crown, Flame, Filter, ArrowLeft, Zap, User, Plus, Send } from 'lucide-react';
+import { Trophy, Medal, Star, Crown, Flame, Filter, ArrowLeft, Zap, User } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useProgressContext } from '../context/ProgressContext';
 import SetNameModal from '../components/SetNameModal';
@@ -20,19 +20,13 @@ const RANK_STYLES = {
   3: { bg: 'bg-gradient-to-r from-orange-600/15 to-amber-700/15', border: 'border-orange-600/40', badge: '🥉' },
 };
 
-const AVAILABLE_GAMES = ['Retro Arcade', 'Miners', 'Wallet Adventure', 'NFT Studio', 'Mini Money Quest'];
-
 const LeaderboardPage = () => {
-  const { progress, deviceId, saveDisplayName } = useProgressContext();
+  const { progress, saveDisplayName } = useProgressContext();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [gameFilter, setGameFilter] = useState(null);
   const [games, setGames] = useState([]);
   const [showNameModal, setShowNameModal] = useState(false);
-  const [showSubmit, setShowSubmit] = useState(false);
-  const [submitGame, setSubmitGame] = useState(AVAILABLE_GAMES[0]);
-  const [submitScore, setSubmitScore] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   const displayName = progress.displayName || '';
 
@@ -67,35 +61,6 @@ const LeaderboardPage = () => {
     };
     if (games.length === 0) fetchGames();
   }, [games.length]);
-
-  const handleSubmitScore = async () => {
-    if (!displayName) {
-      setShowNameModal(true);
-      return;
-    }
-    const scoreNum = parseInt(submitScore, 10);
-    if (!scoreNum || scoreNum < 1) return;
-
-    setSubmitting(true);
-    try {
-      await fetch(`${API_URL}/api/leaderboard/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          device_id: deviceId,
-          game: submitGame,
-          score: scoreNum,
-          player_name: displayName,
-        })
-      });
-      setSubmitScore('');
-      setShowSubmit(false);
-      fetchData();
-    } catch (e) {
-      console.error('Failed to submit score:', e);
-    }
-    setSubmitting(false);
-  };
 
   const handleNameSave = (name) => {
     saveDisplayName(name);
@@ -142,9 +107,9 @@ const LeaderboardPage = () => {
         </div>
       </div>
 
-      {/* Game filter tabs + Submit button */}
+      {/* Game filter tabs */}
       <div className="max-w-5xl mx-auto px-4 mb-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap">
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin flex-1" data-testid="game-filter-tabs">
             <Button
               variant={gameFilter === null ? "default" : "outline"}
@@ -177,56 +142,7 @@ const LeaderboardPage = () => {
               );
             })}
           </div>
-          <Button
-            size="sm"
-            onClick={() => setShowSubmit(!showSubmit)}
-            className="rounded-full text-xs font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0 hover:from-green-500 hover:to-emerald-500"
-            data-testid="submit-score-toggle"
-          >
-            <Plus className="w-3 h-3 mr-1" /> Submit Score
-          </Button>
         </div>
-
-        {/* Score submission form */}
-        {showSubmit && (
-          <div className="mt-4 p-4 rounded-xl bg-gray-900/80 border border-gray-700/50 animate-in slide-in-from-top-2 duration-200" data-testid="submit-score-form">
-            <p className="text-sm font-bold text-gray-300 mb-3">Submit your game score to the leaderboard</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <select
-                value={submitGame}
-                onChange={(e) => setSubmitGame(e.target.value)}
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-orange-500"
-                data-testid="submit-game-select"
-              >
-                {AVAILABLE_GAMES.map(g => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-              <input
-                type="number"
-                value={submitScore}
-                onChange={(e) => setSubmitScore(e.target.value)}
-                placeholder="Your score..."
-                min="1"
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 w-full sm:w-40"
-                data-testid="submit-score-input"
-              />
-              <Button
-                onClick={handleSubmitScore}
-                disabled={submitting || !submitScore}
-                className="rounded-lg text-sm font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-black border-0"
-                data-testid="submit-score-btn"
-              >
-                <Send className="w-3 h-3 mr-1" /> {submitting ? 'Submitting...' : 'Submit'}
-              </Button>
-            </div>
-            {!displayName && (
-              <p className="text-xs text-orange-400 mt-2">
-                You need to set your explorer name first!
-              </p>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Leaderboard table */}
