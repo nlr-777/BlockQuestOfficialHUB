@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Medal, Star, Crown, Flame, Filter, ArrowLeft, Zap, User, Plus, Send } from 'lucide-react';
+import { Trophy, Medal, Star, Crown, Flame, Filter, ArrowLeft, Zap, User, WifiOff, RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useProgressContext } from '../context/ProgressContext';
 import SetNameModal from '../components/SetNameModal';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const LB_CACHE_KEY = 'blockquest_leaderboard_cache';
+const LB_GAMES_CACHE_KEY = 'blockquest_leaderboard_games';
 
 const GAME_META = {
   'Retro Arcade': { color: 'from-purple-500 to-pink-500', icon: Zap, emoji: '🕹️' },
@@ -20,86 +22,101 @@ const RANK_STYLES = {
   3: { bg: 'bg-gradient-to-r from-orange-600/15 to-amber-700/15', border: 'border-orange-600/40', badge: '🥉' },
 };
 
-const AVAILABLE_GAMES = ['Retro Arcade', 'Miners', 'Wallet Adventure', 'NFT Studio', 'Mini Money Quest'];
+// Cache helpers
+const cacheData = (key, data) => {
+  try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch {}
+};
+const getCachedData = (key) => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(key) || 'null');
+    return raw ? raw.data : null;
+  } catch { return null; }
+};
 
 const LeaderboardPage = () => {
-  const { progress, deviceId, saveDisplayName } = useProgressContext();
+  const { progress, saveDisplayName, getLocalScores } = useProgressContext();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [offline, setOffline] = useState(false);
   const [gameFilter, setGameFilter] = useState(null);
   const [games, setGames] = useState([]);
   const [showNameModal, setShowNameModal] = useState(false);
-  const [showSubmit, setShowSubmit] = useState(false);
-  const [submitGame, setSubmitGame] = useState(AVAILABLE_GAMES[0]);
-  const [submitScore, setSubmitScore] = useState('');
-  const [submitting, setSubmitting] = useState(false);
 
   const displayName = progress.displayName || '';
 
+  // Merge backend entries with any unsynced local scores
+  const mergeWithLocal = useCallback((backendEntries) => {
+    const localScores = getLocalScores();
+    const unsynced = localScores.filter(s => !s.synced);
+    if (unsynced.length === 0) return backendEntries;
+
+    const merged = [...backendEntries];
+    for (const ls of unsynced) {
+      // Check if this local score is already represented (higher or equal in backend)
+      const existing = merged.find(e => e.is_real && e.game === ls.game && e.score >= ls.score);
+      if (existing) continue;
+      merged.push({
+        id: `local_${ls.ts}`,
+        player_name: ls.name || 'Explorer',
+        game: ls.game,
+        score: ls.score,
+        faction_bonus: 0,
+        created_at: new Date(ls.ts).toISOString(),
+        is_real: true,
+        is_local: true,
+      });
+    }
+    // Re-sort and re-rank
+    merged.sort((a, b) => b.score - a.score);
+    merged.forEach((e, i) => { e.rank = i + 1; });
+    return merged;
+  }, [getLocalScores]);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setOffline(false);
     try {
       const url = gameFilter
         ? `${API_URL}/api/leaderboard?game=${encodeURIComponent(gameFilter)}&limit=50`
         : `${API_URL}/api/leaderboard?limit=50`;
       const resp = await fetch(url);
       const data = await resp.json();
-      setEntries(data.leaderboard || []);
+      const backendEntries = data.leaderboard || [];
+      const merged = mergeWithLocal(backendEntries);
+      setEntries(merged);
+      // Cache for offline use
+      cacheData(LB_CACHE_KEY, backendEntries);
     } catch (e) {
-      console.error('Failed to fetch leaderboard:', e);
+      console.warn('Leaderboard fetch failed, using cache:', e);
+      setOffline(true);
+      // Load from cache
+      const cached = getCachedData(LB_CACHE_KEY) || [];
+      const filtered = gameFilter ? cached.filter(e => e.game === gameFilter) : cached;
+      const merged = mergeWithLocal(filtered);
+      setEntries(merged);
     }
     setLoading(false);
-  }, [gameFilter]);
+  }, [gameFilter, mergeWithLocal]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
     const fetchGames = async () => {
       try {
         const resp = await fetch(`${API_URL}/api/leaderboard/games`);
         const data = await resp.json();
-        setGames(data.games || []);
-      } catch (e) {
-        console.error('Failed to fetch games:', e);
+        const g = data.games || [];
+        setGames(g);
+        cacheData(LB_GAMES_CACHE_KEY, g);
+      } catch {
+        const cached = getCachedData(LB_GAMES_CACHE_KEY) || [];
+        setGames(cached);
       }
     };
     if (games.length === 0) fetchGames();
   }, [games.length]);
 
-  const handleSubmitScore = async () => {
-    if (!displayName) {
-      setShowNameModal(true);
-      return;
-    }
-    const scoreNum = parseInt(submitScore, 10);
-    if (!scoreNum || scoreNum < 1) return;
-
-    setSubmitting(true);
-    try {
-      await fetch(`${API_URL}/api/leaderboard/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          device_id: deviceId,
-          game: submitGame,
-          score: scoreNum,
-          player_name: displayName,
-        })
-      });
-      setSubmitScore('');
-      setShowSubmit(false);
-      fetchData();
-    } catch (e) {
-      console.error('Failed to submit score:', e);
-    }
-    setSubmitting(false);
-  };
-
-  const handleNameSave = (name) => {
-    saveDisplayName(name);
-  };
+  const handleNameSave = (name) => { saveDisplayName(name); };
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" data-testid="leaderboard-page">
@@ -109,8 +126,7 @@ const LeaderboardPage = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-500/10 rounded-full blur-[120px]" />
         <div className="relative max-w-5xl mx-auto px-4 pt-8 pb-6">
           <a href="/" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-orange-400 transition-colors mb-6" data-testid="leaderboard-back">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Hub
+            <ArrowLeft className="w-4 h-4" /> Back to Hub
           </a>
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-4">
@@ -119,12 +135,23 @@ const LeaderboardPage = () => {
               </div>
               <div>
                 <h1 className="text-3xl sm:text-4xl font-black tracking-tight">Leaderboard</h1>
-                <p className="text-gray-400 text-sm">Top explorers across all BlockQuest games</p>
+                <p className="text-gray-400 text-sm">
+                  Top explorers across all BlockQuest games
+                  {offline && <span className="ml-2 text-amber-400 text-xs font-bold">(cached)</span>}
+                </p>
               </div>
             </div>
-
-            {/* Profile badge / set name */}
             <div className="flex items-center gap-2">
+              {offline && (
+                <button
+                  onClick={fetchData}
+                  className="p-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-colors"
+                  title="Retry connection"
+                  data-testid="retry-btn"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              )}
               <button
                 onClick={() => setShowNameModal(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-800/80 border border-gray-700/60 hover:border-orange-500/50 transition-all text-sm"
@@ -133,100 +160,57 @@ const LeaderboardPage = () => {
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-[10px] font-black text-black">
                   {displayName ? displayName.charAt(0).toUpperCase() : <User className="w-3 h-3" />}
                 </div>
-                <span className="font-bold text-gray-300">
-                  {displayName || 'Set Your Name'}
-                </span>
+                <span className="font-bold text-gray-300">{displayName || 'Set Your Name'}</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Game filter tabs + Submit button */}
-      <div className="max-w-5xl mx-auto px-4 mb-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin flex-1" data-testid="game-filter-tabs">
-            <Button
-              variant={gameFilter === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setGameFilter(null)}
-              className={`rounded-full text-xs font-bold whitespace-nowrap ${
-                !gameFilter ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-black border-0' : 'border-gray-700 text-gray-400 hover:text-white'
-              }`}
-              data-testid="filter-all"
-            >
-              <Filter className="w-3 h-3 mr-1" /> All Games
-            </Button>
-            {games.map(g => {
-              const meta = GAME_META[g] || {};
-              return (
-                <Button
-                  key={g}
-                  variant={gameFilter === g ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setGameFilter(g)}
-                  className={`rounded-full text-xs font-bold whitespace-nowrap ${
-                    gameFilter === g
-                      ? `bg-gradient-to-r ${meta.color || 'from-gray-500 to-gray-600'} text-black border-0`
-                      : 'border-gray-700 text-gray-400 hover:text-white'
-                  }`}
-                  data-testid={`filter-${g.toLowerCase().replace(/\s/g, '-')}`}
-                >
-                  {meta.emoji || '🎮'} {g}
-                </Button>
-              );
-            })}
+      {/* Offline banner */}
+      {offline && (
+        <div className="max-w-5xl mx-auto px-4 mb-4">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm" data-testid="offline-banner">
+            <WifiOff className="w-4 h-4 flex-shrink-0" />
+            <span>You're viewing cached scores. Scores sync automatically when you're back online.</span>
           </div>
-          <Button
-            size="sm"
-            onClick={() => setShowSubmit(!showSubmit)}
-            className="rounded-full text-xs font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0 hover:from-green-500 hover:to-emerald-500"
-            data-testid="submit-score-toggle"
-          >
-            <Plus className="w-3 h-3 mr-1" /> Submit Score
-          </Button>
         </div>
+      )}
 
-        {/* Score submission form */}
-        {showSubmit && (
-          <div className="mt-4 p-4 rounded-xl bg-gray-900/80 border border-gray-700/50 animate-in slide-in-from-top-2 duration-200" data-testid="submit-score-form">
-            <p className="text-sm font-bold text-gray-300 mb-3">Submit your game score to the leaderboard</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <select
-                value={submitGame}
-                onChange={(e) => setSubmitGame(e.target.value)}
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-orange-500"
-                data-testid="submit-game-select"
-              >
-                {AVAILABLE_GAMES.map(g => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-              <input
-                type="number"
-                value={submitScore}
-                onChange={(e) => setSubmitScore(e.target.value)}
-                placeholder="Your score..."
-                min="1"
-                className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 w-full sm:w-40"
-                data-testid="submit-score-input"
-              />
+      {/* Game filter tabs */}
+      <div className="max-w-5xl mx-auto px-4 mb-6">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin" data-testid="game-filter-tabs">
+          <Button
+            variant={gameFilter === null ? "default" : "outline"}
+            size="sm"
+            onClick={() => setGameFilter(null)}
+            className={`rounded-full text-xs font-bold whitespace-nowrap ${
+              !gameFilter ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-black border-0' : 'border-gray-700 text-gray-400 hover:text-white'
+            }`}
+            data-testid="filter-all"
+          >
+            <Filter className="w-3 h-3 mr-1" /> All Games
+          </Button>
+          {games.map(g => {
+            const meta = GAME_META[g] || {};
+            return (
               <Button
-                onClick={handleSubmitScore}
-                disabled={submitting || !submitScore}
-                className="rounded-lg text-sm font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-black border-0"
-                data-testid="submit-score-btn"
+                key={g}
+                variant={gameFilter === g ? "default" : "outline"}
+                size="sm"
+                onClick={() => setGameFilter(g)}
+                className={`rounded-full text-xs font-bold whitespace-nowrap ${
+                  gameFilter === g
+                    ? `bg-gradient-to-r ${meta.color || 'from-gray-500 to-gray-600'} text-black border-0`
+                    : 'border-gray-700 text-gray-400 hover:text-white'
+                }`}
+                data-testid={`filter-${g.toLowerCase().replace(/\s/g, '-')}`}
               >
-                <Send className="w-3 h-3 mr-1" /> {submitting ? 'Submitting...' : 'Submit'}
+                {meta.emoji || '🎮'} {g}
               </Button>
-            </div>
-            {!displayName && (
-              <p className="text-xs text-orange-400 mt-2">
-                You need to set your explorer name first!
-              </p>
-            )}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
 
       {/* Leaderboard table */}
@@ -243,7 +227,6 @@ const LeaderboardPage = () => {
           </div>
         ) : (
           <div className="space-y-2" data-testid="leaderboard-entries">
-            {/* Header row */}
             <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs text-gray-500 font-bold uppercase tracking-wider">
               <div className="col-span-1">Rank</div>
               <div className="col-span-4">Player</div>
@@ -257,6 +240,7 @@ const LeaderboardPage = () => {
               const style = RANK_STYLES[rank] || { bg: 'bg-gray-900/40', border: 'border-gray-800/50', badge: null };
               const gameMeta = GAME_META[entry.game] || {};
               const isReal = entry.is_real;
+              const isLocal = entry.is_local;
 
               return (
                 <div
@@ -264,7 +248,6 @@ const LeaderboardPage = () => {
                   className={`grid grid-cols-12 gap-2 items-center px-4 py-3 rounded-xl border transition-all hover:scale-[1.01] ${style.bg} ${style.border} ${isReal ? 'ring-1 ring-orange-500/20' : ''}`}
                   data-testid={`leaderboard-row-${rank}`}
                 >
-                  {/* Rank */}
                   <div className="col-span-1">
                     {style.badge ? (
                       <span className="text-2xl">{style.badge}</span>
@@ -273,30 +256,32 @@ const LeaderboardPage = () => {
                     )}
                   </div>
 
-                  {/* Player */}
                   <div className="col-span-4 flex items-center gap-2">
                     <div className={`w-8 h-8 rounded-full ${isReal ? 'bg-gradient-to-br from-orange-500 to-amber-600' : `bg-gradient-to-br ${gameMeta.color || 'from-gray-600 to-gray-700'}`} flex items-center justify-center text-sm font-bold ${isReal ? 'text-black' : 'text-white'}`}>
                       {entry.player_name?.charAt(0) || '?'}
                     </div>
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="font-bold text-sm truncate">{entry.player_name}</span>
-                      {isReal && (
+                      {isReal && !isLocal && (
                         <span className="flex-shrink-0 px-1.5 py-0.5 text-[9px] font-black bg-orange-500/20 text-orange-400 rounded-full border border-orange-500/30">
                           PLAYER
+                        </span>
+                      )}
+                      {isLocal && (
+                        <span className="flex-shrink-0 px-1.5 py-0.5 text-[9px] font-black bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30">
+                          SYNCING
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Game */}
                   <div className="col-span-3">
-                    <span className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-bold`}
-                      style={{ background: 'linear-gradient(to right, rgba(107,114,128,0.15), rgba(107,114,128,0.15))' }}>
+                    <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-bold"
+                      style={{ background: 'rgba(107,114,128,0.15)' }}>
                       {gameMeta.emoji || '🎮'} {entry.game}
                     </span>
                   </div>
 
-                  {/* Score */}
                   <div className="col-span-2 text-right">
                     <span className="font-black text-lg tabular-nums" style={{
                       background: 'linear-gradient(90deg, #f97316, #eab308)',
@@ -307,7 +292,6 @@ const LeaderboardPage = () => {
                     </span>
                   </div>
 
-                  {/* Bonus */}
                   <div className="col-span-2 text-right">
                     {entry.faction_bonus > 0 && (
                       <span className="text-xs text-green-400 font-bold">+{entry.faction_bonus}</span>
@@ -326,7 +310,7 @@ const LeaderboardPage = () => {
               { label: 'Total Scores', value: entries.length, icon: Trophy },
               { label: 'Top Score', value: Math.max(...entries.map(e => e.score)).toLocaleString(), icon: Crown },
               { label: 'Games', value: [...new Set(entries.map(e => e.game))].length, icon: Star },
-              { label: 'Real Players', value: entries.filter(e => e.is_real).length, icon: User },
+              { label: 'Players', value: entries.filter(e => e.is_real).length, icon: User },
             ].map(({ label, value, icon: Icon }) => (
               <div key={label} className="p-4 rounded-xl bg-gray-900/60 border border-gray-800/50 text-center">
                 <Icon className="w-5 h-5 mx-auto mb-1 text-orange-400" />
@@ -338,7 +322,6 @@ const LeaderboardPage = () => {
         )}
       </div>
 
-      {/* Set Name Modal */}
       <SetNameModal
         isOpen={showNameModal}
         onClose={() => setShowNameModal(false)}

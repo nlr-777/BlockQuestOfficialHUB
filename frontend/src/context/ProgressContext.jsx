@@ -6,6 +6,7 @@ const ProgressContext = createContext(null);
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 const DEVICE_KEY = 'blockquest_device_id';
 const LAST_ACTIVE_KEY = 'blockquest_last_active';
+const LOCAL_SCORES_KEY = 'blockquest_local_scores';
 const RETURNING_THRESHOLD_MS = 4 * 60 * 60 * 1000; // 4 hours
 
 const getDeviceId = () => {
@@ -137,11 +138,83 @@ export const ProgressProvider = ({ children }) => {
     setShowWelcomeBack(false);
   }, []);
 
+  // ─── Local Score Storage + Auto-Sync ─────────────────────
+  // Save a score to localStorage (called by games or hub)
+  const saveLocalScore = useCallback((game, score, playerName) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(LOCAL_SCORES_KEY) || '[]');
+      const name = playerName || progress.progress.displayName || 'Explorer';
+      // Check if we already have a higher score for this game
+      const idx = existing.findIndex(s => s.game === game);
+      if (idx >= 0 && existing[idx].score >= score) return; // existing is higher
+      const entry = { game, score, name, ts: Date.now(), synced: false };
+      if (idx >= 0) {
+        existing[idx] = entry;
+      } else {
+        existing.push(entry);
+      }
+      localStorage.setItem(LOCAL_SCORES_KEY, JSON.stringify(existing));
+    } catch (e) {
+      console.warn('Could not save local score', e);
+    }
+  }, [progress.progress.displayName]);
+
+  // Auto-sync unsynced local scores to backend on mount
+  useEffect(() => {
+    const syncLocalScores = async () => {
+      if (!API_URL) return;
+      try {
+        const scores = JSON.parse(localStorage.getItem(LOCAL_SCORES_KEY) || '[]');
+        const unsynced = scores.filter(s => !s.synced);
+        if (unsynced.length === 0) return;
+
+        const name = progress.progress.displayName || 'Explorer';
+        let changed = false;
+
+        for (const s of unsynced) {
+          try {
+            const resp = await fetch(`${API_URL}/api/leaderboard/submit`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                device_id: deviceId.current,
+                game: s.game,
+                score: s.score,
+                player_name: s.name || name,
+              })
+            });
+            if (resp.ok) {
+              s.synced = true;
+              changed = true;
+            }
+          } catch { /* will retry next load */ }
+        }
+
+        if (changed) {
+          localStorage.setItem(LOCAL_SCORES_KEY, JSON.stringify(scores));
+        }
+      } catch (e) {
+        console.warn('Local score sync failed', e);
+      }
+    };
+    syncLocalScores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Get local scores (for offline leaderboard)
+  const getLocalScores = useCallback(() => {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_SCORES_KEY) || '[]');
+    } catch { return []; }
+  }, []);
+
   const value = {
     ...progress,
     deviceId: deviceId.current,
     syncToCloud: () => syncToCloud(progress.progress),
     saveDisplayName,
+    saveLocalScore,
+    getLocalScores,
     showWelcomeBack,
     dismissWelcomeBack,
     inactiveHours,
