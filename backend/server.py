@@ -405,61 +405,204 @@ async def save_progress(device_id: str, request: ProgressSyncRequest):
         raise HTTPException(status_code=500, detail="Failed to save progress")
 
 
+# ============ Player Profile (Display Name) ============
+
+class ProfileUpdateRequest(BaseModel):
+    display_name: str
+
+@api_router.get("/profile/{device_id}")
+async def get_profile(device_id: str):
+    """Get player profile (display name) from game_progress hub entry"""
+    check_supabase()
+    try:
+        progress_id = f"{device_id}_hub"
+        resp = supabase.table("game_progress").select("user_name,inventory").eq("id", progress_id).execute()
+        if resp.data and len(resp.data) > 0:
+            row = resp.data[0]
+            inv = row.get("inventory") or {}
+            # inventory can be list (game data) or dict (hub data)
+            display_name = row.get("user_name") or ""
+            if isinstance(inv, dict):
+                display_name = display_name or inv.get("display_name", "")
+            return {"device_id": device_id, "display_name": display_name}
+        return {"device_id": device_id, "display_name": ""}
+    except Exception as e:
+        logging.error(f"Error fetching profile: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch profile")
+
+@api_router.put("/profile/{device_id}")
+async def update_profile(device_id: str, request: ProfileUpdateRequest):
+    """Set player display name in game_progress hub entry"""
+    check_supabase()
+    try:
+        name = request.display_name.strip()[:20]
+        if not name:
+            raise HTTPException(status_code=400, detail="Display name cannot be empty")
+
+        progress_id = f"{device_id}_hub"
+        resp = supabase.table("game_progress").select("inventory").eq("id", progress_id).execute()
+
+        if resp.data and len(resp.data) > 0:
+            inv = resp.data[0].get("inventory") or {}
+            if isinstance(inv, dict):
+                inv["display_name"] = name
+            else:
+                inv = {"display_name": name}
+            supabase.table("game_progress").update({
+                "user_name": name,
+                "inventory": inv
+            }).eq("id", progress_id).execute()
+        else:
+            # Use progress_id as both id and player_id to avoid unique constraint
+            supabase.table("game_progress").insert({
+                "id": progress_id,
+                "player_id": progress_id,
+                "current_level": 1,
+                "current_phase": "hub",
+                "user_name": name,
+                "inventory": {"display_name": name, "_synced_at": datetime.now(timezone.utc).isoformat()}
+            }).execute()
+
+        # Also update any leaderboard entries for this device
+        try:
+            lb_entries = supabase.table("game_progress").select("id").eq("current_phase", "leaderboard").like("id", f"lb_{device_id}_%").execute()
+            for entry in (lb_entries.data or []):
+                supabase.table("game_progress").update({"user_name": name}).eq("id", entry["id"]).execute()
+        except Exception:
+            pass
+
+        return {"success": True, "device_id": device_id, "display_name": name}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating profile: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update profile")
+
+
 # ============ Leaderboard ============
 
 @api_router.get("/leaderboard")
 async def get_leaderboard(game: Optional[str] = None, limit: int = 50):
-    """Get leaderboard scores, optionally filtered by game"""
+    """Get leaderboard: merges demo scores + real player scores"""
     check_supabase()
     try:
+        # 1. Demo scores from scores table
         query = supabase.table("scores").select("*").order("score", desc=True).limit(limit)
         if game:
             query = query.eq("game", game)
-        resp = query.execute()
+        demo_resp = query.execute()
 
-        # Assign display names (from profile or generated)
         anon_names = [
             'CryptoKid', 'BlockMaster', 'GoatRider', 'NFTNinja', 'TokenTornado',
             'ChainChamp', 'HashHero', 'MintMonster', 'DeFiDragon', 'WalletWizard',
             'PixelPioneer', 'ByteBoss', 'CodeCrusader', 'DataDuke', 'BitBandit',
             'SatoshiJr', 'EtherEagle', 'MinerMike', 'StakeShark', 'AirdropAce',
         ]
-        entries = []
-        for i, row in enumerate(resp.data):
-            name = anon_names[i % len(anon_names)]
-            entries.append({
+
+        all_entries = []
+        for i, row in enumerate(demo_resp.data):
+            all_entries.append({
                 "id": row.get("id"),
-                "rank": i + 1,
-                "player_name": name,
+                "player_name": anon_names[i % len(anon_names)],
                 "game": row.get("game", "unknown"),
                 "score": row.get("score", 0),
                 "faction_bonus": row.get("faction_bonus", 0),
-                "created_at": row.get("created_at")
+                "created_at": row.get("created_at"),
+                "is_real": False
             })
-        return {"leaderboard": entries, "total": len(entries), "game_filter": game}
+
+        # 2. Real player scores from game_progress (leaderboard entries)
+        try:
+            lb_query = supabase.table("game_progress").select("*").eq("current_phase", "leaderboard")
+            lb_resp = lb_query.execute()
+            for row in (lb_resp.data or []):
+                inv = row.get("inventory") or {}
+                if not isinstance(inv, dict):
+                    continue
+                entry_game = inv.get("game", "unknown")
+                entry_score = inv.get("score", 0)
+                if game and entry_game != game:
+                    continue
+                all_entries.append({
+                    "id": row.get("id"),
+                    "player_name": row.get("user_name") or inv.get("display_name") or "Explorer",
+                    "game": entry_game,
+                    "score": entry_score,
+                    "faction_bonus": inv.get("faction_bonus", 0),
+                    "created_at": row.get("created_at"),
+                    "is_real": True
+                })
+        except Exception as e:
+            logging.warning(f"Could not fetch real player scores: {e}")
+
+        # Sort all by score descending and assign ranks
+        all_entries.sort(key=lambda x: x["score"], reverse=True)
+        for i, entry in enumerate(all_entries[:limit]):
+            entry["rank"] = i + 1
+
+        return {"leaderboard": all_entries[:limit], "total": len(all_entries[:limit]), "game_filter": game}
     except Exception as e:
         logging.error(f"Error fetching leaderboard: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch leaderboard")
 
+
+class ScoreSubmitRequest(BaseModel):
+    device_id: str
+    game: str
+    score: int
+    player_name: str = "Explorer"
+
 @api_router.post("/leaderboard/submit")
-async def submit_score(game: str = "unknown", score: int = 0, player_name: str = "Anonymous Explorer", faction_bonus: int = 0):
-    """Submit a new score to the leaderboard"""
+async def submit_score(request: ScoreSubmitRequest):
+    """Submit a player score to the leaderboard via game_progress"""
     check_supabase()
     try:
-        # user_id is UUID type in scores table - use null for anonymous submissions
-        # The player_name is stored separately for display purposes
-        row = {
-            "game": game,
-            "score": score,
-            "user_id": None,  # Anonymous submission - user_id is nullable UUID
-            "faction_bonus": faction_bonus,
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }
-        resp = supabase.table("scores").insert(row).execute()
-        # Add player_name to response for display
-        entry = resp.data[0] if resp.data else row
-        entry["player_name"] = player_name
-        return {"success": True, "entry": entry}
+        game_slug = request.game.lower().replace(" ", "_")
+        entry_id = f"lb_{request.device_id}_{game_slug}"
+        # Use a unique player_id per device+game to avoid unique constraint
+        lb_player_id = f"lb_{request.device_id}_{game_slug}"
+        name = request.player_name.strip()[:20] or "Explorer"
+
+        # Check if entry exists (one best score per device per game)
+        existing = supabase.table("game_progress").select("inventory").eq("id", entry_id).execute()
+
+        if existing.data and len(existing.data) > 0:
+            old_inv = existing.data[0].get("inventory") or {}
+            old_score = old_inv.get("score", 0) if isinstance(old_inv, dict) else 0
+            # Only update if new score is higher
+            if request.score <= old_score:
+                return {"success": True, "message": "Existing score is higher", "entry": {
+                    "game": request.game, "score": old_score, "player_name": name
+                }}
+            supabase.table("game_progress").update({
+                "user_name": name,
+                "inventory": {
+                    "type": "leaderboard",
+                    "game": request.game,
+                    "score": request.score,
+                    "display_name": name,
+                    "submitted_at": datetime.now(timezone.utc).isoformat()
+                }
+            }).eq("id", entry_id).execute()
+        else:
+            supabase.table("game_progress").insert({
+                "id": entry_id,
+                "player_id": lb_player_id,
+                "current_level": 1,
+                "current_phase": "leaderboard",
+                "user_name": name,
+                "inventory": {
+                    "type": "leaderboard",
+                    "game": request.game,
+                    "score": request.score,
+                    "display_name": name,
+                    "submitted_at": datetime.now(timezone.utc).isoformat()
+                }
+            }).execute()
+
+        return {"success": True, "entry": {
+            "game": request.game, "score": request.score, "player_name": name
+        }}
     except Exception as e:
         logging.error(f"Error submitting score: {e}")
         raise HTTPException(status_code=500, detail="Failed to submit score")
@@ -469,9 +612,21 @@ async def get_game_list():
     """Get list of games with scores"""
     check_supabase()
     try:
+        # Get games from both sources
+        games_set = set()
         resp = supabase.table("scores").select("game").execute()
-        games = list(set(row.get("game") for row in resp.data if row.get("game")))
-        return {"games": sorted(games)}
+        for row in resp.data:
+            if row.get("game"):
+                games_set.add(row["game"])
+        try:
+            lb_resp = supabase.table("game_progress").select("inventory").eq("current_phase", "leaderboard").execute()
+            for row in (lb_resp.data or []):
+                inv = row.get("inventory") or {}
+                if isinstance(inv, dict) and inv.get("game"):
+                    games_set.add(inv["game"])
+        except Exception:
+            pass
+        return {"games": sorted(games_set)}
     except Exception as e:
         logging.error(f"Error fetching game list: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch game list")
