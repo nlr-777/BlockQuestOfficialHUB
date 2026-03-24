@@ -636,6 +636,16 @@ async def get_game_list():
 
 gerry_chats: Dict[str, Any] = {}
 
+# Gerry Conversation History Models
+class GerryHistoryMessage(BaseModel):
+    role: str
+    text: str
+    ts: int
+
+class GerryHistorySaveRequest(BaseModel):
+    messages: List[GerryHistoryMessage]
+    game: str = "hub"
+
 GERRY_SYSTEM_PROMPT = """You are Gerry the Goat, a fun and friendly Web3 companion for kids on BlockQuest. 
 Your personality: cheerful, encouraging, a bit silly (you're a goat after all!), and passionate about teaching blockchain/Web3 concepts.
 
@@ -700,6 +710,73 @@ def _rule_based_response(msg: str, hero: str) -> str:
     if any(w in q for w in ["story", "what if", "imagine"]):
         return f"What if {hero} discovered a secret level in the blockchain that gives unlimited knowledge tokens? They'd share them with everyone!"
     return "Baaaa-rilliant question! Try asking about blockchain, NFTs, mining, or say 'hint' for game tips!"
+
+
+# ─── Gerry Cross-Game Conversation Sync ─────────────────────
+
+@api_router.get("/gerry/history/{device_id}")
+async def get_gerry_history(device_id: str, game: Optional[str] = None):
+    """Fetch Gerry conversation history for a device, optionally filtered by game"""
+    check_supabase()
+    try:
+        history_id = f"gerry_{device_id}"
+        resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+        if resp.data and len(resp.data) > 0:
+            inv = resp.data[0].get("inventory") or {}
+            if isinstance(inv, dict):
+                all_messages = inv.get("messages", [])
+                if game:
+                    # Filter messages by game source
+                    all_messages = [m for m in all_messages if m.get("game", "hub") == game or m.get("game") is None]
+                return {"device_id": device_id, "messages": all_messages[-50:], "total": len(all_messages)}
+            return {"device_id": device_id, "messages": [], "total": 0}
+        return {"device_id": device_id, "messages": [], "total": 0}
+    except Exception as e:
+        logging.error(f"Error fetching gerry history: {e}")
+        return {"device_id": device_id, "messages": [], "total": 0}
+
+@api_router.put("/gerry/history/{device_id}")
+async def save_gerry_history(device_id: str, request: GerryHistorySaveRequest):
+    """Save/merge Gerry conversation history for cross-game sync"""
+    check_supabase()
+    try:
+        history_id = f"gerry_{device_id}"
+        history_player_id = f"gerry_{device_id}"
+        new_messages = [{"role": m.role, "text": m.text, "ts": m.ts, "game": request.game} for m in request.messages]
+
+        resp = supabase.table("game_progress").select("inventory").eq("id", history_id).execute()
+
+        if resp.data and len(resp.data) > 0:
+            inv = resp.data[0].get("inventory") or {}
+            if not isinstance(inv, dict):
+                inv = {}
+            existing = inv.get("messages", [])
+            # Merge: add new messages that don't already exist (by timestamp)
+            existing_ts = set(m.get("ts", 0) for m in existing)
+            merged = existing + [m for m in new_messages if m["ts"] not in existing_ts]
+            # Keep last 100 messages
+            merged = merged[-100:]
+            inv["messages"] = merged
+            inv["last_sync"] = datetime.now(timezone.utc).isoformat()
+            inv["last_game"] = request.game
+            supabase.table("game_progress").update({"inventory": inv}).eq("id", history_id).execute()
+        else:
+            supabase.table("game_progress").insert({
+                "id": history_id,
+                "player_id": history_player_id,
+                "current_level": 1,
+                "current_phase": "gerry_history",
+                "inventory": {
+                    "messages": new_messages[-100:],
+                    "last_sync": datetime.now(timezone.utc).isoformat(),
+                    "last_game": request.game,
+                }
+            }).execute()
+
+        return {"success": True, "synced": len(new_messages)}
+    except Exception as e:
+        logging.error(f"Error saving gerry history: {e}")
+        return {"success": False, "error": str(e)}
 
 
 # ============ Admin / RLS Management ============

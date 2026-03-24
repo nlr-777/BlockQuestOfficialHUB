@@ -3,12 +3,12 @@
  * Add to any game: <script src="https://blockquestofficial.com/gerry-injectable.js"></script>
  * 
  * Features:
- * - Floating draggable chat bubble
- * - Rule-based Web3 hints + game-specific tips
+ * - Floating draggable chat bubble with Chaos Chronicles Gerry avatar
+ * - LLM-powered responses via BlockQuest hub API (with rule-based fallback)
+ * - Cross-game conversation sync via cloud backend
  * - Voice-over (Web Speech API)
  * - Auto-detect stuck state (45s idle)
  * - Difficulty auto-scaling (3 fails → easy mode)
- * - localStorage conversation history
  */
 (function() {
   'use strict';
@@ -18,8 +18,23 @@
   // ─── Config ──────────────────────────────────
   const GERRY_KEY = 'blockquest_gerry';
   const SETTINGS_KEY = 'blockquest_gerry_settings';
+  const DEVICE_KEY = 'blockquest_device_id';
   const DIFFICULTY_KEY = 'blockquest_difficulty';
   const STUCK_TIMEOUT = 45000;
+  const HUB_API = 'https://blockquestofficial.com';
+  const GERRY_IMG = 'https://static.prod-images.emergentagent.com/jobs/2429ed2b-a893-4473-8b2e-2593750e3655/images/4b8bf7ab25b9d80057b361f33d446357bff4abda8b91b3c16dff2988dc9e02b7.png';
+
+  // Get or create device ID (shared with hub via same key)
+  const getDeviceId = () => {
+    let id = null;
+    try { id = localStorage.getItem(DEVICE_KEY); } catch(e) {}
+    if (!id) {
+      id = (crypto.randomUUID ? crypto.randomUUID() : 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+      try { localStorage.setItem(DEVICE_KEY, id); } catch(e) {}
+    }
+    return id;
+  };
+  const deviceId = getDeviceId();
 
   // ─── Knowledge ───────────────────────────────
   const WEB3 = {
@@ -57,19 +72,12 @@
     "This part's tricky! Want me to break it down?",
   ];
 
-  const ENCOURAGEMENT = [
-    "You're doing amazing! Every explorer starts somewhere.",
-    "Keep going! Great blockchain builders never give up.",
-    "You've got this! Gerry believes in you!",
-    "Making mistakes is how we learn. Try again!",
-    "Baaaa-rilliant effort!",
-  ];
-
   // ─── State ───────────────────────────────────
   let messages = [];
   let settings = { enabled: true, voice: true, failCount: 0 };
   let isOpen = false;
   let stuckTimeout = null;
+  let syncTimeout = null;
   let dragState = { dragging: false, offsetX: 0, offsetY: 0 };
 
   try { messages = JSON.parse(localStorage.getItem(GERRY_KEY)) || []; } catch(e) {}
@@ -82,7 +90,7 @@
 
   // ─── Detect game type from URL ───────────────
   const detectGame = () => {
-    const url = window.location.hostname;
+    const url = window.location.hostname + window.location.pathname;
     if (url.includes('miner')) return 'miners';
     if (url.includes('wallet')) return 'wallet';
     if (url.includes('retro') || url.includes('arcade')) return 'retro';
@@ -90,15 +98,15 @@
     if (url.includes('money') || url.includes('future')) return 'money';
     return 'general';
   };
+  const currentGame = detectGame();
 
-  // ─── Response engine ─────────────────────────
-  const getResponse = (input) => {
+  // ─── Response engine (fallback) ──────────────
+  const getLocalResponse = (input) => {
     const q = input.toLowerCase().trim();
     for (const [k, v] of Object.entries(WEB3)) {
       if (q.includes(k.replace('_', ' ')) || q.includes(k)) return v;
     }
-    const game = detectGame();
-    const hints = GAME_HINTS[game];
+    const hints = GAME_HINTS[currentGame];
     if (hints && (q.includes('hint') || q.includes('help') || q.includes('stuck') || q.includes('tip'))) {
       return hints[Math.floor(Math.random() * hints.length)];
     }
@@ -106,13 +114,66 @@
       return "Hey explorer! I'm Gerry the Goat — your Web3 buddy! Ask about blockchain, tokens, NFTs, or say 'hint' for game tips!";
     }
     if (q.includes('story') || q.includes('what if') || q.includes('imagine')) {
-      return "What if Gerry the Goat accidentally mined a Bitcoin while looking for snacks? He'd probably try to eat it! But seriously — every block in the chain is like a page in a story only computers can write.";
+      return "What if Gerry the Goat accidentally mined a Bitcoin while looking for snacks? He'd probably try to eat it!";
     }
     return [
       "Great question! Try asking about blockchain, mining, NFTs, or wallets.",
       "Hmm, still learning that one! Try asking about Web3 topics or say 'hint' for game tips!",
       "Baaaa! Ask about crypto, smart contracts, tokens, or say 'help' for a game hint!",
     ][Math.floor(Math.random() * 3)];
+  };
+
+  // ─── LLM response via hub API ────────────────
+  const getLLMResponse = async (input) => {
+    try {
+      const resp = await fetch(`${HUB_API}/api/gerry/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: input,
+          hero: 'gerry',
+          session_id: 'injectable_' + deviceId
+        })
+      });
+      if (!resp.ok) throw new Error('API error');
+      const data = await resp.json();
+      return data.reply;
+    } catch (e) {
+      return null; // Will fall back to local
+    }
+  };
+
+  // ─── Cloud sync ──────────────────────────────
+  const syncToCloud = async () => {
+    try {
+      await fetch(`${HUB_API}/api/gerry/history/${deviceId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: messages.slice(-50), game: currentGame })
+      });
+    } catch (e) { /* offline, skip */ }
+  };
+
+  const debouncedSync = () => {
+    clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(syncToCloud, 2000);
+  };
+
+  const fetchCloudHistory = async () => {
+    try {
+      const resp = await fetch(`${HUB_API}/api/gerry/history/${deviceId}`);
+      if (!resp.ok) return;
+      const data = await resp.json();
+      if (data.messages && data.messages.length > 0) {
+        const localTs = new Set(messages.map(m => m.ts));
+        const cloudNew = data.messages.filter(m => !localTs.has(m.ts));
+        if (cloudNew.length > 0) {
+          messages = [...messages, ...cloudNew].sort((a, b) => a.ts - b.ts).slice(-50);
+          save();
+          renderMessages();
+        }
+      }
+    } catch (e) { /* offline, skip */ }
   };
 
   // ─── Voice ───────────────────────────────────
@@ -151,26 +212,39 @@
     save();
   };
 
-  // Expose difficulty check for games
   window.__gerryGetDifficulty = function() {
     return localStorage.getItem(DIFFICULTY_KEY) || 'normal';
   };
 
   // ─── DOM ─────────────────────────────────────
   const CSS = `
-    #gerry-root{position:fixed;bottom:24px;right:24px;z-index:99999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+    #gerry-root{position:fixed;bottom:24px;left:24px;z-index:99999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
     #gerry-root *{box-sizing:border-box;margin:0;padding:0}
-    #gerry-bubble{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#ff6b35,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;border:2px solid rgba(255,107,53,0.5);box-shadow:0 0 20px rgba(255,107,53,0.3);transition:transform .2s,box-shadow .2s;user-select:none}
+    #gerry-bubble{width:64px;height:64px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid rgba(255,107,53,0.5);box-shadow:0 0 20px rgba(255,107,53,0.3);transition:transform .2s,box-shadow .2s;user-select:none;position:relative}
     #gerry-bubble:hover{transform:scale(1.1);box-shadow:0 0 30px rgba(255,107,53,0.5)}
+    #gerry-bubble img{width:100%;height:100%;object-fit:cover}
     #gerry-bubble .notif{position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#22d3ee;border:2px solid #0a0a1a;font-size:9px;font-weight:900;color:#000;display:flex;align-items:center;justify-content:center}
-    #gerry-bubble .grip{position:absolute;top:-4px;left:-4px;width:18px;height:18px;border-radius:50%;background:#1f2937;border:1px solid #4b5563;display:flex;align-items:center;justify-content:center;cursor:grab;opacity:0;transition:opacity .2s;font-size:10px;color:#9ca3af}
+    #gerry-bubble .grip{position:absolute;top:-4px;left:-4px;width:18px;height:18px;border-radius:50%;background:#1f2937;border:1px solid #4b5563;display:flex;align-items:center;justify-content:center;cursor:grab;opacity:0;transition:opacity .2s;font-size:10px;color:#9ca3af;z-index:2}
     #gerry-bubble:hover .grip{opacity:1}
+    #gerry-glow{position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from 0deg,#ff6b35,#f59e0b,#9b5de5,#00d4ff,#ff6b35);opacity:0.5;filter:blur(6px);animation:gerry-spin 4s linear infinite;pointer-events:none}
+    @keyframes gerry-spin{to{transform:rotate(360deg)}}
+    @keyframes gerry-float{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-4px) rotate(-2deg)}75%{transform:translateY(-6px) rotate(2deg)}}
+    #gerry-bubble-wrap{animation:gerry-float 3s ease-in-out infinite;position:relative}
+    #gerry-sparkles{position:absolute;inset:-10px;pointer-events:none}
+    #gerry-sparkles span{position:absolute;width:5px;height:5px;border-radius:50%;animation:gerry-sparkle 2.5s ease-in-out infinite}
+    #gerry-sparkles .s1{background:#fde047;top:0;left:50%;animation-delay:0s}
+    #gerry-sparkles .s2{background:#67e8f9;top:50%;right:0;animation-delay:0.5s}
+    #gerry-sparkles .s3{background:#fb923c;bottom:0;left:25%;animation-delay:1s}
+    #gerry-sparkles .s4{background:#c084fc;top:25%;left:0;animation-delay:1.5s}
+    @keyframes gerry-sparkle{0%,100%{opacity:0;transform:translate(0,0) scale(.4)}30%{opacity:1;transform:translate(4px,-8px) scale(1)}70%{opacity:.4;transform:translate(6px,-14px) scale(.6)}95%{opacity:0;transform:translate(4px,-20px) scale(.2)}}
     #gerry-panel{width:340px;margin-bottom:12px;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(255,107,53,0.3);box-shadow:0 0 40px rgba(255,107,53,0.2);display:none}
     #gerry-panel.open{display:block}
     #gerry-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(90deg,rgba(234,88,12,0.9),rgba(217,119,6,0.9))}
     #gerry-header .info{display:flex;align-items:center;gap:8px}
+    #gerry-header .info img{width:28px;height:28px;border-radius:50%;object-fit:cover}
     #gerry-header .name{font-size:13px;font-weight:900;color:#fff;letter-spacing:1px}
     #gerry-header .sub{font-size:9px;color:#fed7aa;font-weight:500}
+    #gerry-header .sync-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;margin-left:6px;vertical-align:middle}
     #gerry-header button{background:none;border:none;color:#fff;cursor:pointer;padding:4px;border-radius:6px;font-size:16px;opacity:0.8;transition:opacity .2s}
     #gerry-header button:hover{opacity:1;background:rgba(255,255,255,0.1)}
     #gerry-msgs{height:260px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
@@ -178,10 +252,11 @@
     #gerry-msgs::-webkit-scrollbar-thumb{background:#374151;border-radius:4px}
     .gerry-msg{display:flex;gap:8px;max-width:85%}
     .gerry-msg.user{align-self:flex-end;flex-direction:row-reverse}
-    .gerry-msg .avatar{font-size:16px;flex-shrink:0;margin-top:2px}
+    .gerry-msg .avatar{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-top:2px}
     .gerry-msg .bubble{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5}
     .gerry-msg.bot .bubble{background:rgba(154,52,18,0.25);color:#fed7aa;border:1px solid rgba(255,107,53,0.2);border-bottom-left-radius:4px}
     .gerry-msg.user .bubble{background:rgba(6,182,212,0.2);color:#a5f3fc;border-bottom-right-radius:4px}
+    .gerry-msg .game-tag{font-size:9px;color:#6b7280;margin-top:2px}
     #gerry-quick{padding:6px 12px;display:flex;flex-wrap:wrap;gap:4px}
     #gerry-quick button{font-size:10px;padding:4px 10px;border-radius:99px;background:#1f2937;border:1px solid #374151;color:#9ca3af;cursor:pointer;transition:all .15s}
     #gerry-quick button:hover{color:#fb923c;border-color:rgba(249,115,22,0.5)}
@@ -204,7 +279,13 @@
   root.innerHTML = `
     <div id="gerry-panel">
       <div id="gerry-header">
-        <div class="info"><span style="font-size:22px">🐐</span><div><div class="name">GERRY</div><div class="sub">Web3 Companion</div></div></div>
+        <div class="info">
+          <img src="${GERRY_IMG}" alt="Gerry" />
+          <div>
+            <div class="name">GERRY <span class="sync-dot" title="Synced across games"></span></div>
+            <div class="sub">Web3 Companion</div>
+          </div>
+        </div>
         <div style="display:flex;gap:4px">
           <button id="gerry-voice-btn" title="Toggle voice">🔊</button>
           <button id="gerry-close-btn">✕</button>
@@ -218,16 +299,21 @@
       </div>
       <div id="gerry-easy" style="display:none">Easy mode active — Gerry's got your back!</div>
     </div>
-    <div id="gerry-bubble" style="position:relative">
-      <div class="grip">⠿</div>
-      🐐
-      <div class="notif" style="display:none">0</div>
+    <div id="gerry-bubble-wrap">
+      <div id="gerry-sparkles"><span class="s1"></span><span class="s2"></span><span class="s3"></span><span class="s4"></span></div>
+      <div id="gerry-glow"></div>
+      <div id="gerry-bubble">
+        <div class="grip">⠿</div>
+        <img src="${GERRY_IMG}" alt="Gerry the Goat" />
+        <div class="notif" style="display:none">0</div>
+      </div>
     </div>
   `;
   document.body.appendChild(root);
 
   // Elements
   const panel = root.querySelector('#gerry-panel');
+  const bubbleWrap = root.querySelector('#gerry-bubble-wrap');
   const bubble = root.querySelector('#gerry-bubble');
   const msgsEl = root.querySelector('#gerry-msgs');
   const inputEl = root.querySelector('#gerry-input');
@@ -241,12 +327,13 @@
 
   // ─── Render ──────────────────────────────────
   const renderMessages = () => {
-    msgsEl.innerHTML = messages.map(m =>
-      `<div class="gerry-msg ${m.role === 'user' ? 'user' : 'bot'}">
-        ${m.role === 'gerry' ? '<span class="avatar">🐐</span>' : ''}
-        <div class="bubble">${m.role === 'gerry' ? m.text : m.text}</div>
-      </div>`
-    ).join('');
+    msgsEl.innerHTML = messages.map(m => {
+      const gameTag = m.game && m.game !== currentGame ? `<div class="game-tag">from ${m.game}</div>` : '';
+      return `<div class="gerry-msg ${m.role === 'user' ? 'user' : 'bot'}">
+        ${m.role === 'gerry' ? `<img class="avatar" src="${GERRY_IMG}" alt="G"/>` : ''}
+        <div><div class="bubble">${m.text}</div>${gameTag}</div>
+      </div>`;
+    }).join('');
     msgsEl.scrollTop = msgsEl.scrollHeight;
     notifEl.textContent = Math.min(messages.length, 9);
     notifEl.style.display = !isOpen && messages.length > 0 ? 'flex' : 'none';
@@ -255,11 +342,12 @@
   };
 
   const addMessage = (role, text) => {
-    messages.push({ role, text, ts: Date.now() });
+    messages.push({ role, text, ts: Date.now(), game: currentGame });
     save();
     renderMessages();
     if (role === 'gerry') speak(text);
     resetStuckTimer();
+    debouncedSync();
   };
 
   // Quick actions
@@ -269,12 +357,16 @@
     if (e.target.dataset.q) { inputEl.value = e.target.dataset.q; sendMessage(); }
   });
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const text = inputEl.value.trim();
     if (!text) return;
     inputEl.value = '';
     addMessage('user', text);
-    setTimeout(() => addMessage('gerry', getResponse(text)), 300);
+
+    // Try LLM first, fall back to local rules
+    const llmReply = await getLLMResponse(text);
+    const reply = llmReply || getLocalResponse(text);
+    setTimeout(() => addMessage('gerry', reply), 300);
   };
 
   // ─── Events ──────────────────────────────────
@@ -282,18 +374,18 @@
     isOpen = !isOpen;
     panel.classList.toggle('open', isOpen);
     if (isOpen && messages.length === 0) {
-      addMessage('gerry', "Baaaa! Hey there, I'm Gerry the Goat — your Web3 buddy! Ask me anything about blockchain, crypto, NFTs, or say 'hint' for game tips!");
+      addMessage('gerry', "Baaaa! Hey there, I'm Gerry the Goat — your Web3 buddy! Ask me anything about blockchain, crypto, NFTs, or say 'hint' for game tips! I remember our chats from other BlockQuest games too!");
     }
     renderMessages();
     if (isOpen) { inputEl.focus(); resetStuckTimer(); }
   };
 
-  bubble.addEventListener('click', (e) => {
+  bubbleWrap.addEventListener('click', (e) => {
     if (e.target.closest('.grip')) return;
     toggleOpen();
   });
 
-  bubble.addEventListener('mouseenter', () => {
+  bubbleWrap.addEventListener('mouseenter', () => {
     if (!isOpen) speak("Need help? Tap me for Web3 tips and game hints!");
   });
 
@@ -324,7 +416,6 @@
     root.style.left = Math.max(0, Math.min(window.innerWidth - 70, cx - dragState.offsetX)) + 'px';
     root.style.top = Math.max(0, Math.min(window.innerHeight - 70, cy - dragState.offsetY)) + 'px';
     root.style.bottom = 'auto';
-    root.style.right = 'auto';
   }
   function endDrag() {
     dragState.dragging = false;
@@ -334,5 +425,8 @@
     document.removeEventListener('touchend', endDrag);
   }
 
+  // ─── Init ────────────────────────────────────
   renderMessages();
+  // Fetch cloud history on load (merge cross-game conversations)
+  fetchCloudHistory();
 })();

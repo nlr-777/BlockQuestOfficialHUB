@@ -121,6 +121,8 @@ const STUCK_TIPS = [
 
 const GERRY_KEY = 'blockquest_gerry';
 const GERRY_SETTINGS_KEY = 'blockquest_gerry_settings';
+const DEVICE_KEY = 'blockquest_device_id';
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const loadHistory = () => {
   try {
@@ -254,6 +256,53 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
   }, [settings.voice]);
 
   const sessionId = useRef('gerry_' + (localStorage.getItem('blockquest_device_id') || 'anon'));
+  const syncTimeout = useRef(null);
+
+  // Sync conversation to cloud (debounced)
+  const syncToCloud = useCallback(async (msgs) => {
+    const deviceId = localStorage.getItem(DEVICE_KEY);
+    if (!API_URL || !deviceId) return;
+    try {
+      await fetch(`${API_URL}/api/gerry/history/${deviceId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: msgs.slice(-50), game: 'hub' })
+      });
+    } catch (e) {
+      console.warn('Gerry history sync failed', e);
+    }
+  }, []);
+
+  const debouncedCloudSync = useCallback((msgs) => {
+    clearTimeout(syncTimeout.current);
+    syncTimeout.current = setTimeout(() => syncToCloud(msgs), 2000);
+  }, [syncToCloud]);
+
+  // Fetch and merge cloud history on mount
+  useEffect(() => {
+    const fetchCloudHistory = async () => {
+      const deviceId = localStorage.getItem(DEVICE_KEY);
+      if (!API_URL || !deviceId) return;
+      try {
+        const resp = await fetch(`${API_URL}/api/gerry/history/${deviceId}`);
+        const data = await resp.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(prev => {
+            const localTs = new Set(prev.map(m => m.ts));
+            const newFromCloud = data.messages.filter(m => !localTs.has(m.ts));
+            if (newFromCloud.length === 0) return prev;
+            const merged = [...prev, ...newFromCloud].sort((a, b) => a.ts - b.ts).slice(-50);
+            saveHistory(merged);
+            return merged;
+          });
+        }
+      } catch (e) {
+        console.warn('Could not fetch Gerry cloud history', e);
+      }
+    };
+    fetchCloudHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Send message
   const send = useCallback(async () => {
@@ -286,10 +335,11 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
     setMessages(prev => {
       const next = [...prev, gerryMsg];
       saveHistory(next);
+      debouncedCloudSync(next);
       return next;
     });
     speak(reply);
-  }, [input, selectedHero, speak]);
+  }, [input, selectedHero, speak, debouncedCloudSync]);
 
   // Difficulty auto-scaling: track fail mentions
   const reportFail = useCallback(() => {
@@ -486,6 +536,14 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
         {/* Glow ring */}
         <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 opacity-60 blur-sm group-hover:opacity-100 group-hover:blur-md transition-all animate-pulse" />
 
+        {/* Sparkle particles */}
+        <div className="absolute -inset-3 pointer-events-none">
+          <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-sparkle-1" />
+          <div className="absolute top-1/2 right-0 w-1 h-1 bg-cyan-300 rounded-full animate-sparkle-2" />
+          <div className="absolute bottom-0 left-1/4 w-1.5 h-1.5 bg-orange-300 rounded-full animate-sparkle-3" />
+          <div className="absolute top-1/4 left-0 w-1 h-1 bg-purple-300 rounded-full animate-sparkle-4" />
+        </div>
+
         {/* Drag handle */}
         <div
           onMouseDown={onDragStart}
@@ -495,8 +553,8 @@ const GerryCompanion = ({ selectedHero = 'gerry', enabled: parentEnabled }) => {
           <GripVertical className="w-3 h-3 text-gray-400" />
         </div>
 
-        {/* Avatar */}
-        <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform bg-gradient-to-br from-orange-500/20 to-purple-600/20">
+        {/* Avatar with bounce */}
+        <div className="relative w-16 h-16 rounded-full overflow-hidden shadow-lg shadow-orange-500/30 border-2 border-orange-400/50 group-hover:scale-110 transition-transform bg-gradient-to-br from-orange-500/20 to-purple-600/20 animate-gerry-bounce">
           <img src={GERRY_AVATAR} alt="Gerry the Goat" className="w-full h-full object-cover" />
         </div>
 
