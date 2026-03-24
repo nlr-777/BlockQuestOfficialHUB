@@ -31,14 +31,14 @@ Create a landing page for "BlockQuest" that evolved into a comprehensive, intera
 - `profiles`: id, username, faction_id, avatar_seed, public_title
 
 ### Game Data
-- `game_progress`: id, player_id, current_level, current_phase, inventory, etc.
+- `game_progress`: id, player_id (unique), current_level, current_phase, inventory (jsonb), user_name, user_email, auth_user_id, etc.
 - `smart_contracts`: id, player_id, placed_blocks, tests_passed, etc.
 - `notebooks`: id, player_id, entries, villager_copies, etc.
 - `game_stats`: id, user_id, score, inventory, last_played
 - `player_progress`: user_id, game_id, level, xp, inventory
 
 ### Scores/Leaderboard
-- `scores`: id, user_id, game, score, faction_bonus
+- `scores`: id, user_id (FK -> profiles.id, nullable), game, score, faction_bonus
 - `unified_scores`: id, user_id, game_id, score, metadata
 
 ### Other
@@ -47,86 +47,53 @@ Create a landing page for "BlockQuest" that evolved into a comprehensive, intera
 
 ## What's Been Implemented
 
-### Phase 1: Core Landing Page (Complete)
-- Hero section with banner, game funnel cards
-- Header, footer, parent section
-- Book section with character portraits
-- FAQ page, Privacy Policy, Terms & Conditions
-
-### Phase 2: Interactive Dashboard (Complete)
-- `useProgress` hook with localStorage persistence
-- CharacterSelector, QuestLog, DailyQuest, ProgressOverview
-- Confetti animations on claim actions
-- FloatingGoatPanel resource hub with Web3 glossary
-
-### Phase 3: Arcade Zone (Complete)
-- 4-card QuestSection grid (Retro Arcade, Miners, Wallet Adventure, NFT Studio)
-- Links to Vercel-hosted games
-
-### Phase 4: Backend + Supabase (Complete)
-- FastAPI server connected to Supabase
-- Newsletter subscribe/read endpoints
-- Game stats CRUD endpoints
-- Site content endpoints
+### Phase 1-4: Core App (Complete)
+- Hero section, header, footer, parent section, book section
+- Interactive dashboard with useProgress hook, character selector, quest log, daily quests
+- Arcade zone with 4 game cards
+- FastAPI backend + Supabase integration, newsletter, game stats CRUD
 
 ### Phase 5: RLS Security Fix (Complete - March 2026)
-- Full audit of all 17 tables
-- Comprehensive SQL migration applied
-- RLS enabled on ALL tables with proper policies:
-  - CMS tables: public read, admin-only write
-  - Newsletter: public subscribe, admin read
-  - Leaderboards: public read, player submit
-  - Game data: anon read/write (for no-login games)
-  - Users: auth-only, own-row access (password_hash protected)
-- Admin endpoints: /api/admin/rls-audit, /api/admin/rls-verify, /api/admin/rls-sql
-- Service role key integrated for admin operations
-- `users_public` view created to exclude password_hash
-- 21/21 backend tests passing
+- Full audit and migration of all 17 tables with proper RLS policies
 
-### Phase 6: Book 1 PDF Download (Complete - March 2026)
-- Added Book 1 "Money's Origin Story" PDF as free download
-- Book 1 button changed from "Coming Soon" to "Free Download" (green, links to PDF)
-- Resource Hub Stories tab updated with Book 1 download entry
-- Resource Hub Decks updated: Book 1 renamed "From Goats to Bitcoin", Book 2 added "The Unbreakable Record", Books 3-4 removed
-- 5 new glossary terms + Public Key added (17 total)
-- Rolling announcement banner in hero section (3 rotating messages)
-- Other books (2-5) retain "Coming Soon" buttons
+### Phase 6: Book 1 PDF + Glossary + Banner (Complete - March 2026)
+- Book PDFs, 17-term glossary, rolling announcement banner
 
 ### Phase 7: Gerry AI Companion (Complete - March 2026)
-- Floating draggable goat chat bubble (bottom-right)
-- Rule-based response engine with 17 Web3 concepts, game-specific hints for all 5 games, hero-personalized stories
-- Web Speech API voice-over on hover and for responses
-- Auto-detect stuck state (45s idle timer → proactive tip)
-- Personalized "what-if" stories based on selected hero (Gerry, Zara, Sam, Miko, Ollie, Lila)
-- Difficulty auto-scaling: 3 fails → easy mode flag in localStorage
-- Conversation history persisted in localStorage
-- Parent Hub toggle to enable/disable Gerry
-- Injectable vanilla JS script for all 5 Vercel games (`/gerry-injectable.js`)
-- Quick action buttons: "What is blockchain?", "Tell me a story", "Game hint", "What is an NFT?"
+- Floating draggable goat chat with LLM integration (GPT-4.1-mini)
+- Injectable script for external games
 
 ### Phase 8: Full Stack Upgrade (Complete - March 2026)
-- **Progress Sync to Supabase**: Device UUID-based, uses `game_progress` table with jsonb inventory
-  - `GET /api/progress/{device_id}` + `PUT /api/progress/{device_id}`
-  - ProgressContext provider syncs localStorage → Supabase (debounced 2s)
-  - localStorage stays as fast cache, Supabase as cloud backup
-- **Cross-Game Leaderboard**: `/leaderboard` route with 60 demo scores across 5 games
-  - Filter by game, medals for top 3, stats summary
-  - `GET /api/leaderboard`, `POST /api/leaderboard/submit`, `GET /api/leaderboard/games`
-  - Header nav link added
-- **Gerry LLM Integration**: GPT-4.1-mini via Emergent Universal Key
-  - `POST /api/gerry/chat` with conversation memory per session
-  - Kid-friendly system prompt, hero-personalized, rule-based fallback
-- **React Context Refactor**: ProgressProvider wraps app, removes prop drilling
-- **Data Module Split**: mock.js → books.js, characters.js, games.js, social.js
+- Progress sync (localStorage -> Supabase via device UUID)
+- Cross-game leaderboard with demo data
+- Gerry LLM integration
+- React Context refactor, data module split
+
+### Phase 9: Leaderboard Profiles + Returning Explorer (Complete - March 2026)
+- **Display Name System**: Users set custom names via modal, saved to game_progress.user_name + inventory JSONB
+  - `GET/PUT /api/profile/{device_id}` endpoints
+  - Name synced to backend on save, propagated to all leaderboard entries
+- **Real Player Score Submission**: Submit Score form on leaderboard page
+  - Stored in game_progress with current_phase='leaderboard' (bypasses scores FK constraint)
+  - One best score per device per game (higher scores replace lower)
+  - `POST /api/leaderboard/submit` with ScoreSubmitRequest body
+- **Merged Leaderboard**: Demo scores from `scores` table + real player scores from `game_progress`
+  - Real players marked with "PLAYER" badge (is_real: true)
+  - Sorted by score descending, ranked
+- **Returning Explorer**: Welcome-back modal after 4+ hours of inactivity
+  - Tracks `last_active` in localStorage, updated every 60s
+  - Shows XP, streak status, quest count, leaderboard encouragement
+  - Dismissible modal on homepage
 
 ## Pending/Known Issues
 - `game_stats` has FK constraint to `users` table (expected behavior)
+- `scores.user_id` has FK to `profiles.id` - real player scores stored in game_progress instead
 - Vercel deployments may need "Save to GitHub" sync before redeploy
 
 ## Backlog (P2)
-- Refine leaderboard with real user profiles when auth is added
 - Add more books to the Stories/Decks sections
 - Optional: Connect injectable script to hub for cross-game conversation sync
+- DO NOT activate dormant Web3 teasers or Merch Section
 
 ## Key API Endpoints
 - `GET /api/` - Health check
@@ -135,15 +102,18 @@ Create a landing page for "BlockQuest" that evolved into a comprehensive, intera
 - `GET /api/content` - Site content
 - `GET/POST/PUT/DELETE /api/game/stats/{user_id}` - Game stats CRUD
 - `GET /api/progress/{device_id}` - Fetch player progress
-- `PUT /api/progress/{device_id}` - Save/update progress to Supabase
-- `GET /api/leaderboard` - Cross-game leaderboard (filterable by ?game=)
-- `POST /api/leaderboard/submit` - Submit score
+- `PUT /api/progress/{device_id}` - Save/update progress
+- `GET /api/profile/{device_id}` - Get player display name
+- `PUT /api/profile/{device_id}` - Set player display name
+- `GET /api/leaderboard` - Merged leaderboard (demo + real players)
+- `POST /api/leaderboard/submit` - Submit real player score (JSON body)
 - `GET /api/leaderboard/games` - List games with scores
-- `POST /api/gerry/chat` - LLM-powered Gerry chat (GPT-4.1-mini)
-- `GET /api/admin/rls-audit` - RLS audit results
+- `POST /api/gerry/chat` - LLM-powered Gerry chat
+- `GET /api/admin/rls-audit` - RLS audit
 - `GET /api/admin/rls-verify` - RLS verification tests
 - `GET /api/admin/rls-sql` - Get migration SQL
 
 ## 3rd Party Integrations
 - Supabase (PostgreSQL + Auth + RLS)
+- Emergent LLM Key (GPT-4.1-mini for Gerry AI)
 - react-confetti (animations)
